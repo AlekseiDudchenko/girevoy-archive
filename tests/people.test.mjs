@@ -25,6 +25,7 @@ test('joint coach strings become separate person roles', async () => {
     assert.ok(coaches.length > 1);
     assert.ok(coaches.every((c) => c.slug && c.athletes.length));
     assert.ok(coaches.every((c) => !c.name.includes(',')));
+    assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[56]$/.test(a.last_year)));
   } finally { sql.close(); }
 });
 
@@ -47,10 +48,10 @@ test('person page renders only populated roles and activity comes first', () => 
   const html = renderPerson({
     person: { display_name: '<Персона>' },
     activities: [{ organization: 'Федерация', position: 'Председатель' }],
-    coachedAthletes: [{ name: 'A&B', slug: 'a', regions: ['Москва'] }],
+    coachedAthletes: [{ name: 'A&B (2026)', slug: 'a', regions: ['Москва'] }],
     judgeRoles: [], athleteData: null, L: links.worker,
   });
-  assert.ok(html.includes('&lt;Персона&gt;') && html.includes('A&amp;B'));
+  assert.ok(html.includes('&lt;Персона&gt;') && html.includes('A&amp;B (2026)'));
   assert.ok(html.indexOf('Спортивный деятель') < html.indexOf('<h2>Тренер</h2>'));
   assert.ok(!html.includes('<h2>Спортсмен</h2>'));
   assert.ok(!html.includes('<h2>Судья</h2>'));
@@ -63,6 +64,21 @@ test('old athlete aliases resolve to the same person', async () => {
     const old = sql.prepare('SELECT slug FROM athlete_slugs WHERE is_current = 0 LIMIT 1').get();
     assert.ok(old);
     assert.ok((await getPerson(db, old.slug)).athleteData.results.length);
+  } finally { sql.close(); }
+});
+
+test('athlete person shows coaches with the last published year', async () => {
+  const { sql, db } = realDb();
+  try {
+    const row = sql.prepare(`SELECT p.slug FROM persons p
+      JOIN person_athletes pa ON pa.person_id = p.id
+      JOIN person_coach_athletes pca ON pca.athlete_id = pa.athlete_id
+      LIMIT 1`).get();
+    assert.ok(row);
+    const person = await getPerson(db, row.slug);
+    assert.ok(person.athleteData.athlete.coaches.length);
+    assert.ok(person.athleteData.athlete.coaches.every((c) => /^202[56]$/.test(c.last_year)));
+    assert.ok(/\(202[56]\)/.test(person.athleteData.athlete.coach));
   } finally { sql.close(); }
 });
 
