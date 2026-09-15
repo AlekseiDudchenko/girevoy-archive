@@ -16,6 +16,44 @@ const html = (body, status = 200) => new Response(body, {
   },
 });
 
+const sortableCoaches = (body) => body.replace(
+  '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
+  '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th></tr></thead>',
+).replace('</body>', `<script>(function () {
+  var table = document.getElementById('coaches-table');
+  if (!table) return;
+  var body = table.tBodies[0];
+  var heads = Array.prototype.slice.call(table.querySelectorAll('th[data-sort]'));
+  var current = -1, dir = 1;
+  function text(row, index) {
+    return row.cells[index].textContent.toLocaleLowerCase('ru').replace(/ё/g, 'е').trim();
+  }
+  function sortBy(head) {
+    var index = Number(head.dataset.sort);
+    dir = current === index ? -dir : 1;
+    current = index;
+    var rows = Array.prototype.slice.call(body.rows);
+    rows.sort(function (a, b) {
+      var x = text(a, index), y = text(b, index);
+      if (x === y) return 0;
+      if (x === '—') return 1;
+      if (y === '—') return -1;
+      return x.localeCompare(y, 'ru') * dir;
+    });
+    rows.forEach(function (row) { body.appendChild(row); });
+    heads.forEach(function (h) {
+      if (h === head) h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+  }
+  heads.forEach(function (head) {
+    head.addEventListener('click', function () { sortBy(head); });
+    head.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); sortBy(head); }
+    });
+  });
+})();</script></body>`);
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -32,7 +70,7 @@ export default {
         return html(renderResults({ rows: await q.listAllResults(db), L }));
       }
       if (path === '/coaches') {
-        return html(renderCoaches({ coaches: await q.listCoaches(db), L }));
+        return html(sortableCoaches(renderCoaches({ coaches: await q.listCoaches(db), L })));
       }
       if (path.startsWith('/p/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
