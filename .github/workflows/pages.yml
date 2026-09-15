@@ -6,7 +6,11 @@ name: Демо на GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # В репозитории пока нет main: ветка разработки и есть ветка по умолчанию.
+    # Когда main появится, вторую строку можно убрать.
+    branches:
+      - main
+      - claude/google-docs-link-review-uny4pe
   workflow_dispatch:
 
 permissions:
