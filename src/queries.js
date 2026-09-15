@@ -50,7 +50,9 @@ export async function getCompetition(db, slug) {
 
   const rows = await db.all(`
     SELECT r.*, a.last_name, a.first_name, a.middle_name, a.birth_year,
-           (SELECT slug FROM athlete_slugs WHERE athlete_id = a.id AND is_current = 1) AS slug,
+           -- слитый дубль ведёт на карточку той записи, в которую слит (FR-A13)
+           (SELECT slug FROM athlete_slugs
+             WHERE athlete_id = COALESCE(a.merged_into_id, a.id) AND is_current = 1) AS slug,
            -- в таблице турнира регион и клуб показываются так, как напечатаны
            -- в этом протоколе: спортсмен общий для турниров, клуб со временем меняется
            COALESCE(r.raw_region, reg.name) AS region,
@@ -69,15 +71,28 @@ export async function getCompetition(db, slug) {
 }
 
 export async function getAthlete(db, slug) {
+  // Адрес может вести на запись, слитую с другой: открываем ту, в которую слили,
+  // а прежний адрес продолжает работать (FR-A13).
   const a = await db.get(`
     SELECT a.*, reg.name AS region, cl.name AS club,
            sr.name AS sport_rank, sr.code AS sport_rank_code
-    FROM athlete_slugs s JOIN athletes a ON a.id = s.athlete_id
+    FROM athlete_slugs s
+    JOIN athletes found ON found.id = s.athlete_id
+    JOIN athletes a ON a.id = COALESCE(found.merged_into_id, found.id)
     LEFT JOIN regions reg ON reg.id = a.region_id
     LEFT JOIN clubs cl ON cl.id = a.club_id
     LEFT JOIN sport_ranks sr ON sr.id = a.sport_rank_id
     WHERE s.slug = ?`, slug);
   if (!a) return null;
+
+  // Написания ФИО из протоколов, отличные от канонического: слияние их прячет,
+  // а читателю важно понимать, почему в протоколе он записан иначе.
+  const spellings = await db.all(`
+    SELECT DISTINCT r.raw_name FROM results r
+     WHERE r.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
+       AND r.raw_name IS NOT NULL AND r.raw_name <> ?
+     ORDER BY r.raw_name`, a.id, a.id, a.full_name);
+  a.other_spellings = spellings.map((s) => s.raw_name);
 
   const results = await db.all(`
     SELECT r.*, d.name AS discipline_name, c.name AS competition, c.slug AS competition_slug,
@@ -89,8 +104,9 @@ export async function getAthlete(db, slug) {
     JOIN categories cat ON cat.id = r.category_id
     LEFT JOIN divisions dv ON dv.id = cat.division_id
     LEFT JOIN sport_ranks sra ON sra.id = r.rank_achieved_id
-    WHERE r.athlete_id = ? AND c.is_published = 1
-    ORDER BY r.event_date DESC`, a.id);
+    WHERE r.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
+      AND c.is_published = 1
+    ORDER BY r.event_date DESC`, a.id, a.id);
 
   const reps = await groupReps(db, results.map((r) => r.id));
   for (const r of results) r.reps = reps.get(r.id) || [];
@@ -98,7 +114,8 @@ export async function getAthlete(db, slug) {
 }
 
 export async function listAthleteSlugs(db) {
-  return db.all(`SELECT slug FROM athlete_slugs WHERE is_current = 1 ORDER BY slug`);
+  // Не только текущие: прежний адрес слитой записи тоже должен открываться.
+  return db.all(`SELECT slug, is_current FROM athlete_slugs ORDER BY slug`);
 }
 
 export async function listAllResults(db) {
@@ -107,7 +124,8 @@ export async function listAllResults(db) {
            r.bell_kg, r.hands, r.time_limit_min, r.event_date,
            d.name AS discipline_name, cat.weight_class_raw, ag.name AS age_group,
            dv.name AS division, a.last_name, a.first_name, a.middle_name,
-           (SELECT slug FROM athlete_slugs WHERE athlete_id = a.id AND is_current = 1) AS slug,
+           (SELECT slug FROM athlete_slugs
+             WHERE athlete_id = COALESCE(a.merged_into_id, a.id) AND is_current = 1) AS slug,
            reg.name AS region, c.name AS competition, c.slug AS competition_slug
     FROM results r
     JOIN athletes a ON a.id = r.athlete_id
