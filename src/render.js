@@ -3,11 +3,13 @@ import { seriesLabel } from './queries.js';
 
 export const links = {
   worker: {
-    home: '/', results: '/results', css: '/style.css',
+    home: '/', results: '/results', coaches: '/coaches', css: '/style.css',
+    person: (s) => `/p/${s}`,
     comp: (s) => `/c/${s}`, athlete: (s) => `/a/${s}`,
   },
   static: {
-    home: 'index.html', results: 'results.html', css: 'style.css',
+    home: 'index.html', results: 'results.html', coaches: 'coaches.html', css: 'style.css',
+    person: (s) => `p-${s}.html`,
     comp: (s) => `c-${s}.html`, athlete: (s) => `a-${s}.html`,
   },
 };
@@ -73,6 +75,7 @@ export function page({ title, description, body, L, active, bare = false }) {
     <nav>
       <a href="${L.home}"${active === 'home' ? ' class="on"' : ''}>Соревнования</a>
       <a href="${L.results}"${active === 'results' ? ' class="on"' : ''}>Все результаты</a>
+      <a href="${L.coaches}"${active === 'coaches' ? ' class="on"' : ''}>Тренеры</a>
     </nav>
   </div>
 </header>
@@ -149,6 +152,38 @@ ${competitions.map((c) => `
   });
 }
 
+export function renderCoaches({ coaches, L }) {
+  return page({ title: 'Тренеры — Гиревой архив', L, active: 'coaches',
+    description: 'Тренеры и связанные с ними спортсмены из опубликованных соревнований.',
+    body: `<h1>Тренеры</h1>
+<p class="lead">По данным спортсменов с результатами в опубликованных соревнованиях.</p>
+<p class="source">Если указано несколько тренеров, спортсмен показан у каждого. Пробелы в инициалах нормализованы; разные написания ФИО не объединяются автоматически. Это не обязательно текущий тренер спортсмена.</p>
+<p class="source">Регион указан по связанным спортсменам, а не как подтверждённое место работы тренера.</p>
+${coaches.length ? `<label for="coach-search">Поиск по имени или региону</label>
+<input id="coach-search" type="search" placeholder="Имя тренера или регион">
+<div class="scroll"><table id="coaches-table">
+<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>
+<tbody>${coaches.map((coach) => `<tr>
+<td><a href="${e(L.person(coach.slug))}">${e(coach.name)}</a></td>
+<td>${e((coach.regions || []).join(', ') || '—')}</td></tr>`).join('')}</tbody></table></div>
+<p id="coach-empty" role="status" hidden>Ничего не найдено.</p>
+<script>(function () {
+  var input = document.getElementById('coach-search');
+  var rows = Array.from(document.querySelectorAll('#coaches-table tbody tr'));
+  function normalize(text) { return text.toLocaleLowerCase('ru').replace(/ё/g, 'е').trim(); }
+  input.addEventListener('input', function () {
+    var terms = normalize(input.value).split(/\\s+/).filter(Boolean);
+    var visible = 0;
+    rows.forEach(function (row) {
+      var text = normalize(row.textContent);
+      row.hidden = !terms.every(function (term) { return text.includes(term); });
+      if (!row.hidden) visible++;
+    });
+    document.getElementById('coach-empty').hidden = visible !== 0;
+  });
+})();</script>` : '<p>В опубликованных данных пока нет тренеров.</p>'}` });
+}
+
 // -------------------------------------------------------------- турнир
 
 export function renderCompetition({ comp, categories, L }) {
@@ -197,7 +232,7 @@ export function renderCompetition({ comp, categories, L }) {
       ${cat.rows.map((r) => `
         <tr>
           <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
-          <td><a href="${L.athlete(r.slug)}">${e(fio(r))}</a></td>
+          <td><a href="${L.person(r.slug)}">${e(fio(r))}</a></td>
           <td class="c n">${r.birth_year || '—'}</td>
           <td class="dim">${e([r.region, r.club].filter(Boolean).join(', '))}</td>
           <td class="r n">${r.body_weight_kg == null ? '—' : r.body_weight_kg.toFixed(1)}</td>
@@ -220,10 +255,13 @@ export function renderCompetition({ comp, categories, L }) {
   });
 }
 
-// ------------------------------------------------------------ спортсмен
+// -------------------------------------------------------------- персона
 
-export function renderAthlete({ athlete, results, L }) {
-  const name = fio(athlete);
+export function renderPerson({ person, activities = [], judgeRoles = [], athleteData,
+  coachedAthletes = [], L }) {
+  const athlete = athleteData?.athlete;
+  const results = athleteData?.results || [];
+  const name = person.display_name;
   const series = new Map();
   for (const r of results) {
     const key = seriesLabel(r);
@@ -233,32 +271,42 @@ export function renderAthlete({ athlete, results, L }) {
   const ordered = [...series.entries()].sort((a, b) => b[1].length - a[1].length);
 
   return page({
-    title: `${name} — результаты`,
-    description: `${name}, ${athlete.birth_year || ''} г. р. Все выступления и динамика результатов.`,
+    title: `${name} — Гиревой архив`,
+    description: `${name}: спортивная деятельность, выступления, тренерская и судейская работа.`,
     L,
     body: `
 <article>
   <div class="page-head">
-    <p class="eyebrow">Спортсмен</p>
-    <h1>${e(name)}${athlete.sport_rank_code
+    <p class="eyebrow">Персона</p>
+    <h1>${e(name)}${athlete?.sport_rank_code
       ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank)}` : ''}</h1>
-    <p class="meta-line">${[athlete.birth_year && `${athlete.birth_year} г. р.`, athlete.region,
-      athlete.club].filter(Boolean).map(e).join(' · ')}</p>
-    ${athlete.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
-    ${athlete.other_spellings?.length
+    <p class="meta-line">${[(person.birth_year || athlete?.birth_year) && `${person.birth_year || athlete.birth_year} г. р.`,
+      person.region || athlete?.region, athlete?.club].filter(Boolean).map(e).join(' · ')}</p>
+    ${athlete?.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
+    ${athlete?.other_spellings?.length
       ? `<p class="source">В протоколах также: ${athlete.other_spellings.map(e).join(', ')}</p>`
       : ''}
   </div>
 
+  ${activities.length ? `<section class="cat person-role">
+    <h2>Спортивный деятель</h2>
+    <div class="scroll"><table><thead><tr><th>Организация</th><th>Должность</th><th>Регион</th><th>Период</th></tr></thead>
+    <tbody>${activities.map((a) => `<tr><td>${a.source_url ? `<a href="${e(a.source_url)}">${e(a.organization)}</a>` : e(a.organization)}</td>
+      <td>${e(a.position)}</td><td>${e(a.region || '—')}</td>
+      <td class="n">${e([a.date_from, a.date_to].filter(Boolean).join(' — ') || '—')}</td></tr>`).join('')}</tbody></table></div>
+  </section>` : ''}
+
+  ${athlete ? `<section class="person-role">
+  <h2>Спортсмен</h2>
   <section class="chart-block">
-    <h2>Динамика результатов</h2>
+    <h3>Динамика результатов</h3>
     <p class="note">Результаты с разным весом снаряда, числом рук или регламентом
     несравнимы между собой и показаны отдельными линиями.</p>
     ${chart(ordered)}
   </section>
 
   <section class="cat">
-    <h2>Выступления</h2>
+    <h3>Выступления</h3>
     <div class="scroll">
     <table>
       <thead><tr>
@@ -283,6 +331,23 @@ export function renderAthlete({ athlete, results, L }) {
     </table>
     </div>
   </section>
+  </section>` : ''}
+
+  ${coachedAthletes.length ? `<section class="cat person-role">
+    <h2>Тренер</h2>
+    <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
+    <div class="scroll"><table><thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>
+    <tbody>${coachedAthletes.map((a) => `<tr><td>${a.slug ? `<a href="${e(L.person(a.slug))}">${e(a.name)}</a>` : e(a.name)}</td>
+      <td>${e(a.regions.join(', ') || '—')}</td></tr>`).join('')}</tbody></table></div>
+  </section>` : ''}
+
+  ${judgeRoles.length ? `<section class="cat person-role">
+    <h2>Судья</h2>
+    <div class="scroll"><table><thead><tr><th>Дата</th><th>Соревнование</th><th>Роль</th></tr></thead>
+    <tbody>${judgeRoles.map((j) => `<tr><td class="n">${e(j.date_start || '—')}</td>
+      <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug))}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
+      <td>${j.source_url ? `<a href="${e(j.source_url)}">${e(j.role)}</a>` : e(j.role)}</td></tr>`).join('')}</tbody></table></div>
+  </section>` : ''}
 </article>`,
   });
 }
@@ -401,7 +466,7 @@ export function renderResults({ rows, L }) {
         data-wc="${weightClassKey(r.weight_class_raw)}" data-comp="${e(r.competition)}"
         data-place="${r.place ?? ''}">
       <td class="n dim">${r.event_date}</td>
-      <td><a href="${L.athlete(r.slug)}">${e(fio(r))}</a></td>
+      <td><a href="${L.person(r.slug)}">${e(fio(r))}</a></td>
       <td>${e(series(r))}</td>
       <td class="c dim">${e(r.weight_class_raw || '—')}</td>
       <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>

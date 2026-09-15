@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import * as q from '../src/queries.js';
-import { links, renderIndex, renderCompetition, renderAthlete, renderResults } from '../src/render.js';
+import { links, renderIndex, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
@@ -25,6 +25,12 @@ const write = (name, body) => writeFileSync(join(OUT, name), body, 'utf8');
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
 write('results.html', renderResults({ rows: await q.listAllResults(db), L }));
+const coaches = await q.listCoaches(db);
+write('coaches.html', renderCoaches({ coaches, L }));
+for (const { slug } of await q.listPersonSlugs(db)) {
+  const data = await q.getPerson(db, slug);
+  write(L.person(slug), renderPerson({ ...data, L }));
+}
 
 for (const c of competitions) {
   const data = await q.getCompetition(db, c.slug);
@@ -34,9 +40,9 @@ for (const c of competitions) {
 const slugs = await q.listAthleteSlugs(db);
 let athletePages = 0;
 for (const { slug } of slugs) {
-  const data = await q.getAthlete(db, slug);
-  if (!data || !data.results.length) continue;
-  write(`a-${slug}.html`, renderAthlete({ ...data, L }));
+  const data = await q.getPerson(db, slug);
+  if (!data?.athleteData?.results.length) continue;
+  write(`a-${slug}.html`, renderPerson({ ...data, L }));
   athletePages++;
 }
 

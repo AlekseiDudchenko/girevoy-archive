@@ -32,7 +32,7 @@ scripts/setup_env.sh             poppler, tesseract, sqlite3; висит на х
 scripts/snapshot.mjs             статический снимок сайта через node:sqlite
 src/queries.js                   запросы; адаптер даёт all()/get() — D1 и node:sqlite
 src/render.js                    HTML всех публичных страниц + SVG-график, чистые функции
-src/worker.js                    Cloudflare Worker поверх D1, маршруты /, /c/:slug, /a/:slug, /results
+src/worker.js                    Cloudflare Worker поверх D1, маршруты /, /c/:slug, /p/:slug, /a/:slug, /results
 public/style.css                 токены тем, таблицы, график
 wrangler.toml                    привязки D1 и R2
 .github/workflows/pages.yml      сборка снимка на GitHub Pages
@@ -65,7 +65,10 @@ extraction_runs  руки, минуты
 | `categories` | разрез внутри турнира, в котором разыгрываются места: дисциплина × пол × возраст × зачёт × вес снаряда × `hands` × регламент × весовая категория. `is_deferred = 1` — раздел протокола не оцифрован |
 | `results` | строка протокола: место, `total_reps` или `points`, `result_value` (генерируемая — по ней сортировка), личный вес, продублированный ключ серии, сырые значения из PDF, происхождение |
 | `result_reps` | подъёмы: `result_id` × упражнение × рука. Отдельной таблицей, потому что набор дисциплин открытый |
-| `athletes` | ФИО, год рождения, регион, клуб, тренер, разряд, `merged_into_id` для обратимого слияния |
+| `persons` | публичная карточка человека; роли подключаются отдельными связями и показываются только при наличии данных |
+| `person_activities` / `person_judge_roles` | должности в спортивных организациях и работа судьёй |
+| `athletes` | данные роли спортсмена: ФИО, год рождения, регион, клуб, тренер, разряд, `merged_into_id` |
+| `person_athletes` / `person_coach_athletes` | подтверждённая роль спортсмена и связи тренера со спортсменами |
 | `athlete_slugs` | все адреса, которые когда-либо вели на спортсмена — держит устойчивые URL при слиянии и переименовании |
 
 **Конвейер**

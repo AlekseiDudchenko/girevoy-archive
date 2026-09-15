@@ -1,0 +1,75 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { readFileSync } from 'node:fs';
+import { listCoaches, getPerson } from '../src/queries.js';
+import { renderCoaches, renderPerson, links } from '../src/render.js';
+
+const files = ['migrations/0001_init.sql', 'seeds/0001_reference.sql',
+  'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql',
+  'seeds/0005_merges.sql', 'seeds/0006_people.sql'];
+
+function realDb() {
+  const sql = new DatabaseSync(':memory:');
+  for (const file of files) sql.exec(readFileSync(file, 'utf8'));
+  return { sql, db: {
+    all: async (query, ...params) => sql.prepare(query).all(...params),
+    get: async (query, ...params) => sql.prepare(query).get(...params) ?? null,
+  } };
+}
+
+test('joint coach strings become separate person roles', async () => {
+  const { sql, db } = realDb();
+  try {
+    const coaches = await listCoaches(db);
+    assert.ok(coaches.length > 1);
+    assert.ok(coaches.every((c) => c.slug && c.athletes.length));
+    assert.ok(coaches.every((c) => !c.name.includes(',')));
+  } finally { sql.close(); }
+});
+
+test('person page renders only populated roles and activity comes first', () => {
+  const html = renderPerson({
+    person: { display_name: '<Персона>' },
+    activities: [{ organization: 'Федерация', position: 'Председатель' }],
+    coachedAthletes: [{ name: 'A&B', slug: 'a', regions: ['Москва'] }],
+    judgeRoles: [], athleteData: null, L: links.worker,
+  });
+  assert.ok(html.includes('&lt;Персона&gt;') && html.includes('A&amp;B'));
+  assert.ok(html.indexOf('Спортивный деятель') < html.indexOf('<h2>Тренер</h2>'));
+  assert.ok(!html.includes('<h2>Спортсмен</h2>'));
+  assert.ok(!html.includes('<h2>Судья</h2>'));
+  assert.ok(html.includes(`href="${links.worker.person('a')}"`));
+});
+
+test('old athlete aliases resolve to the same person', async () => {
+  const { sql, db } = realDb();
+  try {
+    const old = sql.prepare('SELECT slug FROM athlete_slugs WHERE is_current = 0 LIMIT 1').get();
+    assert.ok(old);
+    assert.ok((await getPerson(db, old.slug)).athleteData.results.length);
+  } finally { sql.close(); }
+});
+
+test('stored person can combine athlete, coach, official and judge roles', async () => {
+  const { sql, db } = realDb();
+  try {
+    const athlete = sql.prepare('SELECT person_id FROM person_athletes LIMIT 1').get();
+    const coached = sql.prepare('SELECT athlete_id FROM person_coach_athletes LIMIT 1').get();
+    sql.prepare('INSERT OR IGNORE INTO person_coach_athletes VALUES (?, ?)').run(athlete.person_id, coached.athlete_id);
+    sql.prepare("INSERT INTO person_activities(person_id, organization, position) VALUES (?, 'Федерация', 'Председатель')").run(athlete.person_id);
+    sql.prepare("INSERT INTO person_judge_roles(person_id, role) VALUES (?, 'Главный судья')").run(athlete.person_id);
+    const slug = sql.prepare('SELECT slug FROM persons WHERE id = ?').get(athlete.person_id).slug;
+    const person = await getPerson(db, slug);
+    assert.ok(person.athleteData.results.length);
+    assert.ok(person.coachedAthletes.length);
+    assert.equal(person.activities.length, 1);
+    assert.equal(person.judgeRoles.length, 1);
+  } finally { sql.close(); }
+});
+
+test('coaches table links to person pages and includes search', () => {
+  const html = renderCoaches({ coaches: [{ name: 'Тренер', slug: 'coach-1', regions: ['Омск'] }], L: links.static });
+  assert.ok(html.includes('id="coach-search"'));
+  assert.ok(html.includes('href="p-coach-1.html"'));
+});

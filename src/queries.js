@@ -118,6 +118,88 @@ export async function listAthleteSlugs(db) {
   return db.all(`SELECT slug, is_current FROM athlete_slugs ORDER BY slug`);
 }
 
+export async function listCoaches(db) {
+  const rows = await db.all(`
+    SELECT DISTINCT p.id AS person_id, p.slug, p.display_name AS name,
+           canonical.id AS athlete_id, canonical.full_name AS athlete_name,
+           reg.name AS region,
+           (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id
+            AND is_current = 1) AS athlete_slug
+    FROM persons p
+    JOIN person_coach_athletes pca ON pca.person_id = p.id
+    JOIN athletes a ON a.id = pca.athlete_id
+    JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
+    JOIN results r ON r.athlete_id = a.id
+    JOIN competitions c ON c.id = r.competition_id
+    LEFT JOIN regions reg ON reg.id = a.region_id
+    WHERE c.is_published = 1`);
+  const groups = new Map();
+  for (const row of rows) {
+    if (!groups.has(row.person_id)) groups.set(row.person_id, {
+      name: row.name, slug: row.slug, regions: new Set(), athletes: new Map() });
+    const group = groups.get(row.person_id);
+    if (row.region) group.regions.add(row.region);
+    group.athletes.set(row.athlete_id, { name: row.athlete_name, slug: row.athlete_slug });
+  }
+  return [...groups.values()].map((g) => ({ ...g,
+    regions: [...g.regions].sort((a, b) => a.localeCompare(b, 'ru')),
+    athletes: [...g.athletes.values()].sort((a, b) => a.name.localeCompare(b.name, 'ru')),
+  })).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+}
+
+export async function listPersonSlugs(db) {
+  return db.all(`SELECT slug FROM persons ORDER BY slug`);
+}
+
+export async function getPerson(db, slug) {
+  const person = await db.get(`
+    SELECT p.*, reg.name AS region FROM persons p
+    LEFT JOIN regions reg ON reg.id = p.region_id
+    WHERE p.slug = ? OR p.id = (
+      SELECT pa.person_id FROM athlete_slugs old_slug
+      JOIN athletes found ON found.id = old_slug.athlete_id
+      JOIN person_athletes pa ON pa.athlete_id = COALESCE(found.merged_into_id, found.id)
+      WHERE old_slug.slug = ? LIMIT 1
+    )`, slug, slug);
+  if (!person) return null;
+
+  const activities = await db.all(`
+    SELECT pa.*, reg.name AS region FROM person_activities pa
+    LEFT JOIN regions reg ON reg.id = pa.region_id
+    WHERE pa.person_id = ? ORDER BY COALESCE(pa.date_to, '9999') DESC, pa.date_from DESC`, person.id);
+  const judgeRoles = await db.all(`
+    SELECT pj.role, pj.source_url, c.name AS competition, c.slug AS competition_slug,
+           c.date_start
+    FROM person_judge_roles pj LEFT JOIN competitions c ON c.id = pj.competition_id
+    WHERE pj.person_id = ? ORDER BY c.date_start DESC`, person.id);
+  const athleteLink = await db.get(`
+    SELECT s.slug FROM person_athletes pa
+    JOIN athletes linked ON linked.id = pa.athlete_id
+    JOIN athlete_slugs s ON s.athlete_id = COALESCE(linked.merged_into_id, linked.id)
+      AND s.is_current = 1
+    WHERE pa.person_id = ? LIMIT 1`, person.id);
+  const athleteData = athleteLink ? await getAthlete(db, athleteLink.slug) : null;
+
+  const coachedRows = await db.all(`
+    SELECT DISTINCT canonical.id, canonical.full_name AS name, reg.name AS region,
+      (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id AND is_current = 1) AS slug
+    FROM person_coach_athletes pca
+    JOIN athletes a ON a.id = pca.athlete_id
+    JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
+    JOIN results r ON r.athlete_id = a.id
+    JOIN competitions c ON c.id = r.competition_id
+    LEFT JOIN regions reg ON reg.id = a.region_id
+    WHERE pca.person_id = ? AND c.is_published = 1`, person.id);
+  const coached = new Map();
+  for (const a of coachedRows) {
+    if (!coached.has(a.id)) coached.set(a.id, { name: a.name, slug: a.slug, regions: new Set() });
+    if (a.region) coached.get(a.id).regions.add(a.region);
+  }
+  const coachedAthletes = [...coached.values()].map((a) => ({ ...a, regions: [...a.regions] }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  return { person, activities, judgeRoles, athleteData, coachedAthletes };
+}
+
 export async function listAllResults(db) {
   return db.all(`
     SELECT r.id, r.place, r.result_value, r.total_reps, r.points, r.body_weight_kg,
