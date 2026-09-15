@@ -50,11 +50,8 @@ export async function getCompetition(db, slug) {
 
   const rows = await db.all(`
     SELECT r.*, a.last_name, a.first_name, a.middle_name, a.birth_year,
-           -- слитый дубль ведёт на карточку той записи, в которую слит (FR-A13)
            (SELECT slug FROM athlete_slugs
              WHERE athlete_id = COALESCE(a.merged_into_id, a.id) AND is_current = 1) AS slug,
-           -- в таблице турнира регион и клуб показываются так, как напечатаны
-           -- в этом протоколе: спортсмен общий для турниров, клуб со временем меняется
            COALESCE(r.raw_region, reg.name) AS region,
            COALESCE(r.raw_club, cl.name) AS club
     FROM results r
@@ -71,8 +68,6 @@ export async function getCompetition(db, slug) {
 }
 
 export async function getAthlete(db, slug) {
-  // Адрес может вести на запись, слитую с другой: открываем ту, в которую слили,
-  // а прежний адрес продолжает работать (FR-A13).
   const a = await db.get(`
     SELECT a.*, reg.name AS region, cl.name AS club,
            sr.name AS sport_rank, sr.code AS sport_rank_code
@@ -85,8 +80,6 @@ export async function getAthlete(db, slug) {
     WHERE s.slug = ?`, slug);
   if (!a) return null;
 
-  // Написания ФИО из протоколов, отличные от канонического: слияние их прячет,
-  // а читателю важно понимать, почему в протоколе он записан иначе.
   const spellings = await db.all(`
     SELECT DISTINCT r.raw_name FROM results r
      WHERE r.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
@@ -94,16 +87,13 @@ export async function getAthlete(db, slug) {
      ORDER BY r.raw_name`, a.id, a.id, a.full_name);
   a.other_spellings = spellings.map((s) => s.raw_name);
 
-  // Тренера показываем вместе с последним годом опубликованного протокола,
-  // в котором существует зафиксированная связь тренер–спортсмен.
   const coaches = await db.all(`
     SELECT p.display_name AS name, p.slug,
-           MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
-    FROM person_coach_athletes pca
-    JOIN persons p ON p.id = pca.person_id
-    JOIN results r ON r.athlete_id = pca.athlete_id
-    JOIN competitions c ON c.id = r.competition_id
-    WHERE pca.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
+           MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
+    FROM person_coach_mentions pcm
+    JOIN persons p ON p.id = pcm.person_id
+    JOIN competitions c ON c.id = pcm.competition_id
+    WHERE pcm.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
       AND c.is_published = 1
     GROUP BY p.id, p.display_name, p.slug
     ORDER BY p.display_name`, a.id, a.id);
@@ -132,7 +122,6 @@ export async function getAthlete(db, slug) {
 }
 
 export async function listAthleteSlugs(db) {
-  // Не только текущие: прежний адрес слитой записи тоже должен открываться.
   return db.all(`SELECT slug, is_current FROM athlete_slugs ORDER BY slug`);
 }
 
@@ -143,14 +132,13 @@ export async function listCoaches(db) {
            reg.name AS region,
            (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id
             AND is_current = 1) AS athlete_slug,
-           MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
+           MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
     FROM persons p
-    JOIN person_coach_athletes pca ON pca.person_id = p.id
-    JOIN athletes a ON a.id = pca.athlete_id
+    JOIN person_coach_mentions pcm ON pcm.person_id = p.id
+    JOIN athletes a ON a.id = pcm.athlete_id
     JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
-    JOIN results r ON r.athlete_id = a.id
-    JOIN competitions c ON c.id = r.competition_id
-    LEFT JOIN regions reg ON reg.id = a.region_id
+    JOIN competitions c ON c.id = pcm.competition_id
+    LEFT JOIN regions reg ON reg.id = canonical.region_id
     WHERE c.is_published = 1
     GROUP BY p.id, p.slug, p.display_name, canonical.id, canonical.full_name, reg.name`);
   const groups = new Map();
@@ -159,9 +147,12 @@ export async function listCoaches(db) {
       name: row.name, slug: row.slug, regions: new Set(), athletes: new Map() });
     const group = groups.get(row.person_id);
     if (row.region) group.regions.add(row.region);
-    group.athletes.set(row.athlete_id, {
-      name: row.athlete_name, slug: row.athlete_slug, last_year: row.last_year,
-    });
+    const old = group.athletes.get(row.athlete_id);
+    if (!old || !old.last_year || row.last_year > old.last_year) {
+      group.athletes.set(row.athlete_id, {
+        name: row.athlete_name, slug: row.athlete_slug, last_year: row.last_year,
+      });
+    }
   }
   return [...groups.values()].map((g) => ({ ...g,
     regions: [...g.regions].sort((a, b) => a.localeCompare(b, 'ru')),
@@ -205,14 +196,13 @@ export async function getPerson(db, slug) {
   const coachedRows = await db.all(`
     SELECT canonical.id, canonical.full_name AS name, reg.name AS region,
       (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id AND is_current = 1) AS slug,
-      MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
-    FROM person_coach_athletes pca
-    JOIN athletes a ON a.id = pca.athlete_id
+      MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
+    FROM person_coach_mentions pcm
+    JOIN athletes a ON a.id = pcm.athlete_id
     JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
-    JOIN results r ON r.athlete_id = a.id
-    JOIN competitions c ON c.id = r.competition_id
-    LEFT JOIN regions reg ON reg.id = a.region_id
-    WHERE pca.person_id = ? AND c.is_published = 1
+    JOIN competitions c ON c.id = pcm.competition_id
+    LEFT JOIN regions reg ON reg.id = canonical.region_id
+    WHERE pcm.person_id = ? AND c.is_published = 1
     GROUP BY canonical.id, canonical.full_name, reg.name`, person.id);
   const coached = new Map();
   for (const a of coachedRows) {
