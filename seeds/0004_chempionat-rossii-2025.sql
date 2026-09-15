@@ -171,7 +171,8 @@ INSERT INTO categories (id, competition_id, discipline_id, sex, age_group_id, di
   (1018, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95+', 95, 1, 12, 0, 18),
   (1019, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '58', 58, 0, 10, 0, 19),
   (1020, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '63', 63, 0, 8, 0, 20),
-  (1021, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68', 68, 0, 7, 0, 21);
+  (1021, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68', 68, 0, 7, 0, 21),
+  (1022, 1001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68+', 68, 1, 7, 0, 22);
 
 -- Спортсмен заводится, только если его ещё нет: тот же человек на другом
 -- турнире — та же строка athletes, иначе карточка и график разъедутся надвое.
@@ -688,6 +689,12 @@ INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, regio
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Сергеева', 'Юлия', 'Александровна', 1980, 'f', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'Федерация гиревого спорта г. Москва' AND region_id = (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')), 'Трофимов М.А.', (SELECT id FROM sport_ranks WHERE code = 'kms')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Сергеева' AND a.first_name = 'Юлия' AND a.middle_name = 'Александровна' AND a.birth_year = 1980);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Верховцева', 'Екатерина', 'Николаевна', 2003, 'f', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МАУ ДО СШОР "Метеор"' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Гоголев М.Н.', (SELECT id FROM sport_ranks WHERE code = 'ms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Верховцева' AND a.first_name = 'Екатерина' AND a.middle_name = 'Николаевна' AND a.birth_year = 2003);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Кузьмичева', 'Ксения', 'Сергеевна', 2004, 'f', (SELECT id FROM regions WHERE name = 'Оренбургская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШ №1 им. Л.Д. Ковалевского' AND region_id = (SELECT id FROM regions WHERE name = 'Оренбургская область' AND country = 'RU')), 'Павлов С.П., Ерохин А.В.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Кузьмичева' AND a.first_name = 'Ксения' AND a.middle_name = 'Сергеевна' AND a.birth_year = 2004);
 
 INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'butenko-evgeniy-1995' AND s.athlete_id <> a.id)
@@ -1544,6 +1551,16 @@ INSERT INTO athlete_slugs (slug, athlete_id)
               THEN 'sergeeva-yuliya-1980-' || a.id ELSE 'sergeeva-yuliya-1980' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Сергеева' AND first_name = 'Юлия' AND middle_name = 'Александровна' AND birth_year = 1980)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'verhovceva-ekaterina-2003' AND s.athlete_id <> a.id)
+              THEN 'verhovceva-ekaterina-2003-' || a.id ELSE 'verhovceva-ekaterina-2003' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Верховцева' AND first_name = 'Екатерина' AND middle_name = 'Николаевна' AND birth_year = 2003)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'kuzmicheva-kseniya-2004' AND s.athlete_id <> a.id)
+              THEN 'kuzmicheva-kseniya-2004-' || a.id ELSE 'kuzmicheva-kseniya-2004' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Кузьмичева' AND first_name = 'Ксения' AND middle_name = 'Сергеевна' AND birth_year = 2004)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 
 INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, body_weight_kg, rank_achieved_id, discipline_id, bell_kg, hands, time_limit_min, competition_id, event_date, raw_name, raw_club, raw_region, protocol_id, source_page) VALUES
   (1001, 1001, (SELECT id FROM athletes WHERE last_name = 'Бутенко' AND first_name = 'Евгений' AND middle_name = 'Александрович' AND birth_year = 1995), 1, 78, NULL, 67.8, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 1001, '2025-06-12', 'Бутенко Евгений Александрович', 'МУ ДО "МЦРФКиС"', 'Новосибирская область', 1001, 38),
@@ -1768,7 +1785,14 @@ INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, bod
   (1220, 1021, (SELECT id FROM athletes WHERE last_name = 'Любина' AND first_name = 'Александра' AND middle_name = 'Анатольевна' AND birth_year = 2005), 4, 49, NULL, 67.25, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Любина Александра Анатольевна', 'МБУ ДО СШОР «Югория» им. А.А. Пилояна', 'Ханты-Мансийский АО - Югра', 1001, 19),
   (1221, 1021, (SELECT id FROM athletes WHERE last_name = 'Ельчанинова' AND first_name = 'Вероника' AND middle_name = 'Сергеевна' AND birth_year = 2003), 5, 28, NULL, 68.0, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Ельчанинова Вероника Сергеевна', 'СШОР 33', 'Омская область', 1001, 19),
   (1222, 1021, (SELECT id FROM athletes WHERE last_name = 'Кутенкова' AND first_name = 'Анастасия' AND middle_name = 'Михайловна' AND birth_year = 1997), 6, 20, NULL, 67.9, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Кутенкова Анастасия Михайловна', 'ВС', 'Республика Бурятия', 1001, 19),
-  (1223, 1021, (SELECT id FROM athletes WHERE last_name = 'Сергеева' AND first_name = 'Юлия' AND middle_name = 'Александровна' AND birth_year = 1980), 7, 15, NULL, 66.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Сергеева Юлия Александровна', 'Федерация гиревого спорта г. Москва', 'г. Москва', 1001, 19);
+  (1223, 1021, (SELECT id FROM athletes WHERE last_name = 'Сергеева' AND first_name = 'Юлия' AND middle_name = 'Александровна' AND birth_year = 1980), 7, 15, NULL, 66.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Сергеева Юлия Александровна', 'Федерация гиревого спорта г. Москва', 'г. Москва', 1001, 19),
+  (1224, 1022, (SELECT id FROM athletes WHERE last_name = 'Мартынова' AND first_name = 'Ирина' AND middle_name = 'Александровна' AND birth_year = 1999), 1, 80, NULL, 85.7, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Мартынова Ирина Александровна', 'СШОР «Маршал»', 'Калужская область', 1001, 43),
+  (1225, 1022, (SELECT id FROM athletes WHERE last_name = 'Верховцева' AND first_name = 'Екатерина' AND middle_name = 'Николаевна' AND birth_year = 2003), 2, 57, NULL, 79.2, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Верховцева Екатерина Николаевна', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 1001, 43),
+  (1226, 1022, (SELECT id FROM athletes WHERE last_name = 'Врубель' AND first_name = 'Дарья' AND middle_name = 'Васильевна' AND birth_year = 2000), 3, 56, NULL, 94.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Врубель Дарья Васильевна', 'БУ ДО города Омска "СШОР 33"', 'Омская область', 1001, 43),
+  (1227, 1022, (SELECT id FROM athletes WHERE last_name = 'Побережная' AND first_name = 'Анна' AND middle_name = 'Владимировна' AND birth_year = 2010), 4, 45, NULL, 72.8, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Побережная Анна Владимировна', 'СШОР «Маршал»', 'Калужская область', 1001, 43),
+  (1228, 1022, (SELECT id FROM athletes WHERE last_name = 'Кузьмичева' AND first_name = 'Ксения' AND middle_name = 'Сергеевна' AND birth_year = 2004), 5, 30, NULL, 80.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Кузьмичева Ксения Сергеевна', 'СШ №1 им. Л.Д. Ковалевского', 'Оренбургская область', 1001, 43),
+  (1229, 1022, (SELECT id FROM athletes WHERE last_name = 'Махкамова' AND first_name = 'Парвина' AND middle_name = 'Маруфовна' AND birth_year = 2007), 6, 26, NULL, 88.4, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Махкамова Парвина Маруфовна', 'МАУ ДО СШ «Прикамье» г. Перми', 'Пермский край', 1001, 43),
+  (1230, 1022, (SELECT id FROM athletes WHERE last_name = 'Попова' AND first_name = 'Мария' AND middle_name = 'Алексеевна' AND birth_year = 2005), 7, 25, NULL, 78.4, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 1001, '2025-06-12', 'Попова Мария Алексеевна', 'ССК"КИТнаспорте"', 'Пермский край', 1001, 43);
 
 INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (1001, 1001, 'long_cycle', 'both', 78),
@@ -1992,5 +2016,12 @@ INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (1219, 1220, 'jerk', 'both', 49),
   (1220, 1221, 'jerk', 'both', 28),
   (1221, 1222, 'jerk', 'both', 20),
-  (1222, 1223, 'jerk', 'both', 15);
+  (1222, 1223, 'jerk', 'both', 15),
+  (1223, 1224, 'jerk', 'both', 80),
+  (1224, 1225, 'jerk', 'both', 57),
+  (1225, 1226, 'jerk', 'both', 56),
+  (1226, 1227, 'jerk', 'both', 45),
+  (1227, 1228, 'jerk', 'both', 30),
+  (1228, 1229, 'jerk', 'both', 26),
+  (1229, 1230, 'jerk', 'both', 25);
 
