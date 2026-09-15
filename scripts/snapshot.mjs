@@ -17,10 +17,19 @@ const db = {
   get: async (sql, ...p) => sqlite.prepare(sql).get(...p) ?? null,
 };
 
-const sortableCoaches = (body) => body.replace(
-  '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
-  '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th></tr></thead>',
-).replace('</body>', `<script>(function () {
+const sortableCoaches = (body, coaches) => {
+  let rowIndex = 0;
+  const withYear = body.replace(
+    '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
+    '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Последний протокол</th></tr></thead>',
+  ).replace(/(<tbody>[\s\S]*?<\/tbody>)/, (tbody) => tbody.replace(/<\/tr>/g, () => {
+    const coach = coaches[rowIndex++];
+    const years = (coach?.athletes || []).map((a) => a.last_year).filter(Boolean);
+    const lastYear = years.length ? years.sort().at(-1) : '—';
+    return `<td class="c n">${lastYear}</td></tr>`;
+  }));
+
+  return withYear.replace('</body>', `<script>(function () {
   var table = document.getElementById('coaches-table');
   if (!table) return;
   var body = table.tBodies[0];
@@ -54,6 +63,7 @@ const sortableCoaches = (body) => body.replace(
     });
   });
 })();</script></body>`);
+};
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -64,7 +74,7 @@ const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetiti
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
 write('results.html', renderResults({ rows: await q.listAllResults(db), L }));
 const coaches = await q.listCoaches(db);
-write('coaches.html', sortableCoaches(renderCoaches({ coaches, L })));
+write('coaches.html', sortableCoaches(renderCoaches({ coaches, L }), coaches));
 for (const { slug } of await q.listPersonSlugs(db)) {
   const data = await q.getPerson(db, slug);
   write(L.person(slug), renderPerson({ ...data, L }));
