@@ -5,10 +5,11 @@
   "scripts": {
     "db:create": "wrangler d1 create girevoy-archive",
     "db:migrate": "wrangler d1 execute girevoy-archive --file=migrations/0001_init.sql",
-    "db:seed": "wrangler d1 execute girevoy-archive --file=seeds/0001_reference.sql && wrangler d1 execute girevoy-archive --file=seeds/0002_demo.sql",
-    "db:local": "rm -f .local/girevoy.db && mkdir -p .local && cat migrations/0001_init.sql seeds/0001_reference.sql seeds/0002_demo.sql | sqlite3 .local/girevoy.db",
+    "db:seed": "wrangler d1 execute girevoy-archive --file=seeds/0001_reference.sql && wrangler d1 execute girevoy-archive --file=seeds/0002_demo.sql && wrangler d1 execute girevoy-archive --file=seeds/0003_chempionat-rossii-2026.sql",
+    "db:local": "rm -f .local/girevoy.db && mkdir -p .local && cat migrations/0001_init.sql seeds/0001_reference.sql seeds/0002_demo.sql seeds/0003_chempionat-rossii-2026.sql | sqlite3 .local/girevoy.db",
     "db:export": "wrangler d1 export girevoy-archive --output=backup.sql",
     "demo:gen": "python3 scripts/gen_demo.py > seeds/0002_demo.sql",
+    "seed:gen": "python3 scripts/gen_seed.py data/chempionat-rossii-2026.json > seeds/0003_chempionat-rossii-2026.sql",
     "dev": "wrangler dev",
     "snapshot": "node scripts/snapshot.mjs",
     "preview": "npm run db:local && node scripts/snapshot.mjs && python3 -m http.server 8080 --directory dist"
