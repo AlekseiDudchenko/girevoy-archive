@@ -245,6 +245,9 @@ export function renderAthlete({ athlete, results, L }) {
     <p class="meta-line">${[athlete.birth_year && `${athlete.birth_year} г. р.`, athlete.region,
       athlete.club].filter(Boolean).map(e).join(' · ')}</p>
     ${athlete.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
+    ${athlete.other_spellings?.length
+      ? `<p class="source">В протоколах также: ${athlete.other_spellings.map(e).join(', ')}</p>`
+      : ''}
   </div>
 
   <section class="chart-block">
