@@ -198,7 +198,9 @@ def main(path):
                             ref("disciplines", cat["discipline"]), cat["bell_kg"],
                             cat["hands"], cat["time_limit_min"], cid, comp["date_start"],
                             r[1], r[5], r[4], pid, cat_page[cat_id]))
-            reps.append((BASE + len(reps) + 1, rid, cat["discipline"], "both", r[7]))
+            # снятый по правилам идёт строкой без места и результата: подъёмов нет
+            if r[7] is not None:
+                reps.append((BASE + len(reps) + 1, rid, cat["discipline"], "both", r[7]))
     insert("results",
            ["id", "category_id", "athlete_id", "place", "total_reps", "points",
             "body_weight_kg", "rank_achieved_id", "discipline_id", "bell_kg", "hands",

@@ -176,7 +176,7 @@ export function renderCompetition({ comp, categories, L }) {
       <tbody>
       ${cat.rows.map((r) => `
         <tr>
-          <td class="c place"><span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span></td>
+          <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
           <td><a href="${L.athlete(r.slug)}">${e(fio(r))}</a></td>
           <td class="c n">${r.birth_year || '—'}</td>
           <td class="dim">${e([r.region, r.club].filter(Boolean).join(', '))}</td>
@@ -249,7 +249,7 @@ export function renderAthlete({ athlete, results, L }) {
           <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
           <td>${e(seriesLabel(r))}${r.division ? ` <span class="dim">· ${e(r.division)}</span>` : ''}</td>
           <td class="c dim">${e(r.weight_class_raw || '—')}</td>
-          <td class="c place"><span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span></td>
+          <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
         </tr>`).join('')}
@@ -266,6 +266,9 @@ export function renderAthlete({ athlete, results, L }) {
 const SERIES_COLORS = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];
 
 function chart(ordered) {
+  // снятые по правилам идут без результата — на графике их нет
+  ordered = ordered.map(([label, rows]) => [label, rows.filter((r) => r.result_value != null)])
+    .filter(([, rows]) => rows.length);
   const pts = ordered.flatMap(([, rows]) => rows);
   if (!pts.length) return '<p class="note">Нет данных.</p>';
 
@@ -296,7 +299,7 @@ function chart(ordered) {
     const dots = sorted.map((r) => `
       <circle cx="${x(Date.parse(r.event_date)).toFixed(1)}" cy="${y(r.result_value).toFixed(1)}" r="5"
         fill="${color}" stroke="var(--surface)" stroke-width="2"
-        data-tip="${e(label)} — ${num(r.result_value)}, ${dateRu(r.event_date)}, место ${r.place}"/>`).join('');
+        data-tip="${e(label)} — ${num(r.result_value)}, ${dateRu(r.event_date)}, место ${r.place ?? '—'}"/>`).join('');
     return line + dots;
   }).join('');
 
@@ -363,13 +366,13 @@ export function renderResults({ rows, L }) {
   ${rows.map((r) => `
     <tr data-discipline_name="${e(r.discipline_name)}" data-bell_kg="${r.bell_kg}"
         data-hands="${r.hands}" data-time_limit_min="${r.time_limit_min}"
-        data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value}">
+        data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value ?? ''}">
       <td class="n dim">${r.event_date}</td>
       <td><a href="${L.athlete(r.slug)}">${e(fio(r))}</a></td>
       <td>${e(r.discipline_name)} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин</td>
       <td class="c dim">${e(r.weight_class_raw || '—')}</td>
       <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
-      <td class="c place"><span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span></td>
+      <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
       <td class="r n strong">${num(r.result_value)}</td>
     </tr>`).join('')}
   </tbody>
@@ -397,7 +400,8 @@ export function renderResults({ rows, L }) {
     col.classList.toggle('sortable', !!sortable);
     if (sortable) {
       var rows = Array.prototype.filter.call(tbody.rows, function (r) { return !r.hidden; });
-      rows.sort(function (a, b) { return b.dataset.value - a.dataset.value; });
+      var val = function (r) { return r.dataset.value === '' ? -Infinity : Number(r.dataset.value); };
+      rows.sort(function (a, b) { return val(b) - val(a); });
       rows.forEach(function (r) { tbody.appendChild(r); });
     }
   }
