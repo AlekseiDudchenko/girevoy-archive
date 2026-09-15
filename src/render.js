@@ -132,7 +132,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <div><dt>Турниров</dt><dd>${stats.competitions}</dd></div>
     <div><dt>Результатов</dt><dd>${stats.results}</dd></div>
     <div><dt>Спортсменов</dt><dd>${stats.athletes}</dd></div>
-    <div><dt>Ждут сверки</dt><dd>${stats.pending}</dd></div>
+    <div><dt>Тренеров</dt><dd>${stats.coaches}</dd></div>
   </dl>
 </section>
 
@@ -357,7 +357,6 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
 // ---------------------------------------------------------------- график
 
 const SERIES_COLORS = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];
-
 function chart(ordered) {
   // снятые по правилам идут без результата — на графике их нет
   ordered = ordered.map(([label, rows]) => [label, rows.filter((r) => r.result_value != null)])
