@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { listCoaches, getPerson } from '../src/queries.js';
 import { renderCoaches, renderPerson, links } from '../src/render.js';
 
-const files = ['migrations/0001_init.sql', 'seeds/0001_reference.sql',
+const files = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql',
   'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql',
   'seeds/0005_merges.sql', 'seeds/0006_people.sql'];
 
@@ -25,6 +25,21 @@ test('joint coach strings become separate person roles', async () => {
     assert.ok(coaches.length > 1);
     assert.ok(coaches.every((c) => c.slug && c.athletes.length));
     assert.ok(coaches.every((c) => !c.name.includes(',')));
+  } finally { sql.close(); }
+});
+
+test('self-coached markers do not become people or coach links', () => {
+  const { sql } = realDb();
+  try {
+    const markers = ['Самостоя.С.', 'Самостоятельно', 'самостоятельно'];
+    const placeholders = markers.map(() => '?').join(', ');
+    const people = sql.prepare(`SELECT COUNT(*) AS count FROM persons
+      WHERE display_name IN (${placeholders})`).get(...markers);
+    const links = sql.prepare(`SELECT COUNT(*) AS count FROM person_coach_athletes pca
+      JOIN persons p ON p.id = pca.person_id
+      WHERE p.display_name IN (${placeholders})`).get(...markers);
+    assert.equal(people.count, 0);
+    assert.equal(links.count, 0);
   } finally { sql.close(); }
 });
 

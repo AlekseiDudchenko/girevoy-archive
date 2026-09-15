@@ -7,7 +7,8 @@
 - `docs/schema.md` — пояснения к схеме
 - `docs/roadmap.md` — план реализации по шагам
 - `ERRATA.md` — известные ошибки в данных и расхождения внутри протоколов
-- `migrations/0001_init.sql` — схема D1
+- `migrations/0001_init.sql` — базовая схема D1
+- `migrations/0002_people.sql` — персоны и роли
 - `seeds/` — справочники и данные протоколов
 - `data/` — данные протоколов, извлечённые из PDF (источник для сидов)
 - `scripts/gen_seed.py` — генератор сида из `data/*.json`
@@ -25,6 +26,13 @@ sqlite3 .local/girevoy.db
 ```sh
 npm run db:create    # id из вывода вписать в wrangler.toml
 npm run db:migrate
+npm run db:seed
+```
+
+Для базы, уже созданной до появления страниц персон:
+
+```sh
+npm run db:migrate:people
 npm run db:seed
 ```
 

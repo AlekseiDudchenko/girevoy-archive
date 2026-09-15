@@ -1,6 +1,6 @@
 # Схема данных
 
-DDL: `migrations/0001_init.sql`. Решения, из которых схема следует: `docs/decisions.md`.
+DDL: `migrations/0001_init.sql` и `migrations/0002_people.sql`. Решения, из которых схема следует: `docs/decisions.md`.
 Модель реляционная, сырьё модели — JSON-колонками. 25 таблиц, проверена на SQLite 3.45.
 
 ## Неочевидные места

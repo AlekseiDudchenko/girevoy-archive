@@ -25,7 +25,9 @@ WITH RECURSIVE split(athlete_id, rest, token) AS (
   FROM split WHERE rest <> ''
 ), names AS (
   SELECT DISTINCT REPLACE(token, '. ', '.') AS name
-  FROM split WHERE token <> '' AND token NOT IN ('-', '—', '–')
+  FROM split
+  WHERE token <> ''
+    AND token NOT IN ('-', '—', '–', 'Самостоя.С.', 'Самостоятельно', 'самостоятельно')
 )
 INSERT OR IGNORE INTO persons (slug, display_name)
 SELECT 'coach-' || LOWER(HEX(CAST(name AS BLOB))), name FROM names;
@@ -40,7 +42,9 @@ WITH RECURSIVE split(athlete_id, rest, token) AS (
   FROM split WHERE rest <> ''
 ), links AS (
   SELECT athlete_id, REPLACE(token, '. ', '.') AS name
-  FROM split WHERE token <> '' AND token NOT IN ('-', '—', '–')
+  FROM split
+  WHERE token <> ''
+    AND token NOT IN ('-', '—', '–', 'Самостоя.С.', 'Самостоятельно', 'самостоятельно')
 )
 INSERT OR IGNORE INTO person_coach_athletes (person_id, athlete_id)
 SELECT p.id, l.athlete_id
