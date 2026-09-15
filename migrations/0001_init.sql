@@ -8,18 +8,30 @@ PRAGMA foreign_keys = ON;
 -- Справочники (FR-A12)
 -- ============================================================
 
+-- Дисциплина — только упражнение (или их набор для двоеборья).
+-- «Одной рукой» и регламент времени — не дисциплины, а параметры категории:
+-- «длинный цикл одной рукой 30 минут» = long_cycle + hands='one' + time_limit_min=30.
+-- Так фильтр «длинный цикл» находит все его варианты.
 CREATE TABLE disciplines (
   id          INTEGER PRIMARY KEY,
   code        TEXT NOT NULL UNIQUE,   -- jerk | snatch | long_cycle | biathlon
   name        TEXT NOT NULL,
-  -- какие поля подъёмов заполняются у результата этой дисциплины
-  exercises   TEXT NOT NULL,          -- JSON: ["jerk","snatch"]
+  exercises   TEXT NOT NULL,          -- JSON: ["jerk","snatch"] для двоеборья
   sort_order  INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE age_groups (
   id          INTEGER PRIMARY KEY,
   code        TEXT NOT NULL UNIQUE,   -- youth | junior | adult | veteran_40 ...
+  name        TEXT NOT NULL,
+  sort_order  INTEGER NOT NULL DEFAULT 0
+);
+
+-- Зачёт по уровню подготовки: любители, профессионалы, новички, мастера.
+-- Встречается на международных стартах, у российских обычно пусто.
+CREATE TABLE divisions (
+  id          INTEGER PRIMARY KEY,
+  code        TEXT NOT NULL UNIQUE,   -- amateur | professional | novice | ...
   name        TEXT NOT NULL,
   sort_order  INTEGER NOT NULL DEFAULT 0
 );
@@ -140,8 +152,10 @@ CREATE TABLE categories (
   discipline_id        INTEGER NOT NULL REFERENCES disciplines(id),
   sex                  TEXT NOT NULL CHECK (sex IN ('m','f','mixed')),
   age_group_id         INTEGER REFERENCES age_groups(id),
-  bell_kg              INTEGER NOT NULL,      -- 8 / 12 / 16 / 24 / 32
-  time_limit_min       INTEGER NOT NULL DEFAULT 10,
+  division_id          INTEGER REFERENCES divisions(id),  -- любители / профи / новички
+  bell_kg              INTEGER NOT NULL,      -- 8 / 12 / 16 / 24 / 32 и международные промежуточные
+  hands                TEXT NOT NULL DEFAULT 'two' CHECK (hands IN ('two','one')),
+  time_limit_min       INTEGER NOT NULL DEFAULT 10,  -- 5 / 10 / 30 (полумарафон) / 60 (марафон)
   weight_class_raw     TEXT,                  -- «до 63», «+95», «63,0» — как в протоколе
   weight_class_kg      INTEGER,               -- 63, 95
   weight_class_is_open INTEGER NOT NULL DEFAULT 0,  -- 1 для «+95»
@@ -149,8 +163,8 @@ CREATE TABLE categories (
   -- FR-C7: категория есть в протоколе, но не оцифрована (эстафета и командный зачёт)
   is_deferred          INTEGER NOT NULL DEFAULT 0,
   sort_order           INTEGER NOT NULL DEFAULT 0,
-  UNIQUE (competition_id, discipline_id, sex, age_group_id,
-          bell_kg, time_limit_min, weight_class_raw)
+  UNIQUE (competition_id, discipline_id, sex, age_group_id, division_id,
+          bell_kg, hands, time_limit_min, weight_class_raw)
 );
 
 CREATE INDEX idx_categories_competition ON categories(competition_id, sort_order);
@@ -203,13 +217,11 @@ CREATE TABLE results (
   athlete_id      INTEGER NOT NULL REFERENCES athletes(id) ON DELETE RESTRICT,
   place           INTEGER,
 
-  -- подъёмы. Заполняются те, что предусмотрены дисциплиной (disciplines.exercises)
-  jerk_reps       INTEGER,
-  snatch_reps     INTEGER,               -- сумма обеими руками
-  snatch_left     INTEGER,
-  snatch_right    INTEGER,
-  long_cycle_reps INTEGER,
+  -- Итог, по которому строка сравнивается с соседями внутри серии.
+  -- Разбивка по упражнениям и рукам — в result_reps.
+  total_reps      INTEGER,               -- сумма подъёмов (для одноупражненческих дисциплин)
   points          REAL,                  -- очки двоеборья: берутся из протокола, не считаются (решение 6)
+  result_value    REAL GENERATED ALWAYS AS (COALESCE(points, total_reps)) STORED,
 
   body_weight_kg  REAL,                  -- личный вес на взвешивании (решение 7)
   rank_achieved_id INTEGER REFERENCES sport_ranks(id) ON DELETE SET NULL,
@@ -217,6 +229,7 @@ CREATE TABLE results (
   -- денормализованный ключ серии: по нему идут все фильтры и график прогресса
   discipline_id   INTEGER NOT NULL REFERENCES disciplines(id),
   bell_kg         INTEGER NOT NULL,
+  hands           TEXT NOT NULL DEFAULT 'two',
   time_limit_min  INTEGER NOT NULL,
   competition_id  INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
   event_date      TEXT NOT NULL,
@@ -234,7 +247,7 @@ CREATE TABLE results (
 );
 
 -- Фильтры публичной таблицы (FR-F2) и сортировка внутри серии
-CREATE INDEX idx_results_series     ON results(discipline_id, bell_kg, time_limit_min);
+CREATE INDEX idx_results_series     ON results(discipline_id, bell_kg, hands, time_limit_min, result_value DESC);
 -- График прогресса спортсмена (FR-S3, V1)
 CREATE INDEX idx_results_athlete    ON results(athlete_id, event_date);
 -- Итоговая таблица категории (FR-C2)
@@ -242,6 +255,21 @@ CREATE INDEX idx_results_category   ON results(category_id, place);
 CREATE INDEX idx_results_competition ON results(competition_id);
 -- Поиск дублей внутри категории — намеренно НЕ UNIQUE, см. docs/schema.md
 CREATE INDEX idx_results_dup_check  ON results(category_id, athlete_id);
+
+-- Подъёмы по каждому упражнению и руке.
+-- Узкая таблица вместо колонки на упражнение: набор дисциплин открытый —
+-- одноручный длинный цикл, полумарафоны и что появится дальше ложатся сюда
+-- без миграции.
+CREATE TABLE result_reps (
+  id            INTEGER PRIMARY KEY,
+  result_id     INTEGER NOT NULL REFERENCES results(id) ON DELETE CASCADE,
+  exercise      TEXT NOT NULL,          -- jerk | snatch | long_cycle
+  hand          TEXT NOT NULL DEFAULT 'both' CHECK (hand IN ('both','left','right')),
+  reps          INTEGER NOT NULL,
+  UNIQUE (result_id, exercise, hand)
+);
+
+CREATE INDEX idx_result_reps_result ON result_reps(result_id);
 
 -- ============================================================
 -- Проблемы: автопроверки и расхождения прогонов (FR-A5, A6, A8, A17)
