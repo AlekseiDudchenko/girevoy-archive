@@ -1,0 +1,27 @@
+{
+  "source": {
+    "filename": "chempionat-rossii-2023.xlsx",
+    "page_count": 29,
+    "is_scan": false,
+    "id_base": 3000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальная Excel-книга чемпионата России 2023. В протоколе у спортсменов указаны только фамилия и имя, без отчества; дата рождения дана годом. Импорт ведётся по одной индивидуальной категории с отдельным merge и deploy. Эстафеты, командные очки и итоговый командный зачёт не импортируются; жонглирование не поддержано текущей схемой. По указанию администратора строки «снят врачом» и «не явка» в спортивном результате сохраняются как 0."
+  },
+  "competition": {
+    "slug": "chempionat-rossii-2023",
+    "name": "Чемпионат России 2023",
+    "date_start": "2023-06-08",
+    "date_end": "2023-06-12",
+    "city": "Санкт-Петербург",
+    "country": "RU",
+    "competition_rank": "national_ch",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "29119",
+    "regions_total": 46,
+    "participants_total": 408
+  },
+  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
+  "deferred": [],
+  "categories": []
+}
