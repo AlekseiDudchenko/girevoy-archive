@@ -357,6 +357,10 @@ function chart(ordered) {
 
 export function renderResults({ rows, L }) {
   const opts = (vals) => [...new Set(vals)].sort().map((v) => `<option>${e(v)}</option>`).join('');
+  // подпись серии в ячейке и она же ключ сортировки столбца «Дисциплина»
+  const series = (r) => `${r.discipline_name} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин`;
+  const th = (key, label, cls) =>
+    `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({
     title: 'Все результаты',
     description: 'Таблица всех результатов с фильтрами по дисциплине, весу снаряда и регламенту.',
@@ -364,8 +368,8 @@ export function renderResults({ rows, L }) {
     body: `
 <div class="page-head">
   <h1>Все результаты</h1>
-  <p class="meta-line">${rows.length} строк. Сортировка по результату работает
-  только внутри одной серии — иначе рядом окажутся несравнимые числа.</p>
+  <p class="meta-line">${rows.length} строк. Столбцы сортируются по клику. Сортировка по результату
+  работает только внутри одной серии — иначе рядом окажутся несравнимые числа.</p>
 </div>
 
 <form class="filters" id="f">
@@ -381,18 +385,21 @@ export function renderResults({ rows, L }) {
 <div class="scroll">
 <table id="t">
   <thead><tr>
-    <th>Дата</th><th>Спортсмен</th><th>Дисциплина</th><th class="c">Кат.</th>
-    <th>Соревнование</th><th class="c">Место</th>
-    <th class="r" id="sortcol">Результат</th>
+    ${th('date', 'Дата')}${th('name', 'Спортсмен')}${th('series', 'Дисциплина')}${th('wc', 'Кат.', 'c')}
+    ${th('comp', 'Соревнование')}${th('place', 'Место', 'c')}
+    <th class="r sort" data-key="value" role="button" tabindex="0" aria-disabled="true" id="sortcol">Результат</th>
   </tr></thead>
   <tbody>
   ${rows.map((r) => `
     <tr data-discipline_name="${e(r.discipline_name)}" data-bell_kg="${r.bell_kg}"
         data-hands="${r.hands}" data-time_limit_min="${r.time_limit_min}"
-        data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value ?? ''}">
+        data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value ?? ''}"
+        data-date="${r.event_date ?? ''}" data-name="${e(fio(r))}" data-series="${e(series(r))}"
+        data-wc="${weightClassKey(r.weight_class_raw)}" data-comp="${e(r.competition)}"
+        data-place="${r.place ?? ''}">
       <td class="n dim">${r.event_date}</td>
       <td><a href="${L.athlete(r.slug)}">${e(fio(r))}</a></td>
-      <td>${e(r.discipline_name)} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин</td>
+      <td>${e(series(r))}</td>
       <td class="c dim">${e(r.weight_class_raw || '—')}</td>
       <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
       <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
@@ -406,7 +413,24 @@ export function renderResults({ rows, L }) {
 (function () {
   var form = document.getElementById('f'), tbody = document.querySelector('#t tbody');
   var note = document.getElementById('sortnote'), col = document.getElementById('sortcol');
+  var heads = Array.prototype.slice.call(document.querySelectorAll('#t th.sort'));
   var keys = ['discipline_name', 'bell_kg', 'hands', 'time_limit_min', 'weight_class_raw'];
+  var NUM = { wc: 1, place: 1, value: 1 };
+  // столбец и направление, выбранные кликом; пока не кликали — дата по убыванию,
+  // а заданная серия сама включает сортировку по результату
+  var sort = { key: 'date', dir: -1 }, picked = false, sortable = false;
+
+  function cmp(key, dir) {
+    return function (a, b) {
+      var x = a.dataset[key], y = b.dataset[key];
+      if (x === y) return 0;
+      if (x === '') return 1;          // пустые всегда внизу, в обе стороны
+      if (y === '') return -1;
+      var d = NUM[key] ? Number(x) - Number(y) : x.localeCompare(y, 'ru');
+      return d * dir;
+    };
+  }
+
   function apply() {
     var f = {};
     keys.forEach(function (k) { f[k] = form.elements[k].value; });
@@ -416,22 +440,59 @@ export function renderResults({ rows, L }) {
       tr.hidden = !ok;
       if (ok) shown++;
     });
-    var sortable = f.discipline_name && f.bell_kg && f.hands && f.time_limit_min;
+    sortable = !!(f.discipline_name && f.bell_kg && f.hands && f.time_limit_min);
     note.textContent = sortable
       ? 'Показано строк: ' + shown + '. Серия задана — сортировка по результату включена.'
       : 'Задайте дисциплину, вес снаряда, руки и регламент, чтобы включить сортировку по результату.';
-    col.classList.toggle('sortable', !!sortable);
-    if (sortable) {
-      var rows = Array.prototype.filter.call(tbody.rows, function (r) { return !r.hidden; });
-      var val = function (r) { return r.dataset.value === '' ? -Infinity : Number(r.dataset.value); };
-      rows.sort(function (a, b) { return val(b) - val(a); });
-      rows.forEach(function (r) { tbody.appendChild(r); });
-    }
+    col.setAttribute('aria-disabled', sortable ? 'false' : 'true');
+    if (sortable && !picked) sort = { key: 'value', dir: -1 };
+    if (!sortable && sort.key === 'value') { sort = { key: 'date', dir: -1 }; picked = false; }
+    render();
   }
+
+  function render() {
+    heads.forEach(function (h) {
+      if (h.dataset.key === sort.key) h.setAttribute('aria-sort', sort.dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+    var rows = Array.prototype.filter.call(tbody.rows, function (r) { return !r.hidden; });
+    rows.sort(cmp(sort.key, sort.dir));
+    rows.forEach(function (r) { tbody.appendChild(r); });
+  }
+
+  function click(h) {
+    var key = h.dataset.key;
+    if (key === 'value' && !sortable) return;
+    // первый клик: даты и результаты полезнее сразу по убыванию, остальное — по возрастанию
+    if (sort.key === key) sort.dir = -sort.dir;
+    else sort = { key: key, dir: (key === 'date' || key === 'value') ? -1 : 1 };
+    picked = true;
+    render();
+  }
+
+  heads.forEach(function (h) {
+    h.addEventListener('click', function () { click(h); });
+    h.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); click(h); }
+    });
+  });
   form.addEventListener('change', apply);
-  document.getElementById('reset').addEventListener('click', function () { form.reset(); apply(); });
+  document.getElementById('reset').addEventListener('click', function () {
+    keys.forEach(function (k) { form.elements[k].value = ''; });
+    sort = { key: 'date', dir: -1 };
+    picked = false;
+    apply();
+  });
   apply();
 })();
 </script>`,
   });
+}
+
+// «+95» весит больше 95, но меньше следующей категории — этого хватает для сортировки
+function weightClassKey(raw) {
+  if (!raw) return '';
+  const m = String(raw).replace(',', '.').match(/(\d+(?:\.\d+)?)/);
+  if (!m) return '';
+  return Number(m[1]) + (String(raw).includes('+') ? 0.5 : 0);
 }
