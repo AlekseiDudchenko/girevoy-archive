@@ -59,9 +59,6 @@ export function page({ title, description, body, L, active, bare = false }) {
 <main class="inner">
 ${body}
 </main>
-<footer class="site-foot"><div class="inner">
-  Турниры со словом «Демо» в названии — демонстрационные, их спортсмены вымышленные.
-</div></footer>
 <div id="tip" class="tip" hidden></div>
 <script>
 (function () {
