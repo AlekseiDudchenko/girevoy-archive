@@ -164,6 +164,7 @@ WEIGHT_M = {"до 63": 63, "до 68": 68, "до 73": 73, "до 78": 78,
             "до 85": 85, "до 95": 95, "+95": 95}
 WEIGHT_F = {"до 58": 58, "до 63": 63, "до 68": 68, "+68": 68}
 
+series_history = {}   # (дисциплина, гиря, руки, минуты) -> кто уже выступал
 cat_rows, result_rows, reps_rows, issue_rows = [], [], [], []
 cat_id = res_id = reps_id = issue_id = 0
 appearances = {}
@@ -183,8 +184,19 @@ for comp in competitions:
             pool = [a for a in pool if a["year"] <= 2003]
         busy = taken.setdefault((comp["id"], disc), set())
         pool = [a for a in pool if a["id"] not in busy]
-        entrants = rnd.sample(pool, min(len(pool), rnd.randint(5, 9)))
+        size = min(len(pool), rnd.randint(5, 9))
+
+        # большинство состава — те, кто уже выступал в этой же серии:
+        # так на карточке спортсмена появляется линия, а не одинокая точка
+        skey = (disc, bell, hands, minutes)
+        seen = series_history.setdefault(skey, set())
+        returning = [a for a in pool if a["id"] in seen]
+        fresh = [a for a in pool if a["id"] not in seen]
+        want_back = min(len(returning), int(size * 0.7))
+        entrants = rnd.sample(returning, want_back)
+        entrants += rnd.sample(fresh, min(len(fresh), size - want_back))
         busy.update(a["id"] for a in entrants)
+        seen.update(a["id"] for a in entrants)
 
         rows = []
         for a in entrants:

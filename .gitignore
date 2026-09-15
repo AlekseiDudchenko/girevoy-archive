@@ -2,3 +2,5 @@ node_modules/
 .local/
 .wrangler/
 backup.sql
+dist/
+dist-artifact/

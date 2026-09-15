@@ -8,7 +8,10 @@
     "db:seed": "wrangler d1 execute girevoy-archive --file=seeds/0001_reference.sql && wrangler d1 execute girevoy-archive --file=seeds/0002_demo.sql",
     "db:local": "rm -f .local/girevoy.db && mkdir -p .local && cat migrations/0001_init.sql seeds/0001_reference.sql seeds/0002_demo.sql | sqlite3 .local/girevoy.db",
     "db:export": "wrangler d1 export girevoy-archive --output=backup.sql",
-    "demo:gen": "python3 scripts/gen_demo.py > seeds/0002_demo.sql"
+    "demo:gen": "python3 scripts/gen_demo.py > seeds/0002_demo.sql",
+    "dev": "wrangler dev",
+    "snapshot": "node scripts/snapshot.mjs",
+    "preview": "npm run db:local && node scripts/snapshot.mjs && python3 -m http.server 8080 --directory dist"
   },
   "devDependencies": {
     "wrangler": "^3"
