@@ -257,6 +257,8 @@ export function renderCompetition({ comp, categories, L }) {
 
 // -------------------------------------------------------------- персона
 
+const SERIES_COLORS = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];
+
 export function renderPerson({ person, activities = [], judgeRoles = [], athleteData,
   coachedAthletes = [], L }) {
   const athlete = athleteData?.athlete;
@@ -269,6 +271,46 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     series.get(key).push(r);
   }
   const ordered = [...series.entries()].sort((a, b) => b[1].length - a[1].length);
+  const seriesColor = new Map(ordered.slice(0, SERIES_COLORS.length)
+    .map(([label], i) => [label, SERIES_COLORS[i]]));
+  const disciplines = new Map();
+  for (const r of results) {
+    const key = r.discipline_name || 'Без дисциплины';
+    if (!disciplines.has(key)) disciplines.set(key, []);
+    disciplines.get(key).push(r);
+  }
+  const grouped = [...disciplines.entries()].sort((a, b) => b[1].length - a[1].length);
+  const colorFor = (r) => seriesColor.get(seriesLabel(r)) || 'var(--ink-3)';
+  const resultRow = (r, showDiscipline) => `
+        <tr data-date="${e(r.event_date || '')}" data-comp="${e(r.competition || '')}"
+            data-series="${e(seriesLabel(r))}" data-wc="${weightClassKey(r.weight_class_raw)}"
+            data-place="${r.place ?? ''}" data-reps="${e(repsText(r.reps))}"
+            data-value="${r.result_value ?? ''}" data-rank="${e(r.rank_achieved || '')}">
+          <td class="n dim">${e(r.event_date || '—')}</td>
+          <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
+          ${showDiscipline ? `<td><span class="discipline-badge" style="--series-color:${colorFor(r)}"><span class="discipline-dot"></span>${e(seriesLabel(r))}</span>${r.division ? ` <span class="dim">· ${e(r.division)}</span>` : ''}</td>` : ''}
+          <td class="c dim">${e(r.weight_class_raw || '—')}</td>
+          <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
+          <td class="r n dim">${e(repsText(r.reps))}</td>
+          <td class="r n strong">${num(r.result_value)}</td>
+          <td class="c">${r.rank_achieved_code
+            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
+        </tr>`;
+  const sortableHead = (key, label, cls = '') =>
+    `<th class="${cls ? `${cls} ` : ''}sort" data-key="${key}" role="button" tabindex="0">${label}</th>`;
+  const resultTable = (rows, id, showDiscipline) => `
+    <div class="scroll">
+    <table class="athlete-result-table" id="${id}">
+      <thead><tr>
+        ${sortableHead('date', 'Дата')}${sortableHead('comp', 'Соревнование')}
+        ${showDiscipline ? sortableHead('series', 'Дисциплина') : ''}
+        ${sortableHead('wc', 'Кат.', 'c')}${sortableHead('place', 'Место', 'c')}
+        ${sortableHead('reps', 'Подъёмы', 'r')}${sortableHead('value', 'Результат', 'r')}
+        ${sortableHead('rank', 'Разряд', 'c')}
+      </tr></thead>
+      <tbody>${rows.map((r) => resultRow(r, showDiscipline)).join('')}</tbody>
+    </table>
+    </div>`;
 
   return page({
     title: `${name} — Гиревой архив`,
@@ -307,30 +349,24 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     ${chart(ordered)}
   </section>
 
-  <section class="cat">
-    <h3>Выступления</h3>
-    <div class="scroll">
-    <table>
-      <thead><tr>
-        <th>Дата</th><th>Соревнование</th><th>Дисциплина</th>
-        <th class="c">Кат.</th><th class="c">Место</th>
-        <th class="r">Подъёмы</th><th class="r">Результат</th><th class="c">Разряд</th>
-      </tr></thead>
-      <tbody>
-      ${results.map((r) => `
-        <tr>
-          <td class="n dim">${r.event_date}</td>
-          <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
-          <td>${e(seriesLabel(r))}${r.division ? ` <span class="dim">· ${e(r.division)}</span>` : ''}</td>
-          <td class="c dim">${e(r.weight_class_raw || '—')}</td>
-          <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
-          <td class="r n dim">${e(repsText(r.reps))}</td>
-          <td class="r n strong">${num(r.result_value)}</td>
-          <td class="c">${r.rank_achieved_code
-            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
+  <section class="cat athlete-results">
+    <div class="athlete-results-head">
+      <h3>Выступления</h3>
+      <div class="view-toggle" role="group" aria-label="Вид результатов">
+        <button type="button" class="on" data-results-view="all" aria-pressed="true">Все результаты</button>
+        <button type="button" data-results-view="grouped" aria-pressed="false">По дисциплинам</button>
+      </div>
+    </div>
+    <p class="note">Цвет серии совпадает с её линией на графике. Нажмите на заголовок столбца, чтобы изменить сортировку.</p>
+
+    <div id="athlete-results-all">
+      ${resultTable(results, 'athlete-results-table', true)}
+    </div>
+    <div id="athlete-results-grouped" hidden>
+      ${grouped.map(([discipline, rows], index) => `<section class="discipline-group">
+        <h4>${e(discipline)} <span class="dim">${rows.length}</span></h4>
+        ${resultTable(rows, `athlete-results-discipline-${index}`, false)}
+      </section>`).join('')}
     </div>
   </section>
   </section>` : ''}
@@ -350,13 +386,90 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug))}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
       <td>${j.source_url ? `<a href="${e(j.source_url)}">${e(j.role)}</a>` : e(j.role)}</td></tr>`).join('')}</tbody></table></div>
   </section>` : ''}
-</article>`,
+</article>
+<style>
+.athlete-results-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.7rem 1rem; margin-bottom:.55rem; }
+.athlete-results-head h3 { margin:0; }
+.view-toggle { display:inline-flex; border:1px solid var(--rule); background:var(--surface); padding:2px; }
+.view-toggle button { border:0; background:transparent; color:var(--ink-2); font:inherit; font-size:.88rem; padding:.3rem .65rem; cursor:pointer; }
+.view-toggle button.on { background:var(--accent); color:var(--surface); }
+.discipline-badge { display:inline-flex; align-items:center; gap:.38rem; white-space:nowrap; }
+.discipline-dot { width:.58rem; height:.58rem; border-radius:50%; background:var(--series-color); flex:0 0 auto; }
+.discipline-group { margin:1.4rem 0 2rem; }
+.discipline-group h4 { margin:0 0 .55rem; font-family:"Bitter",Georgia,serif; font-size:1.03rem; font-weight:500; }
+.discipline-group h4 .dim { font-family:"PT Mono",monospace; font-size:.72rem; font-weight:400; margin-left:.25rem; }
+@media (max-width:640px) { .view-toggle { width:100%; } .view-toggle button { flex:1; } }
+</style>
+<script>
+(function () {
+  var root = document.querySelector('.athlete-results');
+  if (!root) return;
+  var all = document.getElementById('athlete-results-all');
+  var grouped = document.getElementById('athlete-results-grouped');
+  var toggles = Array.prototype.slice.call(root.querySelectorAll('[data-results-view]'));
+  var numeric = { wc: 1, place: 1, value: 1 };
+
+  function setView(view) {
+    var groupedOn = view === 'grouped';
+    all.hidden = groupedOn;
+    grouped.hidden = !groupedOn;
+    toggles.forEach(function (button) {
+      var on = button.dataset.resultsView === view;
+      button.classList.toggle('on', on);
+      button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function initSort(table) {
+    var body = table.tBodies[0];
+    var heads = Array.prototype.slice.call(table.querySelectorAll('th.sort'));
+    var sort = { key: 'date', dir: -1 };
+
+    function render() {
+      heads.forEach(function (head) {
+        if (head.dataset.key === sort.key) head.setAttribute('aria-sort', sort.dir > 0 ? 'ascending' : 'descending');
+        else head.removeAttribute('aria-sort');
+      });
+      var rows = Array.prototype.slice.call(body.rows);
+      rows.sort(function (a, b) {
+        var x = a.dataset[sort.key] || '', y = b.dataset[sort.key] || '';
+        if (x === y) return 0;
+        if (x === '') return 1;
+        if (y === '') return -1;
+        var d = numeric[sort.key] ? Number(x) - Number(y) : x.localeCompare(y, 'ru');
+        return d * sort.dir;
+      });
+      rows.forEach(function (row) { body.appendChild(row); });
+    }
+
+    function pick(head) {
+      var key = head.dataset.key;
+      if (sort.key === key) sort.dir = -sort.dir;
+      else sort = { key: key, dir: (key === 'date' || key === 'value') ? -1 : 1 };
+      render();
+    }
+
+    heads.forEach(function (head) {
+      head.addEventListener('click', function () { pick(head); });
+      head.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(head); }
+      });
+    });
+    render();
+  }
+
+  toggles.forEach(function (button) {
+    button.addEventListener('click', function () { setView(button.dataset.resultsView); });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll('.athlete-result-table'), initSort);
+  setView('all');
+})();
+</script>`,
   });
 }
 
 // ---------------------------------------------------------------- график
 
-const SERIES_COLORS = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];
 function chart(ordered) {
   // снятые по правилам идут без результата — на графике их нет
   ordered = ordered.map(([label, rows]) => [label, rows.filter((r) => r.result_value != null)])
