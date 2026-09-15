@@ -1,7 +1,7 @@
 // Статический снимок сайта из локальной базы — чтобы смотреть UI без Cloudflare.
 // Тот же код рендеринга, что и в Worker.
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, copyFileSync, cpSync, existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import * as q from '../src/queries.js';
 import { links, renderIndex, renderCompetition, renderAthlete, renderResults } from '../src/render.js';
@@ -41,4 +41,6 @@ for (const { slug } of slugs) {
 }
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
+// знаки разрядов: в Worker их отдаёт [site] bucket, в снимке копируем руками
+if (existsSync('public/ranks')) cpSync('public/ranks', join(OUT, 'ranks'), { recursive: true });
 console.log(`${OUT}/: 1 главная, 1 таблица результатов, ${competitions.length} турниров, ${athletePages} спортсменов`);

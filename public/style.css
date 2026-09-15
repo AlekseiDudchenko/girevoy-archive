@@ -200,6 +200,10 @@ th.sortable { color: var(--accent); }
 .rank-kms { color: var(--silver); }
 h1 .rank { font-size: 0.85rem; vertical-align: 0.4em; margin-left: 0.4rem; }
 
+/* изображение официального знака — вместо текстового значка, когда файл положен */
+.rank-ico { display: inline-block; width: 1.5rem; height: 1.5rem; object-fit: contain; vertical-align: -0.3em; }
+h1 .rank-ico { width: 2.2rem; height: 2.2rem; vertical-align: -0.1em; margin-left: 0.5rem; }
+
 /* ------------------------------------------------------------- фильтры */
 .filters {
   display: flex; flex-wrap: wrap; gap: 0.7rem 1rem; align-items: end;

@@ -5,10 +5,12 @@ export const links = {
   worker: {
     home: '/', results: '/results', css: '/style.css',
     comp: (s) => `/c/${s}`, athlete: (s) => `/a/${s}`,
+    rankIcon: (c) => `/ranks/${c}.svg`,
   },
   static: {
     home: 'index.html', results: 'results.html', css: 'style.css',
     comp: (s) => `c-${s}.html`, athlete: (s) => `a-${s}.html`,
+    rankIcon: (c) => `ranks/${c}.svg`,
   },
 };
 
@@ -48,11 +50,20 @@ const RANK_TITLE = {
 // На значке разряды — римской цифрой: «III разряд» целиком в строку не влезает.
 const RANK_LABEL = { i: 'I', ii: 'II', iii: 'III' };
 
-function rankBadge(code, name) {
+// Коды, для которых в public/ranks/ лежит изображение официального знака.
+// Список правится руками при добавлении файла: рендер общий для Worker и снимка,
+// а Worker файловую систему не видит и проверить наличие файла не может.
+const RANK_ICONS = new Set([]);
+
+function rankBadge(code, name, L) {
   if (!code) return '';
   const tier = RANK_TIER[code] || 'class';
   const label = RANK_LABEL[code] || name || code.toUpperCase();
   const title = RANK_TITLE[code] || name || '';
+  if (L?.rankIcon && RANK_ICONS.has(code)) {
+    return `<img class="rank-ico rank-${tier}" src="${L.rankIcon(code)}"
+      alt="${e(label)}"${title ? ` title="${e(title)}"` : ''} width="40" height="40" loading="lazy">`;
+  }
   return `<span class="rank rank-${tier}"${title ? ` title="${e(title)}"` : ''}>${e(label)}</span>`;
 }
 
@@ -204,7 +215,7 @@ export function renderCompetition({ comp, categories, L }) {
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
           <td class="c">${r.rank_achieved_code
-            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
+            ? rankBadge(r.rank_achieved_code, r.rank_achieved, L) : '<span class="dim">—</span>'}</td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -243,7 +254,7 @@ export function renderAthlete({ athlete, results, L }) {
   <div class="page-head">
     <p class="eyebrow">Спортсмен</p>
     <h1>${e(name)}${athlete.sport_rank_code
-      ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank)}` : ''}</h1>
+      ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank, L)}` : ''}</h1>
     <p class="meta-line">${[athlete.birth_year && `${athlete.birth_year} г. р.`, athlete.region,
       athlete.club].filter(Boolean).map(e).join(' · ')}</p>
     ${athlete.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
@@ -276,7 +287,7 @@ export function renderAthlete({ athlete, results, L }) {
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
           <td class="c">${r.rank_achieved_code
-            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
+            ? rankBadge(r.rank_achieved_code, r.rank_achieved, L) : '<span class="dim">—</span>'}</td>
         </tr>`).join('')}
       </tbody>
     </table>
