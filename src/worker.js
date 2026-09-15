@@ -16,10 +16,19 @@ const html = (body, status = 200) => new Response(body, {
   },
 });
 
-const sortableCoaches = (body) => body.replace(
-  '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
-  '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th></tr></thead>',
-).replace('</body>', `<script>(function () {
+const sortableCoaches = (body, coaches) => {
+  let rowIndex = 0;
+  const withYear = body.replace(
+    '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
+    '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Последний протокол</th></tr></thead>',
+  ).replace(/(<tbody>[\s\S]*?<\/tbody>)/, (tbody) => tbody.replace(/<\/tr>/g, () => {
+    const coach = coaches[rowIndex++];
+    const years = (coach?.athletes || []).map((a) => a.last_year).filter(Boolean);
+    const lastYear = years.length ? years.sort().at(-1) : '—';
+    return `<td class="c n">${lastYear}</td></tr>`;
+  }));
+
+  return withYear.replace('</body>', `<script>(function () {
   var table = document.getElementById('coaches-table');
   if (!table) return;
   var body = table.tBodies[0];
@@ -53,6 +62,7 @@ const sortableCoaches = (body) => body.replace(
     });
   });
 })();</script></body>`);
+};
 
 export default {
   async fetch(request, env) {
@@ -70,7 +80,8 @@ export default {
         return html(renderResults({ rows: await q.listAllResults(db), L }));
       }
       if (path === '/coaches') {
-        return html(sortableCoaches(renderCoaches({ coaches: await q.listCoaches(db), L })));
+        const coaches = await q.listCoaches(db);
+        return html(sortableCoaches(renderCoaches({ coaches, L }), coaches));
       }
       if (path.startsWith('/p/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
