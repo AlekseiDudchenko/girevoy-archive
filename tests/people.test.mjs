@@ -6,19 +6,34 @@ import { execFileSync } from 'node:child_process';
 import { listCoaches, getPerson } from '../src/queries.js';
 import { renderCoaches, renderPerson, links } from '../src/render.js';
 
-const files = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql',
-  'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql',
+const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql'];
+const after2024 = ['seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql',
   'seeds/0005_merges.sql'];
 
 function realDb() {
   const sql = new DatabaseSync(':memory:');
-  for (const file of files) sql.exec(readFileSync(file, 'utf8'));
+  for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
+  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2024.json'], { encoding: 'utf8' }));
+  for (const file of after2024) sql.exec(readFileSync(file, 'utf8'));
   sql.exec(execFileSync('python3', ['scripts/gen_people.py'], { encoding: 'utf8' }));
   return { sql, db: {
     all: async (query, ...params) => sql.prepare(query).all(...params),
     get: async (query, ...params) => sql.prepare(query).get(...params) ?? null,
   } };
 }
+
+test('protocol without patronymics reuses athlete by first name, last name and year', () => {
+  const { sql } = realDb();
+  try {
+    const row = sql.prepare(`SELECT COUNT(DISTINCT r.athlete_id) AS count
+      FROM results r JOIN athletes a ON a.id = r.athlete_id
+      WHERE a.last_name = 'Руднев' AND a.first_name = 'Руслан' AND a.birth_year = 1994`).get();
+    assert.equal(row.count, 1);
+    const raw = sql.prepare(`SELECT COUNT(*) AS count FROM results
+      WHERE raw_name = 'Руднев Руслан'`).get();
+    assert.ok(raw.count >= 1);
+  } finally { sql.close(); }
+});
 
 test('joint coach strings become separate person roles', async () => {
   const { sql, db } = realDb();
@@ -27,7 +42,7 @@ test('joint coach strings become separate person roles', async () => {
     assert.ok(coaches.length > 1);
     assert.ok(coaches.every((c) => c.slug && c.athletes.length));
     assert.ok(coaches.every((c) => !c.name.includes(',')));
-    assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[56]$/.test(a.last_year)));
+    assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[456]$/.test(a.last_year)));
   } finally { sql.close(); }
 });
 
@@ -93,8 +108,8 @@ test('athlete person shows coaches with the last published year', async () => {
     assert.ok(row);
     const person = await getPerson(db, row.slug);
     assert.ok(person.athleteData.athlete.coaches.length);
-    assert.ok(person.athleteData.athlete.coaches.every((c) => /^202[56]$/.test(c.last_year)));
-    assert.ok(/\(202[56]\)/.test(person.athleteData.athlete.coach));
+    assert.ok(person.athleteData.athlete.coaches.every((c) => /^202[456]$/.test(c.last_year)));
+    assert.ok(/\(202[456]\)/.test(person.athleteData.athlete.coach));
   } finally { sql.close(); }
 });
 
