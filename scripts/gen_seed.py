@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Сид с реальными данными протокола: JSON из data/ → SQL."""
+import glob
 import json
 import sys
 
@@ -62,6 +63,9 @@ def split_name(full):
 def main(path):
     global BASE, MATCH_WITHOUT_MIDDLE
     data = json.load(open(path, encoding="utf-8")); comp = data["competition"]; src = data["source"]
+    for category_path in sorted(glob.glob(f"data/categories/{comp['slug']}/*.json")):
+        fragment = json.load(open(category_path, encoding="utf-8"))
+        data["categories"].append(fragment["category"] if "category" in fragment else fragment)
     BASE = src.get("id_base", 0); MATCH_WITHOUT_MIDDLE = bool(src.get("names_without_middle", False))
     w(f"-- {comp['name']}, {comp['city']}, {comp['date_start']}{'—' + comp['date_end'] if comp.get('date_end') else ''}.")
     w(f"-- Сгенерировано scripts/gen_seed.py из {path}, не править руками."); w(f"-- {src['note']}")
@@ -124,17 +128,14 @@ def main(path):
         cat_id=BASE+i
         for r in cat["rows"]:
             rid=BASE+len(results)+1; last,first,middle=split_name(r[1]); aid=index[(last,first,middle,int(r[2].split(".")[-1]))]
-            if cat["discipline"] == "biathlon":
-                total_reps=None; points=r[7]
-            else:
-                total_reps=r[7]; points=None
+            if cat["discipline"] == "biathlon": total_reps=None; points=r[7]
+            else: total_reps=r[7]; points=None
             results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],cat["hands"],cat["time_limit_min"],cid,comp["date_start"],r[1],r[5],r[4],pid,cat_page[cat_id]))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))
                 if r[12] is not None: reps.append((BASE+len(reps)+1,rid,"snatch","both",r[12]))
-            elif r[7] is not None:
-                reps.append((BASE+len(reps)+1,rid,cat["discipline"],"both",r[7]))
+            elif r[7] is not None: reps.append((BASE+len(reps)+1,rid,cat["discipline"],"both",r[7]))
     insert("results", ["id","category_id","athlete_id","place","total_reps","points","body_weight_kg","rank_achieved_id","discipline_id","bell_kg","hands","time_limit_min","competition_id","event_date","raw_name","raw_club","raw_region","protocol_id","source_page"], results)
     insert("result_reps", ["id","result_id","exercise","hand","reps"], reps)
     print("\n".join(out))
