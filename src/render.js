@@ -282,8 +282,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank)}` : ''}</h1>
     <p class="meta-line">${[(person.birth_year || athlete?.birth_year) && `${person.birth_year || athlete.birth_year} г. р.`,
       person.region || athlete?.region, athlete?.club].filter(Boolean).map(e).join(' · ')}</p>
-    ${athlete?.coaches?.length ? `<p class="source">Тренер: ${athlete.coaches.map((coach) =>
-      `<a href="${e(L.person(coach.slug))}">${e(coach.name)}</a>${coach.last_year ? ` (${e(coach.last_year)})` : ''}`).join(', ')}</p>` : ''}
+    ${athlete?.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
     ${athlete?.other_spellings?.length
       ? `<p class="source">В протоколах также: ${athlete.other_spellings.map(e).join(', ')}</p>`
       : ''}
@@ -336,7 +335,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
 
   ${coachedAthletes.length ? `<section class="cat person-role">
     <h2>Тренер</h2>
-    <p class="source">Год в скобках — последний опубликованный протокол, где зафиксирована эта связь.</p>
+    <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
     <div class="scroll"><table><thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>
     <tbody>${coachedAthletes.map((a) => `<tr><td>${a.slug ? `<a href="${e(L.person(a.slug))}">${e(a.name)}</a>` : e(a.name)}</td>
       <td>${e(a.regions.join(', ') || '—')}</td></tr>`).join('')}</tbody></table></div>
@@ -389,47 +388,81 @@ function chart(ordered) {
     const line = sorted.length > 1
       ? `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : '';
     const dots = sorted.map((r) => `
-      <circle cx="${x(Date.parse(r.event_date)).toFixed(1)}" cy="${y(r.result_value).toFixed(1)}" r="4"
-        fill="${color}" data-tip="${e(`${r.event_date} · ${r.result_value} · ${r.competition}`)}"/>`).join('');
+      <circle cx="${x(Date.parse(r.event_date)).toFixed(1)}" cy="${y(r.result_value).toFixed(1)}" r="5"
+        fill="${color}" stroke="var(--surface)" stroke-width="2"
+        data-tip="${e(label)} — ${num(r.result_value)}, ${dateRu(r.event_date)}, место ${r.place ?? '—'}"/>`).join('');
     return line + dots;
   }).join('');
 
-  const grid = ticks.map((v) => {
-    const yy = y(v).toFixed(1);
-    return `<line x1="${PL}" y1="${yy}" x2="${W - PR}" y2="${yy}" class="grid"/>
-      <text x="${PL - 8}" y="${Number(yy) + 4}" text-anchor="end" class="axis">${num(v)}</text>`;
-  }).join('');
+  const legend = ordered.length > 1 ? `
+    <ul class="legend">
+      ${ordered.slice(0, 4).map(([label], i) =>
+        `<li><span class="dot" style="background:${SERIES_COLORS[i]}"></span>${e(label)}</li>`).join('')}
+      ${ordered.length > 4 ? `<li class="dim">и ещё ${ordered.length - 4}</li>` : ''}
+    </ul>` : `<p class="single-series">${e(ordered[0][0])}</p>`;
 
-  const yearLabels = years.map((year) => {
-    const xx = x(Date.parse(`${year}-07-01`));
-    if (xx < PL || xx > W - PR) return '';
-    return `<text x="${xx.toFixed(1)}" y="${H - 12}" text-anchor="middle" class="axis">${year}</text>`;
-  }).join('');
-
-  const legend = ordered.slice(0, 4).map(([label], i) =>
-    `<span><i style="background:${SERIES_COLORS[i]}"></i>${e(label)}</span>`).join('');
-
-  return `<div class="chart-wrap">
-<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Динамика результатов">
-  ${grid}${body}${yearLabels}
-</svg>
-<div class="legend">${legend}</div>
-</div>`;
+  return `
+<figure class="chart">
+  <svg viewBox="0 0 ${W} ${H}" role="img" preserveAspectRatio="xMidYMid meet"
+       aria-label="Динамика результатов по сериям">
+    ${ticks.map((v) => `
+      <line x1="${PL}" x2="${W - PR}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"
+            stroke="var(--grid)" stroke-width="1"/>
+      <text x="${PL - 10}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end"
+            class="ax">${Math.round(v)}</text>`).join('')}
+    ${years.map((yr) => {
+      const t = Date.parse(`${yr}-07-01`);
+      const cx = Math.min(W - PR, Math.max(PL, x(t)));
+      return `<text x="${cx.toFixed(1)}" y="${H - 14}" text-anchor="middle" class="ax">${yr}</text>`;
+    }).join('')}
+    ${body}
+  </svg>
+  <figcaption>${legend}</figcaption>
+</figure>`;
 }
 
-// -------------------------------------------------------- все результаты
+// ------------------------------------------------------ все результаты
 
 export function renderResults({ rows, L }) {
-  const series = (r) => seriesLabel(r);
-  const weightClassKey = (v) => String(v ?? '').replace(/[^0-9+]/g, '');
+  const opts = (vals) => [...new Set(vals)].sort().map((v) => `<option>${e(v)}</option>`).join('');
+  // подпись серии в ячейке и она же ключ сортировки столбца «Дисциплина»
+  const series = (r) => `${r.discipline_name} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин`;
+  const th = (key, label, cls) =>
+    `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({
-    title: 'Все результаты — Гиревой архив',
-    description: 'Все опубликованные результаты соревнований по гиревому спорту.',
+    title: 'Все результаты',
+    description: 'Таблица всех результатов с фильтрами по дисциплине, весу снаряда и регламенту.',
     L, active: 'results',
-    body: `<h1>Все результаты</h1>
-<div class="scroll"><table id="results-table"><thead><tr>
-<th>Дата</th><th>Спортсмен</th><th>Дисциплина</th><th>Кат.</th><th>Соревнование</th><th>Место</th><th>Результат</th>
-</tr></thead><tbody>${rows.map((r) => `<tr data-series="${e(series(r))}"
+    body: `
+<div class="page-head">
+  <h1>Все результаты</h1>
+  <p class="meta-line">${rows.length} строк. Столбцы сортируются по клику. Сортировка по результату
+  работает только внутри одной серии — иначе рядом окажутся несравнимые числа.</p>
+</div>
+
+<form class="filters" id="f">
+  <label>Дисциплина <select name="discipline_name"><option value="">любая</option>${opts(rows.map((r) => r.discipline_name))}</select></label>
+  <label>Вес снаряда <select name="bell_kg"><option value="">любой</option>${opts(rows.map((r) => String(r.bell_kg)))}</select></label>
+  <label>Руки <select name="hands"><option value="">любые</option><option value="two">двумя</option><option value="one">одной</option></select></label>
+  <label>Регламент <select name="time_limit_min"><option value="">любой</option>${opts(rows.map((r) => String(r.time_limit_min)))}</select></label>
+  <label>Категория <select name="weight_class_raw"><option value="">любая</option>${opts(rows.map((r) => r.weight_class_raw || ''))}</select></label>
+  <button type="button" id="reset">Сбросить</button>
+</form>
+<p class="note" id="sortnote">Задайте дисциплину, вес снаряда, руки и регламент, чтобы включить сортировку по результату.</p>
+
+<div class="scroll">
+<table id="t">
+  <thead><tr>
+    ${th('date', 'Дата')}${th('name', 'Спортсмен')}${th('series', 'Дисциплина')}${th('wc', 'Кат.', 'c')}
+    ${th('comp', 'Соревнование')}${th('place', 'Место', 'c')}
+    <th class="r sort" data-key="value" role="button" tabindex="0" aria-disabled="true" id="sortcol">Результат</th>
+  </tr></thead>
+  <tbody>
+  ${rows.map((r) => `
+    <tr data-discipline_name="${e(r.discipline_name)}" data-bell_kg="${r.bell_kg}"
+        data-hands="${r.hands}" data-time_limit_min="${r.time_limit_min}"
+        data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value ?? ''}"
+        data-date="${r.event_date ?? ''}" data-name="${e(fio(r))}" data-series="${e(series(r))}"
         data-wc="${weightClassKey(r.weight_class_raw)}" data-comp="${e(r.competition)}"
         data-place="${r.place ?? ''}">
       <td class="n dim">${r.event_date}</td>
@@ -437,7 +470,97 @@ export function renderResults({ rows, L }) {
       <td>${e(series(r))}</td>
       <td class="c dim">${e(r.weight_class_raw || '—')}</td>
       <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
-      <td class="c">${r.place ?? '—'}</td>
-      <td class="r strong">${num(r.result_value)}</td>
-    </tr>`).join('')}</tbody></table></div>` });
+      <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
+      <td class="r n strong">${num(r.result_value)}</td>
+    </tr>`).join('')}
+  </tbody>
+</table>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('f'), tbody = document.querySelector('#t tbody');
+  var note = document.getElementById('sortnote'), col = document.getElementById('sortcol');
+  var heads = Array.prototype.slice.call(document.querySelectorAll('#t th.sort'));
+  var keys = ['discipline_name', 'bell_kg', 'hands', 'time_limit_min', 'weight_class_raw'];
+  var NUM = { wc: 1, place: 1, value: 1 };
+  // столбец и направление, выбранные кликом; пока не кликали — дата по убыванию,
+  // а заданная серия сама включает сортировку по результату
+  var sort = { key: 'date', dir: -1 }, picked = false, sortable = false;
+
+  function cmp(key, dir) {
+    return function (a, b) {
+      var x = a.dataset[key], y = b.dataset[key];
+      if (x === y) return 0;
+      if (x === '') return 1;          // пустые всегда внизу, в обе стороны
+      if (y === '') return -1;
+      var d = NUM[key] ? Number(x) - Number(y) : x.localeCompare(y, 'ru');
+      return d * dir;
+    };
+  }
+
+  function apply() {
+    var f = {};
+    keys.forEach(function (k) { f[k] = form.elements[k].value; });
+    var shown = 0;
+    Array.prototype.forEach.call(tbody.rows, function (tr) {
+      var ok = keys.every(function (k) { return !f[k] || tr.dataset[k] === f[k]; });
+      tr.hidden = !ok;
+      if (ok) shown++;
+    });
+    sortable = !!(f.discipline_name && f.bell_kg && f.hands && f.time_limit_min);
+    note.textContent = sortable
+      ? 'Показано строк: ' + shown + '. Серия задана — сортировка по результату включена.'
+      : 'Задайте дисциплину, вес снаряда, руки и регламент, чтобы включить сортировку по результату.';
+    col.setAttribute('aria-disabled', sortable ? 'false' : 'true');
+    if (sortable && !picked) sort = { key: 'value', dir: -1 };
+    if (!sortable && sort.key === 'value') { sort = { key: 'date', dir: -1 }; picked = false; }
+    render();
+  }
+
+  function render() {
+    heads.forEach(function (h) {
+      if (h.dataset.key === sort.key) h.setAttribute('aria-sort', sort.dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+    var rows = Array.prototype.filter.call(tbody.rows, function (r) { return !r.hidden; });
+    rows.sort(cmp(sort.key, sort.dir));
+    rows.forEach(function (r) { tbody.appendChild(r); });
+  }
+
+  function click(h) {
+    var key = h.dataset.key;
+    if (key === 'value' && !sortable) return;
+    // первый клик: даты и результаты полезнее сразу по убыванию, остальное — по возрастанию
+    if (sort.key === key) sort.dir = -sort.dir;
+    else sort = { key: key, dir: (key === 'date' || key === 'value') ? -1 : 1 };
+    picked = true;
+    render();
+  }
+
+  heads.forEach(function (h) {
+    h.addEventListener('click', function () { click(h); });
+    h.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); click(h); }
+    });
+  });
+  form.addEventListener('change', apply);
+  document.getElementById('reset').addEventListener('click', function () {
+    keys.forEach(function (k) { form.elements[k].value = ''; });
+    sort = { key: 'date', dir: -1 };
+    picked = false;
+    apply();
+  });
+  apply();
+})();
+</script>`,
+  });
+}
+
+// «+95» весит больше 95, но меньше следующей категории — этого хватает для сортировки
+function weightClassKey(raw) {
+  if (!raw) return '';
+  const m = String(raw).replace(',', '.').match(/(\d+(?:\.\d+)?)/);
+  if (!m) return '';
+  return Number(m[1]) + (String(raw).includes('+') ? 0.5 : 0);
 }
