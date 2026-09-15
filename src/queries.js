@@ -51,7 +51,10 @@ export async function getCompetition(db, slug) {
   const rows = await db.all(`
     SELECT r.*, a.last_name, a.first_name, a.middle_name, a.birth_year,
            (SELECT slug FROM athlete_slugs WHERE athlete_id = a.id AND is_current = 1) AS slug,
-           reg.name AS region, cl.name AS club
+           -- в таблице турнира регион и клуб показываются так, как напечатаны
+           -- в этом протоколе: спортсмен общий для турниров, клуб со временем меняется
+           COALESCE(r.raw_region, reg.name) AS region,
+           COALESCE(r.raw_club, cl.name) AS club
     FROM results r
     JOIN athletes a ON a.id = r.athlete_id
     LEFT JOIN regions reg ON reg.id = a.region_id

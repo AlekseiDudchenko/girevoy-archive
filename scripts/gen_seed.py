@@ -11,7 +11,7 @@
 import json
 import sys
 
-BASE = 0  # следующему протоколу дать запас: 1000, 2000, …
+BASE = 0  # сдвиг id; задаётся полем source.id_base — следующему протоколу 1000, 2000, …
 
 RANKS = {
     "III": "iii", "II": "ii", "I": "i",
@@ -79,6 +79,23 @@ def rank_id(label):
     return ref("sport_ranks", code) if code else None
 
 
+def athlete_key_sql(key, alias=""):
+    last, first, middle, year = key
+    a = alias + "." if alias else ""
+    middle_cond = (f"{a}middle_name IS NULL" if middle is None
+                   else f"{a}middle_name = {esc(middle)}")
+    return (f"{a}last_name = {esc(last)} AND {a}first_name = {esc(first)} "
+            f"AND {middle_cond} AND {a}birth_year = {year}")
+
+
+def athlete_id(key):
+    return Raw(f"(SELECT id FROM athletes WHERE {athlete_key_sql(key)})")
+
+
+def exists_athlete(key):
+    return f"(SELECT 1 FROM athletes a WHERE {athlete_key_sql(key, 'a')})"
+
+
 def split_name(full):
     """«Хамидов Фахриддин Фарход угли» → (Хамидов, Фахриддин, Фарход угли)."""
     parts = full.split()
@@ -86,9 +103,11 @@ def split_name(full):
 
 
 def main(path):
+    global BASE
     data = json.load(open(path, encoding="utf-8"))
     comp = data["competition"]
     src = data["source"]
+    BASE = src.get("id_base", 0)
 
     w(f"-- {comp['name']}, {comp['city']}, {comp['date_start']}"
       f"{'—' + comp['date_end'] if comp.get('date_end') else ''}.")
@@ -160,7 +179,9 @@ def main(path):
            [c[:-1] for c in cats])
     cat_page = {c[0]: c[-1] for c in cats}
 
-    # --- спортсмены: ключ — фамилия, имя, отчество и год рождения
+    # --- спортсмены: ключ — фамилия, имя, отчество и год рождения.
+    # Человек выступает не на одном турнире, поэтому запись общая для всех
+    # протоколов: второй протокол не заводит её заново, а находит по ключу.
     athletes, index = [], {}
     for cat in data["categories"]:
         for r in cat["rows"]:
@@ -169,22 +190,37 @@ def main(path):
             key = (last, first, middle, year)
             if key in index:
                 continue
-            index[key] = BASE + len(athletes) + 1
-            athletes.append((index[key], last, first, middle, year, cat["sex"],
+            index[key] = athlete_id(key)
+            athletes.append((key, last, first, middle, year, cat["sex"],
                              region_id(r[4]), club_id(r[5], r[4]), r[10], rank_id(r[3])))
-    insert("athletes",
-           ["id", "last_name", "first_name", "middle_name", "birth_year", "sex",
-            "region_id", "club_id", "coach", "sport_rank_id"], athletes)
 
-    slugs, seen = [], {}
+    w("-- Спортсмен заводится, только если его ещё нет: тот же человек на другом")
+    w("-- турнире — та же строка athletes, иначе карточка и график разъедутся надвое.")
+    for a in athletes:
+        cols = ["last_name", "first_name", "middle_name", "birth_year", "sex",
+                "region_id", "club_id", "coach", "sport_rank_id"]
+        vals = ", ".join(v if isinstance(v, Raw) else esc(v) for v in a[1:])
+        w(f"INSERT INTO athletes ({', '.join(cols)})")
+        w(f"  SELECT {vals}")
+        w(f"  WHERE NOT EXISTS {exists_athlete(a[0])};")
+    w("")
+
+    # Слаг держит URL карточки. У знакомого спортсмена он уже есть — тогда строка
+    # не добавляется; у однофамильца того же года рождения слаг разводится по id.
+    seen = {}
     for a in athletes:
         base = (a[1] + "-" + a[2]).lower().translate(TRANSLIT)
         slug = f"{base}-{a[4]}"
         seen[slug] = seen.get(slug, 0) + 1
         if seen[slug] > 1:
             slug = f"{slug}-{seen[slug]}"
-        slugs.append((slug, a[0]))
-    insert("athlete_slugs", ["slug", "athlete_id"], slugs)
+        w("INSERT INTO athlete_slugs (slug, athlete_id)")
+        w(f"  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s"
+          f" WHERE s.slug = {esc(slug)} AND s.athlete_id <> a.id)")
+        w(f"              THEN {esc(slug + '-')} || a.id ELSE {esc(slug)} END, a.id")
+        w(f"    FROM athletes a WHERE a.id = {index[a[0]]}")
+        w("     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);")
+    w("")
 
     # --- результаты
     results, reps = [], []
