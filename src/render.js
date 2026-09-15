@@ -50,21 +50,21 @@ const RANK_TITLE = {
 // На значке разряды — римской цифрой: «III разряд» целиком в строку не влезает.
 const RANK_LABEL = { i: 'I', ii: 'II', iii: 'III' };
 
-// Коды, для которых в public/ranks/ лежит изображение официального знака.
-// Список правится руками при добавлении файла: рендер общий для Worker и снимка,
-// а Worker файловую систему не видит и проверить наличие файла не может.
-const RANK_ICONS = new Set([]);
+// Коды, для которых в public/ranks/ лежит иконка. Список правится руками при
+// добавлении файла: рендер общий для Worker и снимка, а Worker файловую систему
+// не видит и проверить наличие файла не может.
+const RANK_ICONS = new Set(['iii', 'ii', 'i', 'kms', 'ms', 'msmk', 'zms']);
 
 function rankBadge(code, name, L) {
   if (!code) return '';
   const tier = RANK_TIER[code] || 'class';
   const label = RANK_LABEL[code] || name || code.toUpperCase();
   const title = RANK_TITLE[code] || name || '';
-  if (L?.rankIcon && RANK_ICONS.has(code)) {
-    return `<img class="rank-ico rank-${tier}" src="${L.rankIcon(code)}"
-      alt="${e(label)}"${title ? ` title="${e(title)}"` : ''} width="40" height="40" loading="lazy">`;
-  }
-  return `<span class="rank rank-${tier}"${title ? ` title="${e(title)}"` : ''}>${e(label)}</span>`;
+  // Иконка условная: шевроны и звёзды не воспроизводят знак ЕВСК, поэтому
+  // подпись остаётся — по ней разряд и читается.
+  const icon = L?.rankIcon && RANK_ICONS.has(code)
+    ? `<img class="rank-ico" src="${L.rankIcon(code)}" alt="" width="24" height="24" loading="lazy">` : '';
+  return `<span class="rank rank-${tier}"${title ? ` title="${e(title)}"` : ''}>${icon}${e(label)}</span>`;
 }
 
 // ------------------------------------------------------------------ каркас

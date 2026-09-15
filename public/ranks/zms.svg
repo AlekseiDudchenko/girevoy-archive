@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Заслуженный мастер спорта">
+  <title>Заслуженный мастер спорта</title>
+  <style>
+    .m { fill: #a8792a; }
+    .o { fill: none; stroke: #a8792a; }
+    @media (prefers-color-scheme: dark) {
+      .m { fill: #c99b48; }
+      .o { stroke: #c99b48; }
+    }
+  </style>
+  <circle class="o" cx="12" cy="12" r="11.1" stroke-width="1.5"/>
+  <circle class="o" cx="12" cy="12" r="8" stroke-width="1.5"/>
+  <polygon class="m" points="12.00,6.70 13.31,10.20 17.04,10.36 14.12,12.69 15.12,16.29 12.00,14.23 8.88,16.29 9.88,12.69 6.96,10.36 10.69,10.20"/>
+</svg>
