@@ -1,6 +1,6 @@
 -- Чемпионат России 2026, Новосибирск, 2026-06-02—2026-06-06.
 -- Сгенерировано scripts/gen_seed.py из data/chempionat-rossii-2026.json, не править руками.
--- Оцифрованы длинный цикл (толчок ДЦ), страницы 2-16, и толчок (мужчины) в весовых категориях 63 и 68 кг с отдельных страниц, номера которых в документе неизвестны. Остальные разделы протокола (толчок в прочих весовых категориях, рывок, жонглирование, командный зачёт) не извлекались.
+-- Оцифрованы длинный цикл (толчок ДЦ), страницы 2-16, и толчок (мужчины) в весовых категориях 63, 68 и 73 кг с отдельных страниц, номера которых в документе неизвестны. Остальные разделы протокола (толчок в прочих весовых категориях, рывок, жонглирование, командный зачёт) не извлекались.
 -- Данные извлечены из скана протокола моделью; сверка человеком не проводилась,
 -- поэтому results.verified_by остаётся пустым (FR-A14).
 
@@ -33,7 +33,8 @@ INSERT OR IGNORE INTO regions (name, country) VALUES
   ('Архангельская область', 'RU'),
   ('Тюменская область', 'RU'),
   ('Республика Башкортостан', 'RU'),
-  ('Чувашская Республика', 'RU');
+  ('Чувашская Республика', 'RU'),
+  ('Самарская область', 'RU');
 
 INSERT OR IGNORE INTO clubs (name, region_id) VALUES
   ('ГАУ НСО «РЦСП СК и СР»', (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU')),
@@ -103,7 +104,12 @@ INSERT OR IGNORE INTO clubs (name, region_id) VALUES
   ('РО ООО ВФГС в Челябинской области', (SELECT id FROM regions WHERE name = 'Челябинская область' AND country = 'RU')),
   ('ВС РФ', (SELECT id FROM regions WHERE name = 'Воронежская область' AND country = 'RU')),
   ('ФСК "Улап", СШ Энергия', (SELECT id FROM regions WHERE name = 'Чувашская Республика' AND country = 'RU')),
-  ('ДЮСШ Кулундинского района', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU'));
+  ('ДЮСШ Кулундинского района', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU')),
+  ('РО ООО "ВФГС" СО', (SELECT id FROM regions WHERE name = 'Самарская область' AND country = 'RU')),
+  ('БУ ДО города Омска «СШОР N33»', (SELECT id FROM regions WHERE name = 'Омская область' AND country = 'RU')),
+  ('Спортивная школа г.Черногорск', (SELECT id FROM regions WHERE name = 'Республика Хакасия' AND country = 'RU')),
+  ('Кулундинская Спортивная школа', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU')),
+  ('ДЮСШ Искитимский район', (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU'));
 
 INSERT OR IGNORE INTO federations (name, short_name, country) VALUES
   ('Всероссийская федерация гиревого спорта', 'ВФГС', 'RU');
@@ -128,8 +134,9 @@ INSERT INTO categories (id, competition_id, discipline_id, sex, age_group_id, di
   (11, 1, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68+', 68, 1, 9, 0, 11),
   (12, 1, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '63', 63, 0, 11, 0, 12),
   (13, 1, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '68', 68, 0, 11, 0, 13),
-  (14, 1, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 12, 'эстафета (мужчины)', NULL, 0, NULL, 1, 104),
-  (15, 1, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 12, 'эстафета (женщины)', NULL, 0, NULL, 1, 105);
+  (14, 1, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '73', 73, 0, 11, 0, 14),
+  (15, 1, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 12, 'эстафета (мужчины)', NULL, 0, NULL, 1, 105),
+  (16, 1, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 12, 'эстафета (женщины)', NULL, 0, NULL, 1, 106);
 
 INSERT INTO athletes (id, last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id) VALUES
   (1, 'Бутенко', 'Евгений', 'Александрович', 1995, 'm', (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ГАУ НСО «РЦСП СК и СР»' AND region_id = (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU')), 'Бутенко А.А.', (SELECT id FROM sport_ranks WHERE code = 'zms')),
@@ -242,7 +249,14 @@ INSERT INTO athletes (id, last_name, first_name, middle_name, birth_year, sex, r
   (108, 'Узюкин', 'Анатолий', 'Эдуардович', 2000, 'm', (SELECT id FROM regions WHERE name = 'Чувашская Республика' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ФСК "Улап", СШ Энергия' AND region_id = (SELECT id FROM regions WHERE name = 'Чувашская Республика' AND country = 'RU')), 'Глинкин Б.Н.', (SELECT id FROM sport_ranks WHERE code = 'ms')),
   (109, 'Василевич', 'Добрыня', 'Андреевич', 2000, 'm', (SELECT id FROM regions WHERE name = 'Республика Бурятия' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШ №3, г. Улан-Удэ' AND region_id = (SELECT id FROM regions WHERE name = 'Республика Бурятия' AND country = 'RU')), 'Рассадин А.А., Сабадажев В.В.', (SELECT id FROM sport_ranks WHERE code = 'ms')),
   (110, 'Щербин', 'Олег', 'Владимирович', 1989, 'm', (SELECT id FROM regions WHERE name = 'г. Санкт-Петербург' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СПБ ГБУ ДО СШОРСВС им. В.Ф. Краевского' AND region_id = (SELECT id FROM regions WHERE name = 'г. Санкт-Петербург' AND country = 'RU')), 'Никифоров А.В.', (SELECT id FROM sport_ranks WHERE code = 'msmk')),
-  (111, 'Аникушко', 'Семён', 'Сергеевич', 2009, 'm', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ДЮСШ Кулундинского района' AND region_id = (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU')), 'Катаев И.Н.', (SELECT id FROM sport_ranks WHERE code = 'i'));
+  (111, 'Аникушко', 'Семён', 'Сергеевич', 2009, 'm', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ДЮСШ Кулундинского района' AND region_id = (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU')), 'Катаев И.Н.', (SELECT id FROM sport_ranks WHERE code = 'i')),
+  (112, 'Рассадин', 'Андрей', 'Андреевич', 1989, 'm', (SELECT id FROM regions WHERE name = 'Республика Бурятия' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО «Онохойская СШ»' AND region_id = (SELECT id FROM regions WHERE name = 'Республика Бурятия' AND country = 'RU')), 'Леонов С.Т., Руднев С.Л.', (SELECT id FROM sport_ranks WHERE code = 'msmk')),
+  (113, 'Смирнов', 'Даниил', 'Алексеевич', 2003, 'm', (SELECT id FROM regions WHERE name = 'г. Санкт-Петербург' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СПБ ГБУ ДО СШОРСВС им. В.Ф. Краевского' AND region_id = (SELECT id FROM regions WHERE name = 'г. Санкт-Петербург' AND country = 'RU')), 'Бенидзе А.А., Бенидзе Д.Б., Старовойтов А.Л.', (SELECT id FROM sport_ranks WHERE code = 'ms')),
+  (114, 'Волдаев', 'Александр', 'Владимирович', 2000, 'm', (SELECT id FROM regions WHERE name = 'Томская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'Федерация гиревого спорта Томской области' AND region_id = (SELECT id FROM regions WHERE name = 'Томская область' AND country = 'RU')), 'Ажермачев А.Б.', (SELECT id FROM sport_ranks WHERE code = 'ms')),
+  (115, 'Балдин', 'Александр', 'Васильевич', 1993, 'm', (SELECT id FROM regions WHERE name = 'Самарская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'РО ООО "ВФГС" СО' AND region_id = (SELECT id FROM regions WHERE name = 'Самарская область' AND country = 'RU')), 'Бахтов И.В.', (SELECT id FROM sport_ranks WHERE code = 'ms')),
+  (116, 'Седых', 'Илья', 'Александрович', 2004, 'm', (SELECT id FROM regions WHERE name = 'Омская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'БУ ДО города Омска «СШОР N33»' AND region_id = (SELECT id FROM regions WHERE name = 'Омская область' AND country = 'RU')), 'Козленко В.Н., Чудаков В.А.', (SELECT id FROM sport_ranks WHERE code = 'kms')),
+  (117, 'Любин', 'Валентин', 'Сергеевич', 2009, 'm', (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'Кулундинская Спортивная школа' AND region_id = (SELECT id FROM regions WHERE name = 'Алтайский край' AND country = 'RU')), 'Катаев И.Н.', (SELECT id FROM sport_ranks WHERE code = 'i')),
+  (118, 'Баер', 'Павел', 'Арнольдович', 1983, 'm', (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ДЮСШ Искитимский район' AND region_id = (SELECT id FROM regions WHERE name = 'Новосибирская область' AND country = 'RU')), 'Самостоятельно', (SELECT id FROM sport_ranks WHERE code = 'kms'));
 
 INSERT INTO athlete_slugs (slug, athlete_id) VALUES
   ('butenko-evgeniy-1995', 1),
@@ -355,7 +369,14 @@ INSERT INTO athlete_slugs (slug, athlete_id) VALUES
   ('uzyukin-anatoliy-2000', 108),
   ('vasilevich-dobrynya-2000', 109),
   ('scherbin-oleg-1989', 110),
-  ('anikushko-semen-2009', 111);
+  ('anikushko-semen-2009', 111),
+  ('rassadin-andrey-1989', 112),
+  ('smirnov-daniil-2003', 113),
+  ('voldaev-aleksandr-2000', 114),
+  ('baldin-aleksandr-1993', 115),
+  ('sedyh-ilya-2004', 116),
+  ('lyubin-valentin-2009', 117),
+  ('baer-pavel-1983', 118);
 
 INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, body_weight_kg, rank_achieved_id, discipline_id, bell_kg, hands, time_limit_min, competition_id, event_date, raw_name, raw_club, raw_region, protocol_id, source_page) VALUES
   (1, 1, 1, 1, 81, NULL, 62.65, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 1, '2026-06-02', 'Бутенко Евгений Александрович', 'ГАУ НСО «РЦСП СК и СР»', 'Новосибирская область', 1, 2),
@@ -479,7 +500,18 @@ INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, bod
   (119, 13, 111, 8, 68, NULL, 67.2, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Аникушко Семён Сергеевич', 'ДЮСШ Кулундинского района', 'Алтайский край', 1, NULL),
   (120, 13, 16, 9, 65, NULL, 68.0, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Рыбский Павел Сергеевич', 'Спортивная школа №1 в Асино', 'Томская область', 1, NULL),
   (121, 13, 17, 10, 62, NULL, 66.75, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Мелюхин Кирилл Александрович', 'МБУ ДО «ДЮСШ «Спарт»', 'Пермский край', 1, NULL),
-  (122, 13, 18, 11, 52, NULL, 67.35, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Сидоренков Александр Александрович', 'РО ООО ВФГС в г. Москве', 'г. Москва', 1, NULL);
+  (122, 13, 18, 11, 52, NULL, 67.35, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Сидоренков Александр Александрович', 'РО ООО ВФГС в г. Москве', 'г. Москва', 1, NULL),
+  (123, 14, 20, 1, 141, NULL, 72.9, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Рябков Алексей Игоревич', 'МБУ ДО СШОР «Югория» им. А.А. Пилояна', 'Ханты-Мансийский АО - Югра', 1, NULL),
+  (124, 14, 112, 2, 135, NULL, 72.7, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Рассадин Андрей Андреевич', 'МБУ ДО «Онохойская СШ»', 'Республика Бурятия', 1, NULL),
+  (125, 14, 113, 3, 122, NULL, 71.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Смирнов Даниил Алексеевич', 'СПБ ГБУ ДО СШОРСВС им. В.Ф. Краевского', 'г. Санкт-Петербург', 1, NULL),
+  (126, 14, 23, 4, 121, NULL, 72.85, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Трофимов Тимур Михайлович', 'СШОР Маршал', 'Калужская область', 1, NULL),
+  (127, 14, 114, 5, 105, NULL, 72.65, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Волдаев Александр Владимирович', 'Федерация гиревого спорта Томской области', 'Томская область', 1, NULL),
+  (128, 14, 115, 6, 97, NULL, 72.15, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Балдин Александр Васильевич', 'РО ООО "ВФГС" СО', 'Самарская область', 1, NULL),
+  (129, 14, 116, 7, 88, NULL, 71.65, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Седых Илья Александрович', 'БУ ДО города Омска «СШОР N33»', 'Омская область', 1, NULL),
+  (130, 14, 29, 8, 84, NULL, 72.75, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Захаров Максим Александрович', 'МУ ДО «МЦРФКиС» Черепановского района', 'Новосибирская область', 1, NULL),
+  (131, 14, 27, 9, 73, NULL, 72.8, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Жибинов Фёдор Васильевич', 'Спортивная школа г.Черногорск', 'Республика Хакасия', 1, NULL),
+  (132, 14, 117, 10, 71, NULL, 72.4, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Любин Валентин Сергеевич', 'Кулундинская Спортивная школа', 'Алтайский край', 1, NULL),
+  (133, 14, 118, 11, 49, NULL, 72.4, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 1, '2026-06-02', 'Баер Павел Арнольдович', 'ДЮСШ Искитимский район', 'Новосибирская область', 1, NULL);
 
 INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (1, 1, 'long_cycle', 'both', 81),
@@ -603,5 +635,16 @@ INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (119, 119, 'jerk', 'both', 68),
   (120, 120, 'jerk', 'both', 65),
   (121, 121, 'jerk', 'both', 62),
-  (122, 122, 'jerk', 'both', 52);
+  (122, 122, 'jerk', 'both', 52),
+  (123, 123, 'jerk', 'both', 141),
+  (124, 124, 'jerk', 'both', 135),
+  (125, 125, 'jerk', 'both', 122),
+  (126, 126, 'jerk', 'both', 121),
+  (127, 127, 'jerk', 'both', 105),
+  (128, 128, 'jerk', 'both', 97),
+  (129, 129, 'jerk', 'both', 88),
+  (130, 130, 'jerk', 'both', 84),
+  (131, 131, 'jerk', 'both', 73),
+  (132, 132, 'jerk', 'both', 71),
+  (133, 133, 'jerk', 'both', 49);
 
