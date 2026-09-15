@@ -94,6 +94,24 @@ export async function getAthlete(db, slug) {
      ORDER BY r.raw_name`, a.id, a.id, a.full_name);
   a.other_spellings = spellings.map((s) => s.raw_name);
 
+  // Тренера показываем вместе с последним годом опубликованного протокола,
+  // в котором существует зафиксированная связь тренер–спортсмен.
+  const coaches = await db.all(`
+    SELECT p.display_name AS name, p.slug,
+           MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
+    FROM person_coach_athletes pca
+    JOIN persons p ON p.id = pca.person_id
+    JOIN results r ON r.athlete_id = pca.athlete_id
+    JOIN competitions c ON c.id = r.competition_id
+    WHERE pca.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
+      AND c.is_published = 1
+    GROUP BY p.id, p.display_name, p.slug
+    ORDER BY p.display_name`, a.id, a.id);
+  a.coaches = coaches;
+  if (coaches.length) {
+    a.coach = coaches.map((coach) => `${coach.name}${coach.last_year ? ` (${coach.last_year})` : ''}`).join(', ');
+  }
+
   const results = await db.all(`
     SELECT r.*, d.name AS discipline_name, c.name AS competition, c.slug AS competition_slug,
            cat.weight_class_raw, dv.name AS division,
@@ -120,11 +138,12 @@ export async function listAthleteSlugs(db) {
 
 export async function listCoaches(db) {
   const rows = await db.all(`
-    SELECT DISTINCT p.id AS person_id, p.slug, p.display_name AS name,
+    SELECT p.id AS person_id, p.slug, p.display_name AS name,
            canonical.id AS athlete_id, canonical.full_name AS athlete_name,
            reg.name AS region,
            (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id
-            AND is_current = 1) AS athlete_slug
+            AND is_current = 1) AS athlete_slug,
+           MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
     FROM persons p
     JOIN person_coach_athletes pca ON pca.person_id = p.id
     JOIN athletes a ON a.id = pca.athlete_id
@@ -132,14 +151,17 @@ export async function listCoaches(db) {
     JOIN results r ON r.athlete_id = a.id
     JOIN competitions c ON c.id = r.competition_id
     LEFT JOIN regions reg ON reg.id = a.region_id
-    WHERE c.is_published = 1`);
+    WHERE c.is_published = 1
+    GROUP BY p.id, p.slug, p.display_name, canonical.id, canonical.full_name, reg.name`);
   const groups = new Map();
   for (const row of rows) {
     if (!groups.has(row.person_id)) groups.set(row.person_id, {
       name: row.name, slug: row.slug, regions: new Set(), athletes: new Map() });
     const group = groups.get(row.person_id);
     if (row.region) group.regions.add(row.region);
-    group.athletes.set(row.athlete_id, { name: row.athlete_name, slug: row.athlete_slug });
+    group.athletes.set(row.athlete_id, {
+      name: row.athlete_name, slug: row.athlete_slug, last_year: row.last_year,
+    });
   }
   return [...groups.values()].map((g) => ({ ...g,
     regions: [...g.regions].sort((a, b) => a.localeCompare(b, 'ru')),
@@ -181,22 +203,31 @@ export async function getPerson(db, slug) {
   const athleteData = athleteLink ? await getAthlete(db, athleteLink.slug) : null;
 
   const coachedRows = await db.all(`
-    SELECT DISTINCT canonical.id, canonical.full_name AS name, reg.name AS region,
-      (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id AND is_current = 1) AS slug
+    SELECT canonical.id, canonical.full_name AS name, reg.name AS region,
+      (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id AND is_current = 1) AS slug,
+      MAX(SUBSTR(r.event_date, 1, 4)) AS last_year
     FROM person_coach_athletes pca
     JOIN athletes a ON a.id = pca.athlete_id
     JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
     JOIN results r ON r.athlete_id = a.id
     JOIN competitions c ON c.id = r.competition_id
     LEFT JOIN regions reg ON reg.id = a.region_id
-    WHERE pca.person_id = ? AND c.is_published = 1`, person.id);
+    WHERE pca.person_id = ? AND c.is_published = 1
+    GROUP BY canonical.id, canonical.full_name, reg.name`, person.id);
   const coached = new Map();
   for (const a of coachedRows) {
-    if (!coached.has(a.id)) coached.set(a.id, { name: a.name, slug: a.slug, regions: new Set() });
-    if (a.region) coached.get(a.id).regions.add(a.region);
+    if (!coached.has(a.id)) coached.set(a.id, {
+      name: a.name, slug: a.slug, regions: new Set(), last_year: a.last_year,
+    });
+    const item = coached.get(a.id);
+    if (a.region) item.regions.add(a.region);
+    if (!item.last_year || a.last_year > item.last_year) item.last_year = a.last_year;
   }
-  const coachedAthletes = [...coached.values()].map((a) => ({ ...a, regions: [...a.regions] }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const coachedAthletes = [...coached.values()].map((a) => ({
+    ...a,
+    name: `${a.name}${a.last_year ? ` (${a.last_year})` : ''}`,
+    regions: [...a.regions],
+  })).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   return { person, activities, judgeRoles, athleteData, coachedAthletes };
 }
 
