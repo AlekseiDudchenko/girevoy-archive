@@ -14,6 +14,7 @@ function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
   sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2024.json'], { encoding: 'utf8' }));
+  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2023.json'], { encoding: 'utf8' }));
   for (const file of after2024) sql.exec(readFileSync(file, 'utf8'));
   sql.exec(execFileSync('python3', ['scripts/gen_people.py'], { encoding: 'utf8' }));
   return { sql, db: {
@@ -42,7 +43,7 @@ test('joint coach strings become separate person roles', async () => {
     assert.ok(coaches.length > 1);
     assert.ok(coaches.every((c) => c.slug && c.athletes.length));
     assert.ok(coaches.every((c) => !c.name.includes(',')));
-    assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[456]$/.test(a.last_year)));
+    assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[3-6]$/.test(a.last_year)));
   } finally { sql.close(); }
 });
 
@@ -108,8 +109,8 @@ test('athlete person shows coaches with the last published year', async () => {
     assert.ok(row);
     const person = await getPerson(db, row.slug);
     assert.ok(person.athleteData.athlete.coaches.length);
-    assert.ok(person.athleteData.athlete.coaches.every((c) => /^202[456]$/.test(c.last_year)));
-    assert.ok(/\(202[456]\)/.test(person.athleteData.athlete.coach));
+    assert.ok(person.athleteData.athlete.coaches.every((c) => /^202[3-6]$/.test(c.last_year)));
+    assert.ok(/\(202[3-6]\)/.test(person.athleteData.athlete.coach));
   } finally { sql.close(); }
 });
 
