@@ -36,6 +36,26 @@ const repsText = (reps) => {
   }).join(' · ');
 };
 
+// Значок спортивного разряда. Код ЕВСК — из справочника sport_ranks.
+const RANK_TIER = { zms: 'master', msmk: 'master', ms: 'master', kms: 'kms' };
+const RANK_TITLE = {
+  zms: 'Заслуженный мастер спорта',
+  msmk: 'Мастер спорта международного класса',
+  ms: 'Мастер спорта',
+  kms: 'Кандидат в мастера спорта',
+  i: 'Первый разряд', ii: 'Второй разряд', iii: 'Третий разряд',
+};
+// На значке разряды — римской цифрой: «III разряд» целиком в строку не влезает.
+const RANK_LABEL = { i: 'I', ii: 'II', iii: 'III' };
+
+function rankBadge(code, name) {
+  if (!code) return '';
+  const tier = RANK_TIER[code] || 'class';
+  const label = RANK_LABEL[code] || name || code.toUpperCase();
+  const title = RANK_TITLE[code] || name || '';
+  return `<span class="rank rank-${tier}"${title ? ` title="${e(title)}"` : ''}>${e(label)}</span>`;
+}
+
 // ------------------------------------------------------------------ каркас
 
 // bare: без <html>/<head>/<body> — для площадок, которые оборачивают страницу сами.
@@ -183,6 +203,8 @@ export function renderCompetition({ comp, categories, L }) {
           <td class="r n">${r.body_weight_kg == null ? '—' : r.body_weight_kg.toFixed(1)}</td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
+          <td class="c">${r.rank_achieved_code
+            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -220,9 +242,10 @@ export function renderAthlete({ athlete, results, L }) {
 <article>
   <div class="page-head">
     <p class="eyebrow">Спортсмен</p>
-    <h1>${e(name)}</h1>
+    <h1>${e(name)}${athlete.sport_rank_code
+      ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank)}` : ''}</h1>
     <p class="meta-line">${[athlete.birth_year && `${athlete.birth_year} г. р.`, athlete.region,
-      athlete.club, athlete.sport_rank].filter(Boolean).map(e).join(' · ')}</p>
+      athlete.club].filter(Boolean).map(e).join(' · ')}</p>
     ${athlete.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
   </div>
 
@@ -240,7 +263,7 @@ export function renderAthlete({ athlete, results, L }) {
       <thead><tr>
         <th>Дата</th><th>Соревнование</th><th>Дисциплина</th>
         <th class="c">Кат.</th><th class="c">Место</th>
-        <th class="r">Подъёмы</th><th class="r">Результат</th>
+        <th class="r">Подъёмы</th><th class="r">Результат</th><th class="c">Разряд</th>
       </tr></thead>
       <tbody>
       ${results.map((r) => `
@@ -252,6 +275,8 @@ export function renderAthlete({ athlete, results, L }) {
           <td class="c place"><span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span></td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
+          <td class="c">${r.rank_achieved_code
+            ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
         </tr>`).join('')}
       </tbody>
     </table>
