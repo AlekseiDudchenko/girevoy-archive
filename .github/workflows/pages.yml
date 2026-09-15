@@ -35,9 +35,11 @@ jobs:
       - name: Собрать базу со схемой, справочниками и данными протоколов
         run: |
           mkdir -p .local
+          python3 scripts/gen_seed.py data/chempionat-rossii-2024.json > .local/chempionat-rossii-2024.sql
           python3 scripts/gen_people.py > .local/people.sql
           cat migrations/*.sql \
               seeds/0001_reference.sql \
+              .local/chempionat-rossii-2024.sql \
               seeds/0003_chempionat-rossii-2026.sql \
               seeds/0004_chempionat-rossii-2025.sql \
               seeds/0005_merges.sql \
