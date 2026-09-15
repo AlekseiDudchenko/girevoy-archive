@@ -55,6 +55,22 @@ const sortableCoaches = (body) => body.replace(
   });
 })();</script></body>`);
 
+const personCoachYears = (body) => {
+  const marker = '<h2>Тренер</h2>';
+  const start = body.indexOf(marker);
+  if (start < 0) return body;
+  const end = body.indexOf('</section>', start);
+  if (end < 0) return body;
+  const section = body.slice(start, end)
+    .replace(
+      '<thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>',
+      '<thead><tr><th>Спортсмен</th><th>Регион</th><th class="c">Последний протокол</th></tr></thead>',
+    )
+    .replace(/<tr><td>(<a[^>]*>)?([\s\S]*?) \((\d{4})\)(<\/a>)?<\/td>\s*<td>([\s\S]*?)<\/td><\/tr>/g,
+      '<tr><td>$1$2$4</td><td>$5</td><td class="c n">$3</td></tr>');
+  return body.slice(0, start) + section + body.slice(end);
+};
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
@@ -67,7 +83,7 @@ const coaches = await q.listCoaches(db);
 write('coaches.html', sortableCoaches(renderCoaches({ coaches, L })));
 for (const { slug } of await q.listPersonSlugs(db)) {
   const data = await q.getPerson(db, slug);
-  write(L.person(slug), renderPerson({ ...data, L }));
+  write(L.person(slug), personCoachYears(renderPerson({ ...data, L })));
 }
 
 for (const c of competitions) {
@@ -80,7 +96,7 @@ let athletePages = 0;
 for (const { slug } of slugs) {
   const data = await q.getPerson(db, slug);
   if (!data?.athleteData?.results.length) continue;
-  write(`a-${slug}.html`, renderPerson({ ...data, L }));
+  write(`a-${slug}.html`, personCoachYears(renderPerson({ ...data, L })));
   athletePages++;
 }
 
