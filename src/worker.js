@@ -16,19 +16,10 @@ const html = (body, status = 200) => new Response(body, {
   },
 });
 
-const sortableCoaches = (body, coaches) => {
-  let rowIndex = 0;
-  const withYear = body.replace(
-    '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
-    '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Последний протокол</th></tr></thead>',
-  ).replace(/(<tbody>[\s\S]*?<\/tbody>)/, (tbody) => tbody.replace(/<\/tr>/g, () => {
-    const coach = coaches[rowIndex++];
-    const years = (coach?.athletes || []).map((a) => a.last_year).filter(Boolean);
-    const lastYear = years.length ? years.sort().at(-1) : '—';
-    return `<td class="c n">${lastYear}</td></tr>`;
-  }));
-
-  return withYear.replace('</body>', `<script>(function () {
+const sortableCoaches = (body) => body.replace(
+  '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
+  '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th></tr></thead>',
+).replace('</body>', `<script>(function () {
   var table = document.getElementById('coaches-table');
   if (!table) return;
   var body = table.tBodies[0];
@@ -62,6 +53,21 @@ const sortableCoaches = (body, coaches) => {
     });
   });
 })();</script></body>`);
+
+const personCoachYears = (body) => {
+  const marker = '<h2>Тренер</h2>';
+  const start = body.indexOf(marker);
+  if (start < 0) return body;
+  const end = body.indexOf('</section>', start);
+  if (end < 0) return body;
+  const section = body.slice(start, end)
+    .replace(
+      '<thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>',
+      '<thead><tr><th>Спортсмен</th><th>Регион</th><th class="c">Последний протокол</th></tr></thead>',
+    )
+    .replace(/<tr><td>(<a[^>]*>)?([\s\S]*?) \((\d{4})\)(<\/a>)?<\/td>\s*<td>([\s\S]*?)<\/td><\/tr>/g,
+      '<tr><td>$1$2$4</td><td>$5</td><td class="c n">$3</td></tr>');
+  return body.slice(0, start) + section + body.slice(end);
 };
 
 export default {
@@ -80,12 +86,11 @@ export default {
         return html(renderResults({ rows: await q.listAllResults(db), L }));
       }
       if (path === '/coaches') {
-        const coaches = await q.listCoaches(db);
-        return html(sortableCoaches(renderCoaches({ coaches, L }), coaches));
+        return html(sortableCoaches(renderCoaches({ coaches: await q.listCoaches(db), L })));
       }
       if (path.startsWith('/p/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
-        return data ? html(renderPerson({ ...data, L })) : html(notFound(L), 404);
+        return data ? html(personCoachYears(renderPerson({ ...data, L }))) : html(notFound(L), 404);
       }
       if (path.startsWith('/c/')) {
         const data = await q.getCompetition(db, decodeURIComponent(path.slice(3)));
@@ -94,7 +99,7 @@ export default {
       if (path.startsWith('/a/')) {
         // Старые адреса спортсменов остаются рабочими.
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
-        return data ? html(renderPerson({ ...data, L })) : html(notFound(L), 404);
+        return data ? html(personCoachYears(renderPerson({ ...data, L }))) : html(notFound(L), 404);
       }
       return html(notFound(L), 404);
     } catch (err) {
