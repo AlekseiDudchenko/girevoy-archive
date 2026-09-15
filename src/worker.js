@@ -62,12 +62,48 @@ const personCoachYears = (body) => {
   if (end < 0) return body;
   const section = body.slice(start, end)
     .replace(
-      '<thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>',
-      '<thead><tr><th>Спортсмен</th><th>Регион</th><th class="c">Последний протокол</th></tr></thead>',
+      '<div class="scroll"><table><thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>',
+      '<div class="scroll"><table id="coach-athletes-table"><thead><tr><th class="sort" data-sort="0" role="button" tabindex="0">Спортсмен</th><th class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th class="c sort" data-sort="2" role="button" tabindex="0">Последний протокол</th></tr></thead>',
     )
     .replace(/<tr><td>(<a[^>]*>)?([\s\S]*?) \((\d{4})\)(<\/a>)?<\/td>\s*<td>([\s\S]*?)<\/td><\/tr>/g,
       '<tr><td>$1$2$4</td><td>$5</td><td class="c n">$3</td></tr>');
-  return body.slice(0, start) + section + body.slice(end);
+  const withSection = body.slice(0, start) + section + body.slice(end);
+  return withSection.replace('</body>', `<script>(function () {
+  var table = document.getElementById('coach-athletes-table');
+  if (!table) return;
+  var tbody = table.tBodies[0];
+  var heads = Array.prototype.slice.call(table.querySelectorAll('th[data-sort]'));
+  var current = -1, dir = 1;
+  function value(row, index) {
+    var text = row.cells[index].textContent.trim();
+    if (index === 2) return text === '—' ? null : Number(text);
+    return text.toLocaleLowerCase('ru').replace(/ё/g, 'е');
+  }
+  function sortBy(head) {
+    var index = Number(head.dataset.sort);
+    dir = current === index ? -dir : (index === 2 ? -1 : 1);
+    current = index;
+    var rows = Array.prototype.slice.call(tbody.rows);
+    rows.sort(function (a, b) {
+      var x = value(a, index), y = value(b, index);
+      if (x === y) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      return (index === 2 ? x - y : x.localeCompare(y, 'ru')) * dir;
+    });
+    rows.forEach(function (row) { tbody.appendChild(row); });
+    heads.forEach(function (h) {
+      if (h === head) h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+  }
+  heads.forEach(function (head) {
+    head.addEventListener('click', function () { sortBy(head); });
+    head.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); sortBy(head); }
+    });
+  });
+})();</script></body>`);
 };
 
 export default {
