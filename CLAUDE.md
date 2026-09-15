@@ -36,6 +36,7 @@ public/style.css                 токены тем, таблицы, графи
 wrangler.toml                    привязки D1 и R2
 .github/workflows/pages.yml      сборка снимка на GitHub Pages
 .claude/skills/schema-change/    порядок правки схемы
+.claude/skills/protocol-photo/   протокол с фотографии: извлечение, проверки, коммит
 ```
 
 Чего ещё нет: админки, извлечения из PDF, автопроверок. Это шаги 1–4 дорожной карты.
