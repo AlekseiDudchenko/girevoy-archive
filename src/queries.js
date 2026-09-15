@@ -67,7 +67,8 @@ export async function getCompetition(db, slug) {
 
 export async function getAthlete(db, slug) {
   const a = await db.get(`
-    SELECT a.*, reg.name AS region, cl.name AS club, sr.name AS sport_rank
+    SELECT a.*, reg.name AS region, cl.name AS club,
+           sr.name AS sport_rank, sr.code AS sport_rank_code
     FROM athlete_slugs s JOIN athletes a ON a.id = s.athlete_id
     LEFT JOIN regions reg ON reg.id = a.region_id
     LEFT JOIN clubs cl ON cl.id = a.club_id
@@ -77,12 +78,14 @@ export async function getAthlete(db, slug) {
 
   const results = await db.all(`
     SELECT r.*, d.name AS discipline_name, c.name AS competition, c.slug AS competition_slug,
-           cat.weight_class_raw, dv.name AS division
+           cat.weight_class_raw, dv.name AS division,
+           sra.name AS rank_achieved, sra.code AS rank_achieved_code
     FROM results r
     JOIN disciplines d ON d.id = r.discipline_id
     JOIN competitions c ON c.id = r.competition_id
     JOIN categories cat ON cat.id = r.category_id
     LEFT JOIN divisions dv ON dv.id = cat.division_id
+    LEFT JOIN sport_ranks sra ON sra.id = r.rank_achieved_id
     WHERE r.athlete_id = ? AND c.is_published = 1
     ORDER BY r.event_date DESC`, a.id);
 

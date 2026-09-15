@@ -189,6 +189,18 @@ td.place { width: 3.6rem; }
 .p3 { background: var(--bronze); color: #fff; }
 th.sortable { color: var(--accent); }
 
+/* значок спортивного разряда: МС, КМС, I–III */
+.rank {
+  display: inline-block; font-family: "PT Mono", monospace;
+  font-size: 0.72rem; line-height: 1.5; letter-spacing: 0.04em;
+  padding: 0 0.4rem; white-space: nowrap;
+  border: 1px solid currentColor; color: var(--ink-3);
+}
+.rank-master { color: var(--gold); font-weight: 700; }
+.rank-kms { color: var(--silver); }
+h1 .rank { font-size: 0.85rem; vertical-align: 0.4em; margin-left: 0.4rem; }
+
+
 /* ------------------------------------------------------------- фильтры */
 .filters {
   display: flex; flex-wrap: wrap; gap: 0.7rem 1rem; align-items: end;
