@@ -1,0 +1,16 @@
+{
+  "name": "girevoy-archive",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:create": "wrangler d1 create girevoy-archive",
+    "db:migrate": "wrangler d1 execute girevoy-archive --file=migrations/0001_init.sql",
+    "db:seed": "wrangler d1 execute girevoy-archive --file=seeds/0001_reference.sql && wrangler d1 execute girevoy-archive --file=seeds/0002_demo.sql",
+    "db:local": "rm -f .local/girevoy.db && mkdir -p .local && cat migrations/0001_init.sql seeds/0001_reference.sql seeds/0002_demo.sql | sqlite3 .local/girevoy.db",
+    "db:export": "wrangler d1 export girevoy-archive --output=backup.sql",
+    "demo:gen": "python3 scripts/gen_demo.py > seeds/0002_demo.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3"
+  }
+}

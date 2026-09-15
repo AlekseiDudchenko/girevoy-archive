@@ -1,0 +1,11 @@
+name = "girevoy-archive"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "girevoy-archive"
+database_id = "поставить после wrangler d1 create girevoy-archive"
+
+[[r2_buckets]]
+binding = "PROTOCOLS"
+bucket_name = "girevoy-protocols"
