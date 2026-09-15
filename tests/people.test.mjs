@@ -9,14 +9,15 @@ import { renderCoaches, renderPerson, links } from '../src/render.js';
 const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql',
   'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql'];
 const after2024 = ['seeds/0005_merges.sql'];
+const execOptions = { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 };
 
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
-  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2024.json'], { encoding: 'utf8' }));
-  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2023.json'], { encoding: 'utf8' }));
+  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2024.json'], execOptions));
+  sql.exec(execFileSync('python3', ['scripts/gen_seed.py', 'data/chempionat-rossii-2023.json'], execOptions));
   for (const file of after2024) sql.exec(readFileSync(file, 'utf8'));
-  sql.exec(execFileSync('python3', ['scripts/gen_people.py'], { encoding: 'utf8' }));
+  sql.exec(execFileSync('python3', ['scripts/gen_people.py'], execOptions));
   return { sql, db: {
     all: async (query, ...params) => sql.prepare(query).all(...params),
     get: async (query, ...params) => sql.prepare(query).get(...params) ?? null,
