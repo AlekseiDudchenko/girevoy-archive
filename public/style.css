@@ -187,7 +187,16 @@ td.place { width: 3.6rem; }
 .p1 { background: var(--gold); color: #fff; font-weight: 700; }
 .p2 { background: var(--silver); color: #fff; }
 .p3 { background: var(--bronze); color: #fff; }
-th.sortable { color: var(--accent); }
+/* сортировка по столбцам */
+th.sort { cursor: pointer; user-select: none; }
+th.sort:hover { color: var(--accent); }
+th.sort::after { content: "\2195"; margin-left: 0.35em; opacity: 0.3; }
+th.sort[aria-sort] { color: var(--accent); }
+th.sort[aria-sort="ascending"]::after { content: "\2191"; opacity: 1; }
+th.sort[aria-sort="descending"]::after { content: "\2193"; opacity: 1; }
+th.sort[aria-disabled="true"] { cursor: default; }
+th.sort[aria-disabled="true"]:hover { color: var(--ink-3); }
+th.sort[aria-disabled="true"]::after { content: ""; margin-left: 0; }
 
 /* значок спортивного разряда: МС, КМС, I–III */
 .rank {
