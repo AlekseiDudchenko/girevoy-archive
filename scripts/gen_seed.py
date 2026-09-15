@@ -11,7 +11,8 @@
 import json
 import sys
 
-BASE = 0  # сдвиг id; задаётся полем source.id_base — следующему протоколу 1000, 2000, …
+BASE = 0
+MATCH_WITHOUT_MIDDLE = False
 
 RANKS = {
     "III": "iii", "II": "ii", "I": "i",
@@ -53,8 +54,6 @@ class Raw(str):
 
 
 def region_name(raw):
-    """«г. Санкт-Петербург, Самарская область» → первый регион; полная запись
-    остаётся в results.raw_region."""
     return raw.split(",")[0].strip()
 
 
@@ -82,42 +81,49 @@ def rank_id(label):
 def athlete_key_sql(key, alias=""):
     last, first, middle, year = key
     a = alias + "." if alias else ""
-    middle_cond = (f"{a}middle_name IS NULL" if middle is None
-                   else f"{a}middle_name = {esc(middle)}")
-    return (f"{a}last_name = {esc(last)} AND {a}first_name = {esc(first)} "
-            f"AND {middle_cond} AND {a}birth_year = {year}")
+    parts = [
+        f"{a}last_name = {esc(last)}",
+        f"{a}first_name = {esc(first)}",
+        f"{a}birth_year = {year}",
+    ]
+    if middle is not None:
+        parts.insert(2, f"{a}middle_name = {esc(middle)}")
+    elif not MATCH_WITHOUT_MIDDLE:
+        parts.insert(2, f"{a}middle_name IS NULL")
+    return " AND ".join(parts)
 
 
 def athlete_id(key):
-    return Raw(f"(SELECT id FROM athletes WHERE {athlete_key_sql(key)})")
+    return Raw(f"(SELECT id FROM athletes WHERE {athlete_key_sql(key)} LIMIT 1)")
 
 
 def exists_athlete(key):
-    return f"(SELECT 1 FROM athletes a WHERE {athlete_key_sql(key, 'a')})"
+    return f"(SELECT 1 FROM athletes a WHERE {athlete_key_sql(key, 'a')} LIMIT 1)"
 
 
 def split_name(full):
-    """«Хамидов Фахриддин Фарход угли» → (Хамидов, Фахриддин, Фарход угли)."""
     parts = full.split()
     return parts[0], parts[1], " ".join(parts[2:]) or None
 
 
 def main(path):
-    global BASE
+    global BASE, MATCH_WITHOUT_MIDDLE
     data = json.load(open(path, encoding="utf-8"))
     comp = data["competition"]
     src = data["source"]
     BASE = src.get("id_base", 0)
+    MATCH_WITHOUT_MIDDLE = bool(src.get("names_without_middle", False))
 
     w(f"-- {comp['name']}, {comp['city']}, {comp['date_start']}"
       f"{'—' + comp['date_end'] if comp.get('date_end') else ''}.")
     w(f"-- Сгенерировано scripts/gen_seed.py из {path}, не править руками.")
     w(f"-- {src['note']}")
-    w("-- Данные извлечены из скана протокола моделью; сверка человеком не проводилась,")
+    if MATCH_WITHOUT_MIDDLE:
+        w("-- В исходнике нет отчеств: спортсмены сопоставляются по фамилии, имени и году рождения.")
+    w("-- Данные извлечены из протокола моделью; сверка человеком не проводилась,")
     w("-- поэтому results.verified_by остаётся пустым (FR-A14).")
     w("")
 
-    # --- справочники: имена могут уже быть в базе от другого протокола
     regions, clubs = [], []
     for cat in data["categories"]:
         for r in cat["rows"]:
@@ -137,7 +143,6 @@ def main(path):
     w(f"  ({esc(comp['federation'])}, 'ВФГС', 'RU');")
     w("")
 
-    # --- соревнование и протокол
     cid = BASE + 1
     insert("competitions",
            ["id", "slug", "name", "date_start", "date_end", "city", "country",
@@ -156,7 +161,6 @@ def main(path):
              src["page_count"], 1 if src["is_scan"] else 0, "published",
              comp["date_start"])])
 
-    # --- категории
     cats, order = [], 0
     for cat in data["categories"]:
         order += 1
@@ -179,9 +183,6 @@ def main(path):
            [c[:-1] for c in cats])
     cat_page = {c[0]: c[-1] for c in cats}
 
-    # --- спортсмены: ключ — фамилия, имя, отчество и год рождения.
-    # Человек выступает не на одном турнире, поэтому запись общая для всех
-    # протоколов: второй протокол не заводит её заново, а находит по ключу.
     athletes, index = [], {}
     for cat in data["categories"]:
         for r in cat["rows"]:
@@ -205,8 +206,6 @@ def main(path):
         w(f"  WHERE NOT EXISTS {exists_athlete(a[0])};")
     w("")
 
-    # Слаг держит URL карточки. У знакомого спортсмена он уже есть — тогда строка
-    # не добавляется; у однофамильца того же года рождения слаг разводится по id.
     seen = {}
     for a in athletes:
         base = (a[1] + "-" + a[2]).lower().translate(TRANSLIT)
@@ -222,7 +221,6 @@ def main(path):
         w("     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);")
     w("")
 
-    # --- результаты
     results, reps = [], []
     for i, cat in enumerate(data["categories"], start=1):
         cat_id = BASE + i
@@ -234,7 +232,6 @@ def main(path):
                             ref("disciplines", cat["discipline"]), cat["bell_kg"],
                             cat["hands"], cat["time_limit_min"], cid, comp["date_start"],
                             r[1], r[5], r[4], pid, cat_page[cat_id]))
-            # снятый по правилам идёт строкой без места и результата: подъёмов нет
             if r[7] is not None:
                 reps.append((BASE + len(reps) + 1, rid, cat["discipline"], "both", r[7]))
     insert("results",
