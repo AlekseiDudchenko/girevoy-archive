@@ -19,10 +19,22 @@ CREATE TABLE person_athletes (
   PRIMARY KEY (person_id, athlete_id)
 );
 
+-- Агрегированная связь: этот человек когда-либо был указан тренером спортсмена.
 CREATE TABLE person_coach_athletes (
   person_id  INTEGER NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
   athlete_id INTEGER NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
   PRIMARY KEY (person_id, athlete_id)
+);
+
+-- Источник агрегированной связи. Одна строка означает: в протоколе конкретного
+-- соревнования этот человек указан тренером этого спортсмена. Историю нельзя
+-- восстанавливать из athletes.coach: спортсмен общий для нескольких турниров,
+-- поэтому одно поле теряет прежние значения.
+CREATE TABLE person_coach_mentions (
+  person_id      INTEGER NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
+  athlete_id     INTEGER NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
+  competition_id INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
+  PRIMARY KEY (person_id, athlete_id, competition_id)
 );
 
 CREATE TABLE person_activities (
@@ -45,5 +57,7 @@ CREATE TABLE person_judge_roles (
 );
 
 CREATE INDEX idx_person_coaches_person ON person_coach_athletes(person_id);
+CREATE INDEX idx_person_coach_mentions_person ON person_coach_mentions(person_id);
+CREATE INDEX idx_person_coach_mentions_athlete ON person_coach_mentions(athlete_id);
 CREATE INDEX idx_person_activities_person ON person_activities(person_id);
 CREATE INDEX idx_person_judges_person ON person_judge_roles(person_id);
