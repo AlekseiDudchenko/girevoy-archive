@@ -13,7 +13,10 @@ export async function getStats(db) {
            (SELECT COUNT(*) FROM results r JOIN competitions c ON c.id = r.competition_id
              WHERE c.is_published = 1) AS results,
            (SELECT COUNT(*) FROM athletes WHERE merged_into_id IS NULL) AS athletes,
-           (SELECT COUNT(*) FROM protocols WHERE status <> 'published') AS pending`);
+           (SELECT COUNT(DISTINCT pcm.person_id)
+              FROM person_coach_mentions pcm
+              JOIN competitions c ON c.id = pcm.competition_id
+             WHERE c.is_published = 1) AS coaches`);
 }
 
 export async function listCompetitions(db) {
