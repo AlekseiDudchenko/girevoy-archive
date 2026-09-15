@@ -35,8 +35,9 @@ jobs:
       - name: Собрать базу со схемой, справочниками и данными протоколов
         run: |
           mkdir -p .local
-          cat migrations/0001_init.sql seeds/0001_reference.sql \
-            seeds/0003_chempionat-rossii-2026.sql | sqlite3 .local/girevoy.db
+          # seeds/*.sql в порядке номеров: 0001 справочники, дальше протоколы.
+          # Новый протокол подхватывается сам, правка workflow не нужна.
+          cat migrations/0001_init.sql seeds/*.sql | sqlite3 .local/girevoy.db
           echo "таблиц: $(sqlite3 .local/girevoy.db "SELECT COUNT(*) FROM sqlite_master WHERE type='table'")"
           echo "результатов: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results')"
 
