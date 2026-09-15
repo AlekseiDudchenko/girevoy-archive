@@ -30,15 +30,19 @@ def split_name(full: str) -> tuple[str, str, str | None]:
     return parts[0], parts[1], " ".join(parts[2:]) or None
 
 
-def athlete_sql(full_name: str, born: str) -> str:
+def athlete_sql(full_name: str, born: str, names_without_middle: bool = False) -> str:
     last, first, middle = split_name(full_name)
     year = int(born.split(".")[-1])
-    middle_cond = "middle_name IS NULL" if middle is None else f"middle_name = {esc(middle)}"
-    return (
-        "(SELECT id FROM athletes WHERE "
-        f"last_name = {esc(last)} AND first_name = {esc(first)} AND {middle_cond} "
-        f"AND birth_year = {year} LIMIT 1)"
-    )
+    conditions = [
+        f"last_name = {esc(last)}",
+        f"first_name = {esc(first)}",
+        f"birth_year = {year}",
+    ]
+    if middle is not None:
+        conditions.insert(2, f"middle_name = {esc(middle)}")
+    elif not names_without_middle:
+        conditions.insert(2, "middle_name IS NULL")
+    return "(SELECT id FROM athletes WHERE " + " AND ".join(conditions) + " LIMIT 1)"
 
 
 def coach_names(raw: str | None) -> list[str]:
@@ -74,10 +78,11 @@ def main() -> None:
 
     for data in protocols:
         comp_slug = data["competition"]["slug"]
+        names_without_middle = bool(data.get("source", {}).get("names_without_middle", False))
         for category in data["categories"]:
             for row in category.get("rows", []):
                 full_name, born, raw_coach = row[1], row[2], row[10]
-                athlete = athlete_sql(full_name, born)
+                athlete = athlete_sql(full_name, born, names_without_middle)
                 for coach in coach_names(raw_coach):
                     coaches.add(coach)
                     links.add((coach, athlete, full_name))
