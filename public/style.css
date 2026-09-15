@@ -234,11 +234,6 @@ th.sortable { color: var(--accent); }
 .tip[hidden] { display: none; }
 
 /* ------------------------------------------------------------- подвал */
-.site-foot {
-  border-top: 1px solid var(--rule); padding-block: 1rem 2rem;
-  font-size: 0.82rem; color: var(--ink-3);
-  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
-}
 
 @media (max-width: 640px) {
   .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
