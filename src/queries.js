@@ -57,7 +57,7 @@ export async function getCompetition(db, slug) {
     LEFT JOIN regions reg ON reg.id = a.region_id
     LEFT JOIN clubs cl ON cl.id = a.club_id
     WHERE r.competition_id = ?
-    ORDER BY r.category_id, r.place`, comp.id);
+    ORDER BY r.category_id, r.place IS NULL, r.place`, comp.id);
 
   const reps = await groupReps(db, rows.map((r) => r.id));
   for (const r of rows) r.reps = reps.get(r.id) || [];
@@ -112,7 +112,7 @@ export async function listAllResults(db) {
     LEFT JOIN divisions dv ON dv.id = cat.division_id
     LEFT JOIN regions reg ON reg.id = a.region_id
     WHERE c.is_published = 1
-    ORDER BY r.event_date DESC, r.result_value DESC`);
+    ORDER BY r.event_date DESC, r.result_value IS NULL, r.result_value DESC`);
 }
 
 async function groupReps(db, ids) {
