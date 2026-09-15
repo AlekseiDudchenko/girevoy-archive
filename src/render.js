@@ -282,7 +282,9 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       ? ` ${rankBadge(athlete.sport_rank_code, athlete.sport_rank)}` : ''}</h1>
     <p class="meta-line">${[(person.birth_year || athlete?.birth_year) && `${person.birth_year || athlete.birth_year} г. р.`,
       person.region || athlete?.region, athlete?.club].filter(Boolean).map(e).join(' · ')}</p>
-    ${athlete?.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
+    ${athlete?.coaches?.length ? `<p class="source">Тренеры: ${athlete.coaches.map((coach) =>
+      `${coach.slug ? `<a href="${e(L.person(coach.slug))}">${e(coach.name)}</a>` : e(coach.name)}${coach.last_year ? ` (${e(coach.last_year)})` : ''}`).join(', ')}</p>`
+      : athlete?.coach ? `<p class="source">Тренер: ${e(athlete.coach)}</p>` : ''}
     ${athlete?.other_spellings?.length
       ? `<p class="source">В протоколах также: ${athlete.other_spellings.map(e).join(', ')}</p>`
       : ''}
