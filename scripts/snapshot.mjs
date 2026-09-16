@@ -128,11 +128,24 @@ const formatTableDates = (html) => html.replace(/<table\b[\s\S]*?<\/table>/g, (t
   table.replace(/(^|>)([^<]+)(?=<|$)/g, (_, prefix, text) =>
     prefix + text.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, '$3.$2.$1')));
 
+const compactAthleteResults = (html) => {
+  const compactTables = html.replace(/<table class="athlete-result-table"\b[\s\S]*?<\/table>/g, (table) =>
+    table
+      .replace(/>Личный вес</g, '>Вес<')
+      .replace(/<a href="([^"]+)">(Чемпионат России(?: по гиревому спорту)?\s+(\d{4}))<\/a>/g,
+        '<a href="$1" title="$2">ЧР $3</a>')
+      .replace(/(<span class="discipline-badge"[^>]*>[\s\S]*?) · (\d+ мин)(<\/span>)/g,
+        '$1<span class="discipline-break"></span><span class="discipline-duration">$2</span>$3'));
+  return compactTables
+    .replace('.discipline-badge { display:inline-flex;', '.discipline-badge { display:inline-flex; flex-wrap:wrap;')
+    .replace('.discipline-dot {', '.discipline-break { flex-basis:100%; height:0; }\n.discipline-duration { margin-left:.96rem; }\n.discipline-dot {');
+};
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
 const write = (name, body) => writeFileSync(join(OUT, name),
-  formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html')), 'utf8');
+  compactAthleteResults(formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'))), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
