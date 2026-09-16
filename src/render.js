@@ -192,8 +192,24 @@ export function renderCompetition({ comp, categories, L }) {
 
   const catTitle = (cat) => {
     const bits = [cat.discipline_name];
-    if (cat.hands === 'one') bits.push('одной рукой');
+    if (cat.hands === 'one' && cat.discipline_code !== 'snatch') bits.push('одной рукой');
     bits.push(`${cat.bell_kg} кг`, `${cat.time_limit_min} мин`);
+    return bits.join(' · ');
+  };
+  const chipHtml = (cat) => {
+    const sex = cat.sex === 'f' ? 'ж' : 'м';
+    const sexClass = cat.sex === 'f' ? 'chip-sex-f' : 'chip-sex-m';
+    const discipline = cat.discipline_code === 'long_cycle' ? 'ДЦ'
+      : cat.discipline_code === 'jerk' ? 'Т'
+        : cat.discipline_code === 'snatch' ? 'Р' : cat.discipline_name;
+    const weightClass = Number(cat.bell_kg) === 32 ? ' chip-weight-32'
+      : Number(cat.bell_kg) === 24 ? ' chip-weight-24' : '';
+    const weight = weightClass
+      ? `<span class="chip-weight${weightClass}">${e(cat.bell_kg)} кг</span>`
+      : `${e(cat.bell_kg)} кг`;
+    const bits = [`${e(discipline)}(<span class="chip-sex ${sexClass}">${sex}</span>)`];
+    if (cat.hands === 'one' && cat.discipline_code !== 'snatch') bits.push('одной рукой');
+    bits.push(weight, `${e(cat.time_limit_min)} мин`);
     return bits.join(' · ');
   };
   const catSub = (cat) => [cat.sex === 'f' ? 'женщины' : 'мужчины', cat.age_group,
@@ -214,8 +230,19 @@ export function renderCompetition({ comp, categories, L }) {
   </div>
 
   <nav class="chips" aria-label="Категории">
-    ${live.map((c) => `<a class="chip" href="#cat-${c.id}">${e(catTitle(c))} · ${e(c.weight_class_raw || '')}</a>`).join('')}
+    ${live.map((c) => `<a class="chip" href="#cat-${c.id}">${chipHtml(c)} · ${e(c.weight_class_raw || '')}</a>`).join('')}
   </nav>
+  <style>
+  .chip-sex { font-weight: 700; }
+  .chip-sex-m { color: #3987e5; }
+  .chip-sex-f { color: #d95bc8; }
+  .chip-weight {
+    display: inline-block; padding: 0 .28em; border-radius: 3px;
+    color: #fff; font-weight: 700; line-height: 1.45;
+  }
+  .chip-weight-32 { background: #7f302d; }
+  .chip-weight-24 { background: #17623b; }
+  </style>
 
   ${live.map((cat) => `
   <section class="cat" id="cat-${cat.id}">
