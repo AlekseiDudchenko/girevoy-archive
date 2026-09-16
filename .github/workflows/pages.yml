@@ -42,6 +42,7 @@ jobs:
           python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > .local/chempionat-ufo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-szfo-2026.json > .local/chempionat-szfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2026.json > .local/chempionat-yufo-skfo-2026.sql
+          python3 scripts/gen_seed.py data/kubok-rossii-2025.json > .local/kubok-rossii-2025.sql
           python3 scripts/gen_people.py > .local/people.sql
           cat migrations/*.sql \
               seeds/0001_reference.sql \
@@ -54,9 +55,10 @@ jobs:
               .local/chempionat-ufo-2026.sql \
               .local/chempionat-szfo-2026.sql \
               .local/chempionat-yufo-skfo-2026.sql \
+              .local/kubok-rossii-2025.sql \
               seeds/0005_merges.sql \
               .local/people.sql | sqlite3 .local/girevoy.db
-          echo "таблиц: $(sqlite3 .local/girevoy.db "SELECT COUNT(*) FROM sqlite_master WHERE type='table'")"
+          echo "таблиц: $(sqlite3 .local/girevoy.db \"SELECT COUNT(*) FROM sqlite_master WHERE type='table'\")"
           echo "результатов: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results')"
           echo "упоминаний тренеров: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions')"
 
