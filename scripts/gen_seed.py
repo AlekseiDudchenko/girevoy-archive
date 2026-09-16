@@ -7,7 +7,7 @@ import sys
 BASE = 0
 MATCH_WITHOUT_MIDDLE = False
 
-RANKS = {"III": "iii", "II": "ii", "I": "i", "КМС": "kms", "МС": "ms", "МСМК": "msmk", "ЗМС": "zms"}
+RANKS = {"III": "iii", "II": "ii", "I": "i", "3": "iii", "2": "ii", "1": "i", "КМС": "kms", "МС": "ms", "МСМК": "msmk", "ЗМС": "zms"}
 TRANSLIT = str.maketrans({
     "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e", "ж": "zh", "з": "z",
     "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p", "р": "r",
@@ -39,6 +39,8 @@ def region_id(name): return Raw(f"(SELECT id FROM regions WHERE name = {esc(regi
 def club_id(name, region): return Raw(f"(SELECT id FROM clubs WHERE name = {esc(name)} AND region_id = {region_id(region)})")
 def ref(table, code, col="code"): return Raw(f"(SELECT id FROM {table} WHERE {col} = {esc(code)})")
 def rank_id(label):
+    if label is None: return None
+    label = str(label).strip()
     if not label or label == "-": return None
     code = RANKS.get(label.strip("+"))
     return ref("sport_ranks", code) if code else None
