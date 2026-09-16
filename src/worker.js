@@ -1,6 +1,7 @@
 // Cloudflare Worker: серверный рендеринг публичных страниц из D1.
 import * as q from './queries.js';
-import { links, renderIndex, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
+import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
+import { renderIndex } from './render-home.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
