@@ -7,10 +7,11 @@ import * as q from '../src/queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
 import { renderIndex } from '../src/render-home.js';
 import { personTabs, personRoleLinks } from '../src/person-tabs.js';
+import { listAthletes, renderAthletes, withAthletesNav } from '../src/athletes.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
-const L = links.static;
+const L = { ...links.static, athletes: 'athletes.html' };
 
 const sqlite = new DatabaseSync(DB_PATH, { readOnly: true });
 const db = {
@@ -126,11 +127,13 @@ const personCoachYears = (body) => {
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
-const write = (name, body) => writeFileSync(join(OUT, name), body, 'utf8');
+const write = (name, body) => writeFileSync(join(OUT, name),
+  withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
 write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
+write('athletes.html', renderAthletes({ athletes: await listAthletes(db), L }));
 const coaches = await q.listCoaches(db);
 write('coaches.html', sortableCoaches(personRoleLinks(renderCoaches({ coaches, L }), 'coach'), coaches));
 for (const { slug } of await q.listPersonSlugs(db)) {
@@ -153,4 +156,4 @@ for (const { slug } of slugs) {
 }
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
-console.log(`${OUT}/: 1 главная, 1 таблица результатов, ${competitions.length} турниров, ${athletePages} спортсменов`);
+console.log(`${OUT}/: 1 главная, 1 таблица результатов, 1 список спортсменов, ${competitions.length} турниров, ${athletePages} спортсменов`);
