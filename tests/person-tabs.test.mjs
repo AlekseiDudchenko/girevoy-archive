@@ -35,6 +35,12 @@ test('person roles render as populated tabs in profile order', () => {
   assert.ok(html.includes("activate(tabs[0].dataset.personTab, false)"));
   assert.ok(html.includes('href="/p/coach#coach"'));
   assert.ok(html.includes('href="/p/athlete#athlete"'));
+
+  assert.match(html, /<section class="profile-card" aria-label="Карточка спортсмена">/);
+  assert.match(html, /<div class="profile-avatar" aria-hidden="true">ТП<\/div>/);
+  assert.ok(html.includes('<p class="profile-roles">Спортивный деятель · Спортсмен · Тренер · Судья</p>'));
+  assert.ok(html.includes('<span class="profile-label">Тренеры</span>'));
+  assert.ok(!html.includes('<div class="profile-stats">'));
 });
 
 test('empty roles do not create tabs', () => {
@@ -49,6 +55,7 @@ test('empty roles do not create tabs', () => {
   assert.ok(!html.includes('data-person-tab="official"'));
   assert.ok(!html.includes('data-person-tab="athlete"'));
   assert.ok(!html.includes('data-person-tab="judge"'));
+  assert.ok(!html.includes('class="profile-card"'));
 });
 
 test('role-specific page links open the requested person tab', () => {
