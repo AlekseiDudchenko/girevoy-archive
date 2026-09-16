@@ -1,6 +1,7 @@
 // Cloudflare Worker: серверный рендеринг публичных страниц из D1.
 import * as q from './queries.js';
-import { links, renderIndex, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
+import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
+import { renderIndex } from './render-home.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
@@ -11,7 +12,6 @@ const html = (body, status = 200) => new Response(body, {
   status,
   headers: {
     'content-type': 'text/html; charset=utf-8',
-    // страницы статичны между публикациями — кэш сбрасывается при публикации протокола
     'cache-control': 'public, max-age=60, s-maxage=86400',
   },
 });
@@ -149,7 +149,6 @@ export default {
         return data ? html(renderCompetition({ ...data, L })) : html(notFound(L), 404);
       }
       if (path.startsWith('/a/')) {
-        // Старые адреса спортсменов остаются рабочими.
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
         return data ? html(personCoachYears(renderPerson({ ...data, L }))) : html(notFound(L), 404);
       }
