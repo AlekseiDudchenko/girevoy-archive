@@ -1,0 +1,106 @@
+import { page } from './render.js';
+
+const e = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+export async function listAthletes(db) {
+  return db.all(`
+    SELECT canonical.id,
+           canonical.full_name AS name,
+           canonical.birth_year,
+           reg.name AS region,
+           s.slug,
+           COUNT(r.id) AS results_count,
+           MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
+    FROM athletes a
+    JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
+    JOIN results r ON r.athlete_id = a.id
+    JOIN competitions c ON c.id = r.competition_id
+    LEFT JOIN regions reg ON reg.id = canonical.region_id
+    LEFT JOIN athlete_slugs s ON s.athlete_id = canonical.id AND s.is_current = 1
+    WHERE c.is_published = 1
+    GROUP BY canonical.id, canonical.full_name, canonical.birth_year, reg.name, s.slug
+    ORDER BY canonical.full_name COLLATE NOCASE`);
+}
+
+export function renderAthletes({ athletes, L }) {
+  return page({
+    title: 'Спортсмены — Гиревой архив',
+    description: 'Спортсмены из опубликованных протоколов соревнований по гиревому спорту.',
+    L,
+    body: `<h1>Спортсмены</h1>
+<p class="lead">Все спортсмены, встречающиеся в опубликованных протоколах.</p>
+${athletes.length ? `<label for="athlete-search">Поиск по имени, региону или году</label>
+<input id="athlete-search" type="search" placeholder="Имя, регион, год рождения или последний протокол">
+<div class="scroll"><table id="athletes-table">
+<thead><tr>
+<th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th>
+<th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th>
+<th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Год рождения</th>
+<th scope="col" class="c sort" data-sort="3" role="button" tabindex="0">Результатов</th>
+<th scope="col" class="c sort" data-sort="4" role="button" tabindex="0">Последний протокол</th>
+</tr></thead>
+<tbody>${athletes.map((athlete) => `<tr>
+<td>${athlete.slug ? `<a href="${e(L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
+<td>${e(athlete.region || '—')}</td>
+<td class="c n">${e(athlete.birth_year || '—')}</td>
+<td class="c n">${e(athlete.results_count)}</td>
+<td class="c n">${e(athlete.last_year || '—')}</td>
+</tr>`).join('')}</tbody></table></div>
+<p id="athlete-empty" role="status" hidden>Ничего не найдено.</p>
+<script>(function () {
+  var input = document.getElementById('athlete-search');
+  var table = document.getElementById('athletes-table');
+  var tbody = table.tBodies[0];
+  var rows = Array.prototype.slice.call(tbody.rows);
+  var heads = Array.prototype.slice.call(table.querySelectorAll('th[data-sort]'));
+  var current = -1, dir = 1;
+  function normalize(text) { return text.toLocaleLowerCase('ru').replace(/ё/g, 'е').trim(); }
+  function value(row, index) {
+    var text = row.cells[index].textContent.trim();
+    if (index >= 2) return text === '—' ? null : Number(text);
+    return normalize(text);
+  }
+  function filter() {
+    var terms = normalize(input.value).split(/\\s+/).filter(Boolean);
+    var visible = 0;
+    rows.forEach(function (row) {
+      row.hidden = !terms.every(function (term) { return normalize(row.textContent).includes(term); });
+      if (!row.hidden) visible++;
+    });
+    document.getElementById('athlete-empty').hidden = visible !== 0;
+  }
+  function sortBy(head) {
+    var index = Number(head.dataset.sort);
+    dir = current === index ? -dir : (index >= 3 ? -1 : 1);
+    current = index;
+    rows.sort(function (a, b) {
+      var x = value(a, index), y = value(b, index);
+      if (x === y) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      return (index >= 2 ? x - y : x.localeCompare(y, 'ru')) * dir;
+    });
+    rows.forEach(function (row) { tbody.appendChild(row); });
+    heads.forEach(function (h) {
+      if (h === head) h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+  }
+  input.addEventListener('input', filter);
+  heads.forEach(function (head) {
+    head.addEventListener('click', function () { sortBy(head); });
+    head.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); sortBy(head); }
+    });
+  });
+})();</script>` : '<p>В опубликованных данных пока нет спортсменов.</p>'}`,
+  });
+}
+
+export function withAthletesNav(body, athletesHref, coachesHref, active = false) {
+  const marker = `<a href="${coachesHref}"`;
+  if (!body.includes(marker) || body.includes(`href="${athletesHref}"`)) return body;
+  return body.replace(marker,
+    `<a href="${athletesHref}"${active ? ' class="on"' : ''}>Спортсмены</a>\n      ${marker}`);
+}
