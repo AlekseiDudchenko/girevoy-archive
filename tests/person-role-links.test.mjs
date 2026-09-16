@@ -15,10 +15,14 @@ const seedFiles = [
 ];
 const execOptions = { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 };
 
+function generatedPeopleSql() {
+  return execFileSync('python3', ['scripts/gen_people.py'], execOptions);
+}
+
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of seedFiles) sql.exec(readFileSync(file, 'utf8'));
-  sql.exec(execFileSync('python3', ['scripts/gen_people.py'], execOptions));
+  sql.exec(generatedPeopleSql());
   return { sql, db: {
     all: async (query, ...params) => sql.prepare(query).all(...params),
     get: async (query, ...params) => sql.prepare(query).get(...params) ?? null,
@@ -57,6 +61,21 @@ for (const item of cases) {
       assert.equal(person.person.id, athletePerson.person_id);
       assert.ok(person.athleteData?.results.length > 0);
       assert.ok(person.coachedAthletes.length > 0);
+    } finally {
+      sql.close();
+    }
+  });
+
+  test(`${item.coach} legacy coach person is removed on regeneration`, () => {
+    const { sql } = realDb();
+    try {
+      const oldCoachSlug = `coach-${Buffer.from(item.coach, 'utf8').toString('hex')}`;
+      sql.prepare('INSERT INTO persons(slug, display_name) VALUES (?, ?)').run(oldCoachSlug, item.coach);
+      assert.equal(sql.prepare('SELECT COUNT(*) AS count FROM persons WHERE slug = ?').get(oldCoachSlug).count, 1);
+
+      sql.exec(generatedPeopleSql());
+
+      assert.equal(sql.prepare('SELECT COUNT(*) AS count FROM persons WHERE slug = ?').get(oldCoachSlug).count, 0);
     } finally {
       sql.close();
     }
