@@ -124,11 +124,15 @@ const personCoachYears = (body) => {
 })();</script></body>`);
 };
 
+const formatTableDates = (html) => html.replace(/<table\b[\s\S]*?<\/table>/g, (table) =>
+  table.replace(/(^|>)([^<]+)(?=<|$)/g, (_, prefix, text) =>
+    prefix + text.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, '$3.$2.$1')));
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
 const write = (name, body) => writeFileSync(join(OUT, name),
-  withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'), 'utf8');
+  formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html')), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
