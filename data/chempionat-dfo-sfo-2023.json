@@ -1,0 +1,39 @@
+{
+  "source": {
+    "filename": "protokol-dfo-sfo-2023.xls",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 300000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол чемпионата Дальневосточного и Сибирского федеральных округов 2023. Индивидуальные категории импортированы по листам книги. Эстафета, итоговый командный протокол, список судей и гиревое жонглирование не импортируются. Командные очки индивидуальных протоколов не импортируются."
+  },
+  "competition": {
+    "slug": "chempionat-dfo-sfo-2023",
+    "name": "Чемпионат Дальневосточного и Сибирского федеральных округов 2023",
+    "date_start": "2023-04-13",
+    "date_end": "2023-04-16",
+    "city": "Абакан",
+    "country": "RU",
+    "competition_rank": "federal_district",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "30978",
+    "regions_total": 11,
+    "participants_total": 163
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": []
+}
