@@ -2,7 +2,7 @@
 import * as q from './queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
 import { renderIndex } from './render-home.js';
-import { personTabs } from './person-tabs.js';
+import { personTabs, personRoleLinks } from './person-tabs.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
@@ -135,11 +135,11 @@ export default {
         return html(renderIndex({ stats, competitions, L }));
       }
       if (path === '/results') {
-        return html(renderResults({ rows: await q.listAllResults(db), L }));
+        return html(personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
       }
       if (path === '/coaches') {
         const coaches = await q.listCoaches(db);
-        return html(sortableCoaches(renderCoaches({ coaches, L }), coaches));
+        return html(sortableCoaches(personRoleLinks(renderCoaches({ coaches, L }), 'coach'), coaches));
       }
       if (path.startsWith('/p/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
@@ -147,7 +147,7 @@ export default {
       }
       if (path.startsWith('/c/')) {
         const data = await q.getCompetition(db, decodeURIComponent(path.slice(3)));
-        return data ? html(renderCompetition({ ...data, L })) : html(notFound(L), 404);
+        return data ? html(personRoleLinks(renderCompetition({ ...data, L }), 'athlete')) : html(notFound(L), 404);
       }
       if (path.startsWith('/a/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
