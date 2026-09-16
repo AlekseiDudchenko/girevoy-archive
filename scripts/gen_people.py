@@ -51,6 +51,22 @@ def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
     return merges, splits
 
 
+def load_role_links() -> dict[str, dict[str, object]]:
+    try:
+        data = json.load(open("data/person_role_links.json", encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+
+    links: dict[str, dict[str, object]] = {}
+    for item in data.get("coach_athlete_links", []):
+        coach = normalize_coach_name(item["coach"])
+        links[coach] = {
+            "athlete": item["athlete"].strip(),
+            "birth_year": int(item["birth_year"]),
+        }
+    return links
+
+
 def split_coach_value(value: str, splits: dict[str, list[str]]) -> list[str] | None:
     value = value.strip()
     return splits.get(value, splits.get(normalize_coach_name(value)))
@@ -79,9 +95,26 @@ def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[
 def coach_slug(name: str) -> str: return "coach-" + name.encode("utf-8").hex()
 
 
+def athlete_person_sql(full_name: str, birth_year: int) -> str:
+    last, first, middle = split_name(full_name)
+    conditions = [f"a.last_name = {esc(last)}", f"a.first_name = {esc(first)}", f"a.birth_year = {birth_year}"]
+    if middle is not None:
+        conditions.insert(2, f"a.middle_name = {esc(middle)}")
+    else:
+        conditions.insert(2, "a.middle_name IS NULL")
+    return "(SELECT pa.person_id FROM athletes a JOIN person_athletes pa ON pa.athlete_id = COALESCE(a.merged_into_id, a.id) WHERE " + " AND ".join(conditions) + " LIMIT 1)"
+
+
+def coach_person_sql(coach: str, role_links: dict[str, dict[str, object]]) -> str:
+    link = role_links.get(coach)
+    if link:
+        return athlete_person_sql(str(link["athlete"]), int(link["birth_year"]))
+    return f"(SELECT id FROM persons WHERE slug = {esc(coach_slug(coach))})"
+
+
 def load_protocols():
     for path in sorted(glob.glob("data/*.json")):
-        if path.endswith("merges.json"): continue
+        if path.endswith("merges.json") or path.endswith("person_role_links.json"): continue
         data=json.load(open(path,encoding="utf-8"))
         if "competition" not in data or "categories" not in data: continue
         slug=data["competition"]["slug"]
@@ -92,7 +125,7 @@ def load_protocols():
 
 
 def main() -> None:
-    protocols=list(load_protocols()); merges,splits=load_person_rules(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
+    protocols=list(load_protocols()); merges,splits=load_person_rules(); role_links=load_role_links(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
     for data in protocols:
         comp_slug=data["competition"]["slug"]
         names_without_middle=bool(data.get("source",{}).get("names_without_middle",False))
@@ -111,16 +144,24 @@ def main() -> None:
     print("SELECT p.id, a.id FROM athletes a")
     print("JOIN athlete_slugs s ON s.athlete_id = COALESCE(a.merged_into_id, a.id) AND s.is_current = 1")
     print("JOIN persons p ON p.slug = s.slug;\n")
-    if coaches:
+    for coach in sorted(role_links):
+        person=coach_person_sql(coach, role_links)
+        print(f"DELETE FROM persons WHERE slug = {esc(coach_slug(coach))} AND {person} IS NOT NULL;")
+    if role_links:
+        print()
+    standalone_coaches = [name for name in sorted(coaches) if name not in role_links]
+    if standalone_coaches:
         print("INSERT OR IGNORE INTO persons (slug, display_name) VALUES")
-        print(",\n".join(f"  ({esc(coach_slug(name))}, {esc(name)})" for name in sorted(coaches)) + ";\n")
+        print(",\n".join(f"  ({esc(coach_slug(name))}, {esc(name)})" for name in standalone_coaches) + ";\n")
     for coach,athlete,_ in sorted(links):
+        person=coach_person_sql(coach, role_links)
         print("INSERT OR IGNORE INTO person_coach_athletes (person_id, athlete_id)")
-        print(f"SELECT (SELECT id FROM persons WHERE slug = {esc(coach_slug(coach))}), {athlete} WHERE {athlete} IS NOT NULL;")
+        print(f"SELECT {person}, {athlete} WHERE {person} IS NOT NULL AND {athlete} IS NOT NULL;")
     print()
     for coach,athlete,_,comp_slug in sorted(mentions):
+        person=coach_person_sql(coach, role_links)
         print("INSERT OR IGNORE INTO person_coach_mentions (person_id, athlete_id, competition_id)")
-        print(f"SELECT (SELECT id FROM persons WHERE slug = {esc(coach_slug(coach))}), {athlete}, (SELECT id FROM competitions WHERE slug = {esc(comp_slug)}) WHERE {athlete} IS NOT NULL;")
+        print(f"SELECT {person}, {athlete}, (SELECT id FROM competitions WHERE slug = {esc(comp_slug)}) WHERE {person} IS NOT NULL AND {athlete} IS NOT NULL;")
 
 
 if __name__ == "__main__": main()
