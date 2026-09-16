@@ -314,7 +314,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
             data-weight="${r.body_weight_kg ?? ''}" data-place="${r.place ?? ''}"
             data-reps="${e(repsText(r.reps))}" data-value="${r.result_value ?? ''}"
             data-rank="${e(r.rank_achieved || '')}">
-          <td class="n dim">${e(r.event_date || '—')}</td>
+          <td class="n dim">${e(r.event_date ? r.event_date.split('-').reverse().join('.') : '—')}</td>
           <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
           ${showDiscipline ? `<td><span class="discipline-badge" style="--series-color:${colorFor(r)}"><span class="discipline-dot"></span>${e(seriesLabel(r))}</span>${r.division ? ` <span class="dim">· ${e(r.division)}</span>` : ''}</td>` : ''}
           <td class="c dim">${e(r.weight_class_raw || '—')}</td>
