@@ -59,7 +59,10 @@ INSERT OR IGNORE INTO clubs (name, region_id) VALUES
   ('Ивановское региональное отделение', (SELECT id FROM regions WHERE name = 'Ивановская область' AND country = 'RU')),
   ('МАУ СШОР Метеор', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')),
   ('РО ООО "ВФГС" во Владимирской области', (SELECT id FROM regions WHERE name = 'Владимирская область' AND country = 'RU')),
-  ('РО ООО "ВФГС" в городе Москве', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU'));
+  ('РО ООО "ВФГС" в городе Москве', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')),
+  ('МБУ ДО СШОР 5 г Белгород/ МБУ ДО ДЮСШ Волоконовский район', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')),
+  ('ДДЮ Алые Паруса', (SELECT id FROM regions WHERE name = 'Рязанская область' AND country = 'RU')),
+  ('Sapa Fitness', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU'));
 
 INSERT OR IGNORE INTO federations (name, short_name, country) VALUES
   ('Всероссийская федерация гиревого спорта', 'ВФГС', 'RU');
@@ -96,7 +99,8 @@ INSERT INTO categories (id, competition_id, discipline_id, sex, age_group_id, di
   (8023, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '63', 63, 0, 5, 0, 23),
   (8024, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '68', 68, 0, 4, 0, 24),
   (8025, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '73', 73, 0, 11, 0, 25),
-  (8026, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '78', 78, 0, 10, 0, 26);
+  (8026, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '78', 78, 0, 10, 0, 26),
+  (8027, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '85', 85, 0, 13, 0, 27);
 
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Трофимова', 'Милена', 'Михайловна', 2007, 'f', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР Маршал' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'msmk')
@@ -395,6 +399,30 @@ INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, regio
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Рассолов', 'Сергей', 'Сергеевич', 1990, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШОР 5 г Белгород' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Меркулин С.В.', (SELECT id FROM sport_ranks WHERE code = 'ii')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Рассолов' AND a.first_name = 'Сергей' AND a.middle_name = 'Сергеевич' AND a.birth_year = 1990 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Бас', 'Денис', 'Николаевич', 2007, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШОР 5 г Белгород/ МБУ ДО ДЮСШ Волоконовский район' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Вильган А.П., Осадчий Е.А.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Бас' AND a.first_name = 'Денис' AND a.middle_name = 'Николаевич' AND a.birth_year = 2007 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Мартысюк', 'Сергей', 'Сергеевич', 2010, 'm', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'КСШ № 1' AND region_id = (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')), 'Сергеев С.В.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Мартысюк' AND a.first_name = 'Сергей' AND a.middle_name = 'Сергеевич' AND a.birth_year = 2010 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Шамара', 'Леонард', 'Леонидович', 1974, 'm', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'РО ООО ВФГС в г. Москве' AND region_id = (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')), 'Тарвердиева М.А., Симушин А.Л.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Шамара' AND a.first_name = 'Леонард' AND a.middle_name = 'Леонидович' AND a.birth_year = 1974 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Кузовлев', 'Иван', 'Николаевич', 1985, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ЯРОО ФГС' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Егоров В.В.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Кузовлев' AND a.first_name = 'Иван' AND a.middle_name = 'Николаевич' AND a.birth_year = 1985 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Малашта', 'Роман', 'Анатольевич', 1987, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШОР 5 г Белгород' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Меркулин С.В.', (SELECT id FROM sport_ranks WHERE code = 'ms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Малашта' AND a.first_name = 'Роман' AND a.middle_name = 'Анатольевич' AND a.birth_year = 1987 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Турищев', 'Михаил', 'Михайлович', 2007, 'm', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»' AND region_id = (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')), 'Ландин А.Ю., Турищев Д.В., Сергеев С.В.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Турищев' AND a.first_name = 'Михаил' AND a.middle_name = 'Михайлович' AND a.birth_year = 2007 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Чернышев', 'Павел', 'Вадимович', 2007, 'm', (SELECT id FROM regions WHERE name = 'Рязанская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ДДЮ Алые Паруса' AND region_id = (SELECT id FROM regions WHERE name = 'Рязанская область' AND country = 'RU')), 'Виктор В.В.', (SELECT id FROM sport_ranks WHERE code = 'i')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Чернышев' AND a.first_name = 'Павел' AND a.middle_name = 'Вадимович' AND a.birth_year = 2007 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Ларечнев', 'Алексей', 'Викторович', 1981, 'm', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'Sapa Fitness' AND region_id = (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')), 'Петушков Д.В., Римашевский А.Л.', (SELECT id FROM sport_ranks WHERE code = 'i')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Ларечнев' AND a.first_name = 'Алексей' AND a.middle_name = 'Викторович' AND a.birth_year = 1981 LIMIT 1);
 
 INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'trofimova-milena-2007' AND s.athlete_id <> a.id)
@@ -891,6 +919,46 @@ INSERT INTO athlete_slugs (slug, athlete_id)
               THEN 'rassolov-sergey-1990-' || a.id ELSE 'rassolov-sergey-1990' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Рассолов' AND first_name = 'Сергей' AND middle_name = 'Сергеевич' AND birth_year = 1990 LIMIT 1)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'bas-denis-2007' AND s.athlete_id <> a.id)
+              THEN 'bas-denis-2007-' || a.id ELSE 'bas-denis-2007' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Бас' AND first_name = 'Денис' AND middle_name = 'Николаевич' AND birth_year = 2007 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'martysyuk-sergey-2010' AND s.athlete_id <> a.id)
+              THEN 'martysyuk-sergey-2010-' || a.id ELSE 'martysyuk-sergey-2010' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Мартысюк' AND first_name = 'Сергей' AND middle_name = 'Сергеевич' AND birth_year = 2010 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'shamara-leonard-1974' AND s.athlete_id <> a.id)
+              THEN 'shamara-leonard-1974-' || a.id ELSE 'shamara-leonard-1974' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Шамара' AND first_name = 'Леонард' AND middle_name = 'Леонидович' AND birth_year = 1974 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'kuzovlev-ivan-1985' AND s.athlete_id <> a.id)
+              THEN 'kuzovlev-ivan-1985-' || a.id ELSE 'kuzovlev-ivan-1985' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Кузовлев' AND first_name = 'Иван' AND middle_name = 'Николаевич' AND birth_year = 1985 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'malashta-roman-1987' AND s.athlete_id <> a.id)
+              THEN 'malashta-roman-1987-' || a.id ELSE 'malashta-roman-1987' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Малашта' AND first_name = 'Роман' AND middle_name = 'Анатольевич' AND birth_year = 1987 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'turischev-mihail-2007' AND s.athlete_id <> a.id)
+              THEN 'turischev-mihail-2007-' || a.id ELSE 'turischev-mihail-2007' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Турищев' AND first_name = 'Михаил' AND middle_name = 'Михайлович' AND birth_year = 2007 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'chernyshev-pavel-2007' AND s.athlete_id <> a.id)
+              THEN 'chernyshev-pavel-2007-' || a.id ELSE 'chernyshev-pavel-2007' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Чернышев' AND first_name = 'Павел' AND middle_name = 'Вадимович' AND birth_year = 2007 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'larechnev-aleksey-1981' AND s.athlete_id <> a.id)
+              THEN 'larechnev-aleksey-1981-' || a.id ELSE 'larechnev-aleksey-1981' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Ларечнев' AND first_name = 'Алексей' AND middle_name = 'Викторович' AND birth_year = 1981 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 
 INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, body_weight_kg, rank_achieved_id, discipline_id, bell_kg, hands, time_limit_min, competition_id, event_date, raw_name, raw_club, raw_region, protocol_id, source_page) VALUES
   (8001, 8001, (SELECT id FROM athletes WHERE last_name = 'Трофимова' AND first_name = 'Милена' AND middle_name = 'Михайловна' AND birth_year = 2007 LIMIT 1), 1, 69, NULL, 58.0, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 8001, '2026-04-13', 'Трофимова Милена Михайловна', 'СШОР Маршал', 'Калужская область', 8001, 24),
@@ -1040,7 +1108,20 @@ INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, bod
   (8145, 8026, (SELECT id FROM athletes WHERE last_name = 'Курбаков' AND first_name = 'Данила' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 7, 97, NULL, 78.0, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Курбаков Данила Александрович', 'СШОР Маршал', 'Калужская область', 8001, 31),
   (8146, 8026, (SELECT id FROM athletes WHERE last_name = 'Рассолов' AND first_name = 'Сергей' AND middle_name = 'Сергеевич' AND birth_year = 1990 LIMIT 1), 8, 92, NULL, 77.0, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Рассолов Сергей Сергеевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 31),
   (8147, 8026, (SELECT id FROM athletes WHERE last_name = 'Ладе' AND first_name = 'Роман' AND middle_name = 'Андреевич' AND birth_year = 1991 LIMIT 1), 9, 81, NULL, 77.9, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Ладе Роман Андреевич', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 31),
-  (8148, 8026, (SELECT id FROM athletes WHERE last_name = 'Масленников' AND first_name = 'Иван' AND middle_name = 'Валерьевич' AND birth_year = 2011 LIMIT 1), 10, 50, NULL, 73.55, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Масленников Иван Валерьевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 31);
+  (8148, 8026, (SELECT id FROM athletes WHERE last_name = 'Масленников' AND first_name = 'Иван' AND middle_name = 'Валерьевич' AND birth_year = 2011 LIMIT 1), 10, 50, NULL, 73.55, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Масленников Иван Валерьевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 31),
+  (8149, 8027, (SELECT id FROM athletes WHERE last_name = 'Ветров' AND first_name = 'Денис' AND middle_name = 'Сергеевич' AND birth_year = 1989 LIMIT 1), 1, 168, NULL, 84.8, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Ветров Денис Сергеевич', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 32),
+  (8150, 8027, (SELECT id FROM athletes WHERE last_name = 'Бас' AND first_name = 'Денис' AND middle_name = 'Николаевич' AND birth_year = 2007 LIMIT 1), 2, 163, NULL, 83.7, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Бас Денис Николаевич', 'МБУ ДО СШОР 5 г Белгород/ МБУ ДО ДЮСШ Волоконовский район', 'Белгородская область', 8001, 32),
+  (8151, 8027, (SELECT id FROM athletes WHERE last_name = 'Гнездилов' AND first_name = 'Роман' AND middle_name = 'Сергеевич' AND birth_year = 1990 LIMIT 1), 3, 160, NULL, 83.75, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Гнездилов Роман Сергеевич', 'Региональное отделение ВФГС по Курской области', 'Курская область', 8001, 32),
+  (8152, 8027, (SELECT id FROM athletes WHERE last_name = 'Андрущенко' AND first_name = 'Сергей' AND middle_name = 'Александрович' AND birth_year = 2005 LIMIT 1), 4, 156, NULL, 84.25, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Андрущенко Сергей Александрович', 'ГБУ ДО МКСШОР "Запад" Отделение "Семёрка"', 'г. Москва, Белгородская область', 8001, 32),
+  (8153, 8027, (SELECT id FROM athletes WHERE last_name = 'Мартысюк' AND first_name = 'Сергей' AND middle_name = 'Сергеевич' AND birth_year = 2010 LIMIT 1), 5, 150, NULL, 80.45, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Мартысюк Сергей Сергеевич', 'КСШ № 1', 'Смоленская область', 8001, 32),
+  (8154, 8027, (SELECT id FROM athletes WHERE last_name = 'Шамара' AND first_name = 'Леонард' AND middle_name = 'Леонидович' AND birth_year = 1974 LIMIT 1), 6, 149, NULL, 82.8, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Шамара Леонард Леонидович', 'РО ООО ВФГС в г. Москве', 'г. Москва', 8001, 32),
+  (8155, 8027, (SELECT id FROM athletes WHERE last_name = 'Кузовлев' AND first_name = 'Иван' AND middle_name = 'Николаевич' AND birth_year = 1985 LIMIT 1), 7, 132, NULL, 84.2, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Кузовлев Иван Николаевич', 'ЯРОО ФГС', 'Ярославская область', 8001, 32),
+  (8156, 8027, (SELECT id FROM athletes WHERE last_name = 'Малашта' AND first_name = 'Роман' AND middle_name = 'Анатольевич' AND birth_year = 1987 LIMIT 1), 8, 131, NULL, 83.4, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Малашта Роман Анатольевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 32),
+  (8157, 8027, (SELECT id FROM athletes WHERE last_name = 'Турищев' AND first_name = 'Михаил' AND middle_name = 'Михайлович' AND birth_year = 2007 LIMIT 1), 9, 99, NULL, 82.2, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Турищев Михаил Михайлович', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 32),
+  (8158, 8027, (SELECT id FROM athletes WHERE last_name = 'Витков' AND first_name = 'Алексей' AND middle_name = 'Викторович' AND birth_year = 1990 LIMIT 1), 10, 95, NULL, 84.8, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Витков Алексей Викторович', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 32),
+  (8159, 8027, (SELECT id FROM athletes WHERE last_name = 'Чернышев' AND first_name = 'Павел' AND middle_name = 'Вадимович' AND birth_year = 2007 LIMIT 1), 11, 91, NULL, 82.2, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Чернышев Павел Вадимович', 'ДДЮ Алые Паруса', 'Рязанская область', 8001, 32),
+  (8160, 8027, (SELECT id FROM athletes WHERE last_name = 'Ларечнев' AND first_name = 'Алексей' AND middle_name = 'Викторович' AND birth_year = 1981 LIMIT 1), 12, 74, NULL, 81.25, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Ларечнев Алексей Викторович', 'Sapa Fitness', 'Смоленская область', 8001, 32),
+  (8161, 8027, (SELECT id FROM athletes WHERE last_name = 'Насибов' AND first_name = 'Туран' AND middle_name = 'Гурбанович' AND birth_year = 2010 LIMIT 1), 13, 70, NULL, 78.45, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Насибов Туран Гурбанович', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 32);
 
 INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8001, 8001, 'jerk', 'both', 69),
@@ -1190,5 +1271,18 @@ INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8145, 8145, 'snatch', 'both', 97),
   (8146, 8146, 'snatch', 'both', 92),
   (8147, 8147, 'snatch', 'both', 81),
-  (8148, 8148, 'snatch', 'both', 50);
+  (8148, 8148, 'snatch', 'both', 50),
+  (8149, 8149, 'snatch', 'both', 168),
+  (8150, 8150, 'snatch', 'both', 163),
+  (8151, 8151, 'snatch', 'both', 160),
+  (8152, 8152, 'snatch', 'both', 156),
+  (8153, 8153, 'snatch', 'both', 150),
+  (8154, 8154, 'snatch', 'both', 149),
+  (8155, 8155, 'snatch', 'both', 132),
+  (8156, 8156, 'snatch', 'both', 131),
+  (8157, 8157, 'snatch', 'both', 99),
+  (8158, 8158, 'snatch', 'both', 95),
+  (8159, 8159, 'snatch', 'both', 91),
+  (8160, 8160, 'snatch', 'both', 74),
+  (8161, 8161, 'snatch', 'both', 70);
 
