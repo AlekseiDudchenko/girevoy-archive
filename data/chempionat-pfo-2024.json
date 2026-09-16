@@ -1,0 +1,27 @@
+{
+  "source": {
+    "filename": "Protokoly_PFO_12-14_04_24.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 38000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол чемпионата Приволжского федерального округа 2024. Индивидуальные категории импортируются по листам книги. Эстафеты, жонглирование, потоки, сводные таблицы и список судей не импортируются."
+  },
+  "competition": {
+    "slug": "chempionat-pfo-2024",
+    "name": "Чемпионат Приволжского федерального округа 2024",
+    "date_start": "2024-04-12",
+    "date_end": "2024-04-14",
+    "city": "Пермь",
+    "country": "RU",
+    "competition_rank": "federal_district",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "2065590017021409",
+    "regions_total": 10,
+    "participants_total": 92
+  },
+  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
+  "categories": [],
+  "deferred": []
+}
