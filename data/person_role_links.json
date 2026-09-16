@@ -29,6 +29,28 @@
           "source_url": "https://vfgs.ru/news/2021/sergej-kirillov-novyj-prezident-vfgs"
         }
       ]
+    },
+    {
+      "coach": "Ажермачев А.Б.",
+      "display_name": "Ажермачев Алексей Борисович",
+      "birth_year": 1979,
+      "reason": "Подтверждено внешней проверкой: Ажермачев А.Б. из протоколов Томской области — Алексей Борисович Ажермачев, заслуженный тренер России и руководитель Томской федерации гиревого спорта.",
+      "activities": [
+        {
+          "organization": "Всероссийская федерация гиревого спорта",
+          "position": "1-й вице-президент",
+          "date_from": null,
+          "date_to": null,
+          "source_url": "https://vfgs.ru/vfgs/about"
+        },
+        {
+          "organization": "Томская региональная общественная организация «Федерация гиревого спорта»",
+          "position": "Руководитель",
+          "date_from": null,
+          "date_to": null,
+          "source_url": "https://fgs-tomsk.ru/contacts"
+        }
+      ]
     }
   ]
 }
