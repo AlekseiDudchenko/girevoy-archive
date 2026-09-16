@@ -40,7 +40,7 @@ def club_id(name, region): return Raw(f"(SELECT id FROM clubs WHERE name = {esc(
 def ref(table, code, col="code"): return Raw(f"(SELECT id FROM {table} WHERE {col} = {esc(code)})")
 def rank_id(label):
     if not label or label == "-": return None
-    code = RANKS.get(label.lstrip("+"))
+    code = RANKS.get(label.strip("+"))
     return ref("sport_ranks", code) if code else None
 
 
