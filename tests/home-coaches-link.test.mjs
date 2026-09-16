@@ -5,12 +5,14 @@ import { links } from '../src/render.js';
 
 const stats = { competitions: 1, results: 2, athletes: 3, coaches: 4 };
 
+const coachesLink = (href) => new RegExp(`<a[^>]*href="${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>Тренеров<\\/a>`);
+
 test('home coaches tally links to coaches page in worker', () => {
   const html = renderIndex({ stats, competitions: [], L: links.worker });
-  assert.ok(html.includes('<a href="/coaches">Тренеров</a>'));
+  assert.match(html, coachesLink('/coaches'));
 });
 
 test('home coaches tally links to coaches page in static snapshot', () => {
   const html = renderIndex({ stats, competitions: [], L: links.static });
-  assert.ok(html.includes('<a href="coaches.html">Тренеров</a>'));
+  assert.match(html, coachesLink('coaches.html'));
 });
