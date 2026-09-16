@@ -62,7 +62,7 @@ jobs:
           sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions;'
 
       - name: Проверить персоны
-        run: node --test tests/people.test.mjs
+        run: node --test tests/*.test.mjs
 
       - name: Отрендерить страницы
         run: node scripts/snapshot.mjs .local/girevoy.db dist
