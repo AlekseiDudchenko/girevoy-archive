@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import * as q from '../src/queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
 import { renderIndex } from '../src/render-home.js';
-import { personTabs } from '../src/person-tabs.js';
+import { personTabs, personRoleLinks } from '../src/person-tabs.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
@@ -130,9 +130,9 @@ const write = (name, body) => writeFileSync(join(OUT, name), body, 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
-write('results.html', renderResults({ rows: await q.listAllResults(db), L }));
+write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
 const coaches = await q.listCoaches(db);
-write('coaches.html', sortableCoaches(renderCoaches({ coaches, L }), coaches));
+write('coaches.html', sortableCoaches(personRoleLinks(renderCoaches({ coaches, L }), 'coach'), coaches));
 for (const { slug } of await q.listPersonSlugs(db)) {
   const data = await q.getPerson(db, slug);
   write(L.person(slug), personTabs(personCoachYears(renderPerson({ ...data, L }))));
@@ -140,7 +140,7 @@ for (const { slug } of await q.listPersonSlugs(db)) {
 
 for (const c of competitions) {
   const data = await q.getCompetition(db, c.slug);
-  write(`c-${c.slug}.html`, renderCompetition({ ...data, L }));
+  write(`c-${c.slug}.html`, personRoleLinks(renderCompetition({ ...data, L }), 'athlete'));
 }
 
 const slugs = await q.listAthleteSlugs(db);
