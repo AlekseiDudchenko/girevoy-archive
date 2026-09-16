@@ -1,40 +1,92 @@
 -- Слияние дублей спортсменов (FR-A13).
--- Сгенерировано scripts/gen_merges.py из data/merges.json, не править руками.
--- Слияние дублей спортсменов (FR-A13). Один и тот же человек попал в базу дважды, потому что в протоколах разошлось написание отчества, а ключ склейки в gen_seed.py — фамилия, имя, отчество и год рождения. Запись дубля остаётся в базе с ссылкой merged_into_id: слияние обратимо, а исходные написания сохранены в results.raw_name. Канонической выбирается запись с верным написанием.
+-- Сформировано из data/merges.json; исходные результаты и raw_name не изменяются.
 
--- Васин Артём Иывнович → Васин Артём Иванович, 2007 г. р.
--- Чемпионат России 2025, рывок 73 кг (страница 16) — «Иывнович»; в толчке и длинном цикле того же турнира (страницы 26 и 36) он же «Иванович».
-UPDATE athletes SET merged_into_id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007)
- WHERE id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иывнович' AND birth_year = 2007) AND (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007) IS NOT NULL;
+DROP TABLE IF EXISTS _athlete_merge_map;
+CREATE TEMP TABLE _athlete_merge_map (canonical TEXT NOT NULL, duplicate TEXT NOT NULL, birth_year INTEGER NOT NULL);
+INSERT INTO _athlete_merge_map (canonical, duplicate, birth_year) VALUES
+  ('Васин Артём Иванович', 'Васин Артём Иывнович', 2007),
+  ('Ташланов Илья Станиславович', 'Ташланов Илья Станиставович', 1987),
+  ('Черкашин Иван Андреевич', 'Черкашин Иван Андревич', 1999),
+  ('Хамидов Фахриддин Фарход угли', 'Хамидов Фахриддин Фарход Угли', 2002),
+  ('Абдразаков Рафик Шавкатович', 'Абдразаков Рафик', 2002),
+  ('Афанасенко Всеволод Витальевич', 'Афанасенко Всеволод', 2008),
+  ('Ахмедов Эдик Алимогомедович', 'Ахмедов Эдик', 1999),
+  ('Бабичев Иван Александрович', 'Бабичев Иван', 1996),
+  ('Бедный Даниил Андреевич', 'Бедный Даниил', 2005),
+  ('Борисова Ульяна Викторовна', 'Борисова Ульяна', 2010),
+  ('Бурков Юрий Михайлович', 'Бурков Юрий', 1987),
+  ('Ванин Виктор Викторович', 'Ванин Виктор', 1991),
+  ('Вершинина Дарья Алексеевна', 'Вершинина Дарья', 2009),
+  ('Волошин Александр Анатольевич', 'Волошин Александр', 1995),
+  ('Галеев Роман Евгеньевич', 'Галеев Роман', 2005),
+  ('Гарифуллин Константин Фардатович', 'Гарифуллин Константин', 1999),
+  ('Глазырин Роман Николаевич', 'Глазырин Роман', 2005),
+  ('Грибанова Ирина Александровна', 'Грибанова Ирина', 2004),
+  ('Гусев Владимир Владимирович', 'Гусев Владимир', 2004),
+  ('Дорохов Александр Викторович', 'Дорохов Александр', 1998),
+  ('Евдокимова Елизавета Юрьевна', 'Евдокимова Елизавета', 1999),
+  ('Емельянов Николай Анатольевич', 'Емельянов Николай', 1983),
+  ('Жумадилов Аслан Жасланович', 'Жумадилов Аслан', 2004),
+  ('Заварзин Павел Александрович', 'Заварзин Павел', 2000),
+  ('Иванов Никита Александрович', 'Иванов Никита', 2004),
+  ('Иванова Анна Андреевна', 'Иванова Анна', 2003),
+  ('Кашин Кирилл Игоревич', 'Кашин Кирилл', 2003),
+  ('Климков Дмитрий Сергеевич', 'Климков Дмитрий', 1985),
+  ('Кобзарь Кирилл Николаевич', 'Кобзарь Кирилл', 2002),
+  ('Кодиров Абдумаъруф Абдукодирович', 'Кодиров Абдумаъруф', 2000),
+  ('Кривко Никита Алексеевич', 'Кривко Никита', 2002),
+  ('Кузьмичева Екатерина Сергеевна', 'Кузьмичева Екатерина', 2004),
+  ('Кулик Елена Алексеевна', 'Кулик Елена', 1984),
+  ('Лебедьков Андрей Евгеньевич', 'Лебедьков Андрей', 1996),
+  ('Микшин Сергей Владимирович', 'Микшин Сергей', 2000),
+  ('Минибаев Альзаф Альбертович', 'Минибаев Альзаф', 1987),
+  ('Минина Марина Николаевна', 'Минина Марина', 1990),
+  ('Обаранчук Ростислав Романович', 'Обаранчук Ростислав', 2003),
+  ('Панов Алексей Анатольевич', 'Панов Алексей', 1991),
+  ('Пирожников Александр Андреевич', 'Пирожников Александр', 1987),
+  ('Плешкова Анастасия Александровна', 'Плешкова Анастасия', 2005),
+  ('Подгорный Иван Юрьевич', 'Подгорный Иван', 2003),
+  ('Пономарев Егор Дмитриевич', 'Пономарев Егор', 1998),
+  ('Постникова Анастасия Евгеньевна', 'Постникова Анастасия', 2007),
+  ('Потапов Владислав Владимирович', 'Потапов Владислав', 1978),
+  ('Потатуев Артем Александрович', 'Потатуев Артем', 1992),
+  ('Походяева Александра Андреевна', 'Походяева Александра', 1990),
+  ('Семушин Дмитрий Александрович', 'Семушин Дмитрий', 2008),
+  ('Семёнов Андрей Владимирович', 'Семёнов Андрей', 1991),
+  ('Сивенков Владислав Максимович', 'Сивенков Владислав', 2006),
+  ('Стрекаловских Николай Сергеевич', 'Стрекаловских Николай', 1993),
+  ('Таева Нагима Сериковна', 'Таева Нагима', 1991),
+  ('Тананин Вячеслав Олегович', 'Тананин Вячеслав', 1997),
+  ('Тимоненков Станислав Олегович', 'Тимоненков Станислав', 2005),
+  ('Тимошаров Кирилл Сергеевич', 'Тимошаров Кирилл', 2006),
+  ('Тюленев Дмитрий Тимофеевич', 'Тюленев Дмитрий', 1985),
+  ('Усольцев Александр Николаевич', 'Усольцев Александр', 1992),
+  ('Усс Виктор Анатольевич', 'Усс Виктор', 1979),
+  ('Хуснудинов Арслан Закеевич', 'Хуснудинов Арслан', 1985),
+  ('Черепанов Антон Леонидович', 'Черепанов Антон', 2003),
+  ('Шабунин Никита Андреевич', 'Шабунин Никита', 2001),
+  ('Шмидт Татьяна Александровна', 'Шмидт Татьяна', 1988),
+  ('Юдин Дмитрий Петрович', 'Юдин Дмитрий', 1989),
+  ('Яковлев Владимир Александрович', 'Яковлев Владимир', 1975),
+  ('Янголенко Даниил Витальевич', 'Янголенко Даниил', 2000),
+  ('Яськова Елена Григорьевна', 'Яськова Елена', 2003),
+  ('Яхнич Ефим Владимирович', 'Яхнич Ефим', 1989);
+
+DROP TABLE IF EXISTS _resolved_athlete_merges;
+CREATE TEMP TABLE _resolved_athlete_merges AS
+SELECT d.id AS duplicate_id, c.id AS canonical_id
+  FROM _athlete_merge_map m
+  JOIN athletes d ON d.full_name = m.duplicate AND d.birth_year = m.birth_year
+  JOIN athletes c ON c.full_name = m.canonical AND c.birth_year = m.birth_year;
+
+UPDATE athletes
+   SET merged_into_id = (SELECT r.canonical_id FROM _resolved_athlete_merges r WHERE r.duplicate_id = athletes.id)
+ WHERE id IN (SELECT duplicate_id FROM _resolved_athlete_merges);
 
 UPDATE athlete_slugs
-   SET athlete_id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007), is_current = 0
- WHERE athlete_id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иывнович' AND birth_year = 2007) AND (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007) IS NOT NULL;
+   SET athlete_id = (SELECT r.canonical_id FROM _resolved_athlete_merges r WHERE r.duplicate_id = athlete_slugs.athlete_id),
+       is_current = 0
+ WHERE athlete_id IN (SELECT duplicate_id FROM _resolved_athlete_merges);
 
--- Ташланов Илья Станиставович → Ташланов Илья Станиславович, 1987 г. р.
--- Чемпионат России 2025, толчок 78 кг (страница 25) — «Станиставович»; в протоколе 2026 года — «Станиславович».
-UPDATE athletes SET merged_into_id = (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиславович' AND birth_year = 1987)
- WHERE id = (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиставович' AND birth_year = 1987) AND (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиславович' AND birth_year = 1987) IS NOT NULL;
-
-UPDATE athlete_slugs
-   SET athlete_id = (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиславович' AND birth_year = 1987), is_current = 0
- WHERE athlete_id = (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиставович' AND birth_year = 1987) AND (SELECT id FROM athletes WHERE last_name = 'Ташланов' AND first_name = 'Илья' AND middle_name = 'Станиславович' AND birth_year = 1987) IS NOT NULL;
-
--- Черкашин Иван Андревич → Черкашин Иван Андреевич, 1999 г. р.
--- Чемпионат России 2025, толчок 95 кг (страница 23) — «Андревич»; в рывке того же турнира (страница 13) и в протоколе 2026 года — «Андреевич».
-UPDATE athletes SET merged_into_id = (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андреевич' AND birth_year = 1999)
- WHERE id = (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андревич' AND birth_year = 1999) AND (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андреевич' AND birth_year = 1999) IS NOT NULL;
-
-UPDATE athlete_slugs
-   SET athlete_id = (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андреевич' AND birth_year = 1999), is_current = 0
- WHERE athlete_id = (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андревич' AND birth_year = 1999) AND (SELECT id FROM athletes WHERE last_name = 'Черкашин' AND first_name = 'Иван' AND middle_name = 'Андреевич' AND birth_year = 1999) IS NOT NULL;
-
--- Хамидов Фахриддин Фарход Угли → Хамидов Фахриддин Фарход угли, 2002 г. р.
--- Расхождение в регистре: протокол 2026 года пишет «угли», протокол 2025 года (страницы 17, 27, 37) — «Угли». Канонической взята строчная запись.
-UPDATE athletes SET merged_into_id = (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002)
- WHERE id = (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход Угли' AND birth_year = 2002) AND (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002) IS NOT NULL;
-
-UPDATE athlete_slugs
-   SET athlete_id = (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002), is_current = 0
- WHERE athlete_id = (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход Угли' AND birth_year = 2002) AND (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002) IS NOT NULL;
-
+DROP TABLE _resolved_athlete_merges;
+DROP TABLE _athlete_merge_map;
