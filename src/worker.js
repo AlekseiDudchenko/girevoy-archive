@@ -18,7 +18,10 @@ const html = (body, status = 200) => new Response(body, {
 
 const sortableCoaches = (body, coaches) => {
   let rowIndex = 0;
-  const withCounts = body.replace(/<tbody>([\s\S]*?)<\/tbody>/, (_, rows) =>
+  const searchableBody = body
+    .replace('Поиск по имени или региону', 'Поиск по имени, региону или числу спортсменов')
+    .replace('Имя тренера или регион', 'Имя, регион или число спортсменов');
+  const withCounts = searchableBody.replace(/<tbody>([\s\S]*?)<\/tbody>/, (_, rows) =>
     `<tbody>${rows.replace(/<tr>([\s\S]*?)<\/tr>/g, (row) => {
       const count = coaches[rowIndex++]?.athletes?.length ?? 0;
       return row.replace('</tr>', `<td class="c n">${count}</td></tr>`);
