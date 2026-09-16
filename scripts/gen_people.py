@@ -3,6 +3,7 @@
 from __future__ import annotations
 import glob
 import json
+import re
 
 SELF_MARKERS = {"-", "—", "–", "Самостоя.С.", "Самостоятельно", "самостоятельно"}
 
@@ -88,7 +89,7 @@ def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[
     parts = split_coach_value(raw_value, splits)
     if parts is None:
         parts = []
-        for token in raw_value.split(","):
+        for token in re.split(r"[,;]", raw_value):
             token = token.strip()
             token_parts = split_coach_value(token, splits)
             parts.extend(token_parts if token_parts is not None else [token])
