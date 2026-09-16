@@ -44,14 +44,13 @@ export function personTabs(body) {
   if (!tabs.length) return;
 
   function activate(key, updateHash) {
-    var found = false;
+    var target = tabs.find(function (tab) { return tab.dataset.personTab === key; });
+    if (!target) return false;
     tabs.forEach(function (tab) {
-      var on = tab.dataset.personTab === key;
-      if (on) found = true;
+      var on = tab === target;
       tab.setAttribute('aria-selected', on ? 'true' : 'false');
       tab.tabIndex = on ? 0 : -1;
     });
-    if (!found) return false;
     panels.forEach(function (panel) { panel.hidden = panel.dataset.personRole !== key; });
     if (updateHash && window.history && window.history.replaceState) {
       window.history.replaceState(null, '', '#' + key);
