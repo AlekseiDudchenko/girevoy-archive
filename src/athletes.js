@@ -100,7 +100,14 @@ ${athletes.length ? `<label for="athlete-search">Поиск по имени, р�
 
 export function withAthletesNav(body, athletesHref, coachesHref, active = false) {
   const marker = `<a href="${coachesHref}"`;
-  if (!body.includes(marker) || body.includes(`href="${athletesHref}"`)) return body;
+  const markerIndex = body.indexOf(marker);
+  if (markerIndex < 0) return body;
+
+  const navStart = body.lastIndexOf('<nav', markerIndex);
+  const navEnd = body.indexOf('</nav>', markerIndex);
+  const nav = navStart >= 0 && navEnd > markerIndex ? body.slice(navStart, navEnd) : '';
+  if (nav.includes(`href="${athletesHref}"`)) return body;
+
   return body.replace(marker,
     `<a href="${athletesHref}"${active ? ' class="on"' : ''}>Спортсмены</a>\n      ${marker}`);
 }
