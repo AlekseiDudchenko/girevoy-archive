@@ -4,7 +4,7 @@ compatibility_date = "2026-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "girevoy-archive"
-database_id = "поставить после wrangler d1 create girevoy-archive"
+database_id = "66ea57ec-d899-42ed-8a9f-1f34fc1adb9f"
 
 [[r2_buckets]]
 binding = "PROTOCOLS"
