@@ -3,19 +3,23 @@ import * as q from './queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
 import { renderIndex } from './render-home.js';
 import { personTabs, personRoleLinks } from './person-tabs.js';
+import { listAthletes, renderAthletes, withAthletesNav } from './athletes.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
   get: async (sql, ...p) => await DB.prepare(sql).bind(...p).first(),
 });
 
-const html = (body, status = 200) => new Response(body, {
-  status,
-  headers: {
-    'content-type': 'text/html; charset=utf-8',
-    'cache-control': 'public, max-age=60, s-maxage=86400',
+const html = (body, status = 200) => new Response(
+  withAthletesNav(body, '/athletes', '/coaches', body.includes('<title>Спортсмены — Гиревой архив</title>')),
+  {
+    status,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'public, max-age=60, s-maxage=86400',
+    },
   },
-});
+);
 
 const sortableCoaches = (body, coaches) => {
   let rowIndex = 0;
@@ -127,7 +131,7 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const db = d1(env.DB);
-    const L = links.worker;
+    const L = { ...links.worker, athletes: '/athletes' };
 
     try {
       if (path === '/') {
@@ -136,6 +140,9 @@ export default {
       }
       if (path === '/results') {
         return html(personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
+      }
+      if (path === '/athletes') {
+        return html(renderAthletes({ athletes: await listAthletes(db), L }));
       }
       if (path === '/coaches') {
         const coaches = await q.listCoaches(db);
