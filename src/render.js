@@ -311,12 +311,14 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   const resultRow = (r, showDiscipline) => `
         <tr data-date="${e(r.event_date || '')}" data-comp="${e(r.competition || '')}"
             data-series="${e(seriesLabel(r))}" data-wc="${weightClassKey(r.weight_class_raw)}"
-            data-place="${r.place ?? ''}" data-reps="${e(repsText(r.reps))}"
-            data-value="${r.result_value ?? ''}" data-rank="${e(r.rank_achieved || '')}">
+            data-weight="${r.body_weight_kg ?? ''}" data-place="${r.place ?? ''}"
+            data-reps="${e(repsText(r.reps))}" data-value="${r.result_value ?? ''}"
+            data-rank="${e(r.rank_achieved || '')}">
           <td class="n dim">${e(r.event_date || '—')}</td>
           <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
           ${showDiscipline ? `<td><span class="discipline-badge" style="--series-color:${colorFor(r)}"><span class="discipline-dot"></span>${e(seriesLabel(r))}</span>${r.division ? ` <span class="dim">· ${e(r.division)}</span>` : ''}</td>` : ''}
           <td class="c dim">${e(r.weight_class_raw || '—')}</td>
+          <td class="r n">${r.body_weight_kg == null ? '—' : Number(r.body_weight_kg).toFixed(1)}</td>
           <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
@@ -331,9 +333,9 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       <thead><tr>
         ${sortableHead('date', 'Дата')}${sortableHead('comp', 'Соревнование')}
         ${showDiscipline ? sortableHead('series', 'Дисциплина') : ''}
-        ${sortableHead('wc', 'Кат.', 'c')}${sortableHead('place', 'Место', 'c')}
-        ${sortableHead('reps', 'Подъёмы', 'r')}${sortableHead('value', 'Результат', 'r')}
-        ${sortableHead('rank', 'Разряд', 'c')}
+        ${sortableHead('wc', 'Кат.', 'c')}${sortableHead('weight', 'Личный вес', 'r')}
+        ${sortableHead('place', 'Место', 'c')}${sortableHead('reps', 'Подъёмы', 'r')}
+        ${sortableHead('value', 'Результат', 'r')}${sortableHead('rank', 'Разряд', 'c')}
       </tr></thead>
       <tbody>${rows.map((r) => resultRow(r, showDiscipline)).join('')}</tbody>
     </table>
@@ -374,6 +376,12 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     <p class="note">Результаты с разным весом снаряда, числом рук или регламентом
     несравнимы между собой и показаны отдельными линиями.</p>
     ${chart(ordered)}
+  </section>
+
+  <section class="chart-block athlete-weight-chart">
+    <h3>Личный вес</h3>
+    <p class="note">Только значения, прямо указанные в протоколах. Пропуски не рассчитываются и не интерполируются.</p>
+    ${weightChart(results)}
   </section>
 
   <section class="cat athlete-results">
@@ -434,7 +442,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   var all = document.getElementById('athlete-results-all');
   var grouped = document.getElementById('athlete-results-grouped');
   var toggles = Array.prototype.slice.call(root.querySelectorAll('[data-results-view]'));
-  var numeric = { wc: 1, place: 1, value: 1 };
+  var numeric = { wc: 1, weight: 1, place: 1, value: 1 };
 
   function setView(view) {
     var groupedOn = view === 'grouped';
@@ -559,6 +567,59 @@ function chart(ordered) {
     ${body}
   </svg>
   <figcaption>${legend}</figcaption>
+</figure>`;
+}
+
+function weightChart(results) {
+  const seen = new Set();
+  const pts = results.filter((r) => r.body_weight_kg != null && r.event_date).filter((r) => {
+    const key = `${r.event_date}\u0000${r.competition_slug || r.competition || ''}\u0000${r.body_weight_kg}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).sort((a, b) => a.event_date.localeCompare(b.event_date));
+  if (!pts.length) return '<p class="note">Нет данных о личном весе.</p>';
+
+  const W = 720, H = 260, PL = 54, PR = 16, PT = 18, PB = 42;
+  const times = pts.map((r) => Date.parse(r.event_date));
+  const vals = pts.map((r) => Number(r.body_weight_kg));
+  let t0 = Math.min(...times), t1 = Math.max(...times);
+  if (t0 === t1) { t0 -= 86400000 * 30; t1 += 86400000 * 30; }
+  const vmax = Math.max(...vals), vmin = Math.min(...vals);
+  const pad = (vmax - vmin) * 0.2 || Math.max(vmax * 0.02, 1);
+  const y0 = Math.max(0, Math.floor((vmin - pad) * 2) / 2);
+  let y1 = Math.ceil((vmax + pad) * 2) / 2;
+  if (y1 <= y0) y1 = y0 + 1;
+
+  const x = (t) => PL + ((t - t0) / (t1 - t0)) * (W - PL - PR);
+  const y = (v) => PT + (1 - (v - y0) / (y1 - y0)) * (H - PT - PB);
+  const ticks = [];
+  for (let i = 0; i <= 4; i++) ticks.push(y0 + ((y1 - y0) * i) / 4);
+  const years = [...new Set(pts.map((r) => r.event_date.slice(0, 4)))].sort();
+  const d = pts.map((r, i) => `${i ? 'L' : 'M'}${x(Date.parse(r.event_date)).toFixed(1)} ${y(Number(r.body_weight_kg)).toFixed(1)}`).join(' ');
+  const line = pts.length > 1
+    ? `<path d="${d}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : '';
+  const dots = pts.map((r) => `
+    <circle cx="${x(Date.parse(r.event_date)).toFixed(1)}" cy="${y(Number(r.body_weight_kg)).toFixed(1)}" r="5"
+      fill="var(--s1)" stroke="var(--surface)" stroke-width="2"
+      data-tip="${Number(r.body_weight_kg).toFixed(1)} кг — ${dateRu(r.event_date)}${r.competition ? `, ${e(r.competition)}` : ''}"/>`).join('');
+
+  return `
+<figure class="chart">
+  <svg viewBox="0 0 ${W} ${H}" role="img" preserveAspectRatio="xMidYMid meet"
+       aria-label="Динамика личного веса">
+    ${ticks.map((v) => `
+      <line x1="${PL}" x2="${W - PR}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"
+            stroke="var(--grid)" stroke-width="1"/>
+      <text x="${PL - 10}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end"
+            class="ax">${v.toFixed(1)}</text>`).join('')}
+    ${years.map((yr) => {
+      const t = Date.parse(`${yr}-07-01`);
+      const cx = Math.min(W - PR, Math.max(PL, x(t)));
+      return `<text x="${cx.toFixed(1)}" y="${H - 14}" text-anchor="middle" class="ax">${yr}</text>`;
+    }).join('')}
+    ${line}${dots}
+  </svg>
 </figure>`;
 }
 
