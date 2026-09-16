@@ -38,7 +38,7 @@ jobs:
           python3 scripts/gen_seed.py data/chempionat-pfo-2026.json > .local/chempionat-pfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-pfo-2025.json > .local/chempionat-pfo-2025.sql
           python3 scripts/gen_seed.py data/chempionat-pfo-2024.json > .local/chempionat-pfo-2024.sql
-          python3 scripts/gen_seed.py data/chempionat-pfo-2023.json > .local/chempionat-pfo-2023.sql
+          python3 scripts/gen_seed_override.py data/chempionat-pfo-2023.json 137000 > .local/chempionat-pfo-2023.sql
           python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > .local/chempionat-dfo-sfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-dfo-sfo-ufo-2024.json > .local/chempionat-dfo-sfo-ufo-2024.sql
           python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > .local/chempionat-ufo-2026.sql
