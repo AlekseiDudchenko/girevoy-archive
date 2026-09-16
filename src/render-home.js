@@ -9,6 +9,25 @@ const uniq = (values) => [...new Set(values.filter(Boolean))].sort((a, b) =>
 const options = (values, emptyLabel) => `<option value="">${emptyLabel}</option>` +
   uniq(values).map((v) => `<option value="${e(v)}">${e(v)}</option>`).join('');
 
+const COMPETITION_TYPES = [
+  'Чемпионат России', 'Кубок России', 'Первенство России',
+  'Чемпионат мира', 'Кубок мира', 'Первенство мира',
+  'Чемпионат Европы', 'Кубок Европы', 'Первенство Европы',
+];
+
+const competitionType = (name) => {
+  const clean = String(name || '').trim();
+  const known = COMPETITION_TYPES.find((type) => clean.toLocaleLowerCase('ru')
+    .startsWith(type.toLocaleLowerCase('ru')));
+  if (known) return known;
+  return clean
+    .replace(/\b(?:19|20)\d{2}\b/g, '')
+    .replace(/\s*[—–-]\s*(?:19|20)\d{2}\b/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/[\s,.;:—–-]+$/g, '')
+    .trim() || clean;
+};
+
 export function renderIndex({ stats, competitions, L, bare }) {
   return page({
     bare,
@@ -56,8 +75,8 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <label>Год
       <select name="year">${options(competitions.map((c) => yearOf(c.date_start)), 'Все годы')}</select>
     </label>
-    <label>Турнир
-      <select name="name">${options(competitions.map((c) => c.name), 'Все турниры')}</select>
+    <label>Тип
+      <select name="type">${options(competitions.map((c) => competitionType(c.name)), 'Все типы')}</select>
     </label>
     <label>Место
       <select name="city">${options(competitions.map((c) => c.city), 'Все места')}</select>
@@ -80,11 +99,11 @@ export function renderIndex({ stats, competitions, L, bare }) {
       <tbody>
       ${competitions.map((c) => `<tr
         data-year="${e(yearOf(c.date_start))}"
-        data-name="${e(c.name)}"
+        data-type="${e(competitionType(c.name))}"
         data-city="${e(c.city || '')}"
         data-rank="${e(c.rank_name || '')}">
         <td class="n"><button type="button" class="home-quick-filter" data-filter="year" data-value="${e(yearOf(c.date_start))}">${e(yearOf(c.date_start))}</button></td>
-        <td><button type="button" class="home-quick-filter home-quick-name" data-filter="name" data-value="${e(c.name)}">${e(c.name)}</button></td>
+        <td><button type="button" class="home-quick-filter home-quick-name" data-filter="type" data-value="${e(competitionType(c.name))}">${e(c.name)}</button></td>
         <td>${c.city ? `<button type="button" class="home-quick-filter" data-filter="city" data-value="${e(c.city)}">${e(c.city)}</button>` : '—'}</td>
         <td class="n">${e(c.date_start || '—')}</td>
         <td>${c.rank_name ? `<button type="button" class="home-quick-filter" data-filter="rank" data-value="${e(c.rank_name)}">${e(c.rank_name)}</button>` : '—'}</td>
@@ -140,8 +159,8 @@ export function renderIndex({ stats, competitions, L, bare }) {
   var active = document.getElementById('home-active-filters');
   var count = document.getElementById('home-filter-count');
   var empty = document.getElementById('home-filter-empty');
-  var filterKeys = ['year', 'name', 'city', 'rank'];
-  var labels = { year: 'Год', name: 'Турнир', city: 'Место', rank: 'Уровень' };
+  var filterKeys = ['year', 'type', 'city', 'rank'];
+  var labels = { year: 'Год', type: 'Тип', city: 'Место', rank: 'Уровень' };
 
   function setView(view, persist) {
     var expandedOn = view === 'expanded';
@@ -170,6 +189,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
         if (filters[key]) url.searchParams.set(key, filters[key]);
         else url.searchParams.delete(key);
       });
+      url.searchParams.delete('name');
       history.replaceState(null, '', url.pathname + url.search + url.hash);
     } catch (_) {}
   }
