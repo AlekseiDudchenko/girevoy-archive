@@ -228,7 +228,7 @@ export async function listAllResults(db) {
   return db.all(`
     SELECT r.id, r.place, r.result_value, r.total_reps, r.points, r.body_weight_kg,
            r.bell_kg, r.hands, r.time_limit_min, r.event_date,
-           d.name AS discipline_name, cat.weight_class_raw, ag.name AS age_group,
+           d.name AS discipline_name, cat.weight_class_raw, cat.sex, ag.name AS age_group,
            dv.name AS division, a.last_name, a.first_name, a.middle_name,
            (SELECT slug FROM athlete_slugs
              WHERE athlete_id = COALESCE(a.merged_into_id, a.id) AND is_current = 1) AS slug,
