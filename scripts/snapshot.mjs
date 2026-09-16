@@ -129,7 +129,7 @@ const formatTableDates = (html) => html.replace(/<table\b[\s\S]*?<\/table>/g, (t
     prefix + text.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, '$3.$2.$1')));
 
 const compactAthleteResults = (html) => {
-  const compactTables = html.replace(/<table class="athlete-result-table"\b[\s\S]*?<\/table>/g, (table) =>
+  const compactTables = html.replace(/<table class="athlete-result-table"[\s\S]*?<\/table>/g, (table) =>
     table
       .replace(/>Личный вес</g, '>Вес<')
       .replace(/<a href="([^"]+)">(Чемпионат России(?: по гиревому спорту)?\s+(\d{4}))<\/a>/g,
