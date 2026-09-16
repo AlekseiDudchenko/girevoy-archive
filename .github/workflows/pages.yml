@@ -85,6 +85,9 @@ jobs:
       - name: Отрендерить страницы
         run: node scripts/snapshot.mjs .local/girevoy.db dist
 
+      - name: Оформить деятельность персон списком
+        run: node scripts/person-activities-list.mjs dist
+
       - name: Проверить, что страницы собрались
         run: |
           test -s dist/index.html
