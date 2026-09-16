@@ -29,6 +29,7 @@ const competitionType = (name) => {
 };
 
 export function renderIndex({ stats, competitions, L, bare }) {
+  const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
   return page({
     bare,
     title: 'Гиревой архив',
@@ -41,9 +42,9 @@ export function renderIndex({ stats, competitions, L, bare }) {
   Числа сверены с оригиналом протокола.</p>
   <dl class="tally">
     <div><dt>Турниров</dt><dd>${stats.competitions}</dd></div>
-    <div><dt>Результатов</dt><dd>${stats.results}</dd></div>
-    <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.athletes)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
-    <div class="tally-link"><dt><a href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
+    <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
+    <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(athletesHref)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
+    <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
   </dl>
 </section>
 
