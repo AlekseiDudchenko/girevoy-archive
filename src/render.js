@@ -192,7 +192,17 @@ export function renderCompetition({ comp, categories, L }) {
 
   const catTitle = (cat) => {
     const bits = [cat.discipline_name];
-    if (cat.hands === 'one') bits.push('одной рукой');
+    if (cat.hands === 'one' && cat.discipline_code !== 'snatch') bits.push('одной рукой');
+    bits.push(`${cat.bell_kg} кг`, `${cat.time_limit_min} мин`);
+    return bits.join(' · ');
+  };
+  const chipTitle = (cat) => {
+    const sex = cat.sex === 'f' ? 'ж' : 'м';
+    const discipline = cat.discipline_code === 'long_cycle' ? `ДЦ(${sex})`
+      : cat.discipline_code === 'jerk' ? `Т(${sex})`
+        : cat.discipline_code === 'snatch' ? 'Р' : cat.discipline_name;
+    const bits = [discipline];
+    if (cat.hands === 'one' && cat.discipline_code !== 'snatch') bits.push('одной рукой');
     bits.push(`${cat.bell_kg} кг`, `${cat.time_limit_min} мин`);
     return bits.join(' · ');
   };
@@ -214,7 +224,7 @@ export function renderCompetition({ comp, categories, L }) {
   </div>
 
   <nav class="chips" aria-label="Категории">
-    ${live.map((c) => `<a class="chip" href="#cat-${c.id}">${e(catTitle(c))} · ${e(c.weight_class_raw || '')}</a>`).join('')}
+    ${live.map((c) => `<a class="chip" href="#cat-${c.id}">${e(chipTitle(c))} · ${e(c.weight_class_raw || '')}</a>`).join('')}
   </nav>
 
   ${live.map((cat) => `
