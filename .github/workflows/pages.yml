@@ -39,6 +39,7 @@ jobs:
           python3 scripts/gen_seed.py data/chempionat-pfo-2025.json > .local/chempionat-pfo-2025.sql
           python3 scripts/gen_seed.py data/chempionat-pfo-2024.json > .local/chempionat-pfo-2024.sql
           python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > .local/chempionat-dfo-sfo-2026.sql
+          python3 scripts/gen_seed.py data/chempionat-dfo-sfo-ufo-2024.json > .local/chempionat-dfo-sfo-ufo-2024.sql
           python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > .local/chempionat-ufo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-szfo-2026.json > .local/chempionat-szfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-szfo-2025.json > .local/chempionat-szfo-2025.sql
@@ -61,6 +62,7 @@ jobs:
               .local/chempionat-pfo-2025.sql \
               .local/chempionat-pfo-2024.sql \
               .local/chempionat-dfo-sfo-2026.sql \
+              .local/chempionat-dfo-sfo-ufo-2024.sql \
               .local/chempionat-ufo-2026.sql \
               .local/chempionat-szfo-2026.sql \
               .local/chempionat-szfo-2025.sql \
