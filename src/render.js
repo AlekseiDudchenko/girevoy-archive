@@ -568,11 +568,6 @@ export function renderResults({ rows, L }) {
   const opts = (vals) => [...new Set(vals)].sort().map((v) => `<option>${e(v)}</option>`).join('');
   // подпись серии в ячейке и она же ключ сортировки столбца «Дисциплина»
   const series = (r) => `${r.discipline_name} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин`;
-  // пол берётся из категории протокола, поэтому «смешанная» появляется, только если такая есть
-  const sexLabel = { m: 'мужчины', f: 'женщины', mixed: 'смешанная' };
-  const sexOpts = [...new Set(rows.map((r) => r.sex))]
-    .sort((a, b) => (a === 'm' ? -1 : b === 'm' ? 1 : String(a).localeCompare(String(b))))
-    .map((v) => `<option value="${e(v)}">${e(sexLabel[v] || v)}</option>`).join('');
   const th = (key, label, cls) =>
     `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({
@@ -587,7 +582,7 @@ export function renderResults({ rows, L }) {
 </div>
 
 <form class="filters" id="f">
-  <label>Пол <select name="sex"><option value="">любой</option>${sexOpts}</select></label>
+  <label>Пол <select name="sex"><option value="">любой</option><option value="m">мужчины</option><option value="f">женщины</option></select></label>
   <label>Дисциплина <select name="discipline_name"><option value="">любая</option>${opts(rows.map((r) => r.discipline_name))}</select></label>
   <label>Вес снаряда <select name="bell_kg"><option value="">любой</option>${opts(rows.map((r) => String(r.bell_kg)))}</select></label>
   <label>Руки <select name="hands"><option value="">любые</option><option value="two">двумя</option><option value="one">одной</option></select></label>
