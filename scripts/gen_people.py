@@ -42,10 +42,12 @@ def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
         merges[duplicate] = canonical
         merges[normalize_coach_name(duplicate)] = canonical
 
-    splits = {
-        item["source"].strip(): [normalize_coach_name(name) for name in item["persons"]]
-        for item in data.get("splits", [])
-    }
+    splits: dict[str, list[str]] = {}
+    for item in data.get("splits", []):
+        source = item["source"].strip()
+        persons = [normalize_coach_name(name) for name in item["persons"]]
+        splits[source] = persons
+        splits[normalize_coach_name(source)] = persons
     return merges, splits
 
 
@@ -54,6 +56,8 @@ def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[
 
     raw_value = raw.strip()
     parts = splits.get(raw_value)
+    if parts is None:
+        parts = splits.get(normalize_coach_name(raw_value))
     if parts is None:
         parts = [token.strip() for token in raw_value.split(",")]
 
