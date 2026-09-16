@@ -30,6 +30,8 @@ const competitionType = (name) => {
 
 export function renderIndex({ stats, competitions, L, bare }) {
   const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
+  const categoryCount = competitions.reduce((sum, c) => sum + (Number(c.categories) || 0), 0);
+  const statisticsYears = uniq(competitions.map((c) => yearOf(c.date_start)).filter((year) => year !== '—')).length;
   return page({
     bare,
     title: 'Гиревой архив',
@@ -45,6 +47,10 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(athletesHref)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
+    <div><dt>Регионов</dt><dd title="Будет заполнено после нормализации регионов">—</dd></div>
+    <div><dt>Клубов и школ</dt><dd title="Будет заполнено после нормализации клубов и школ">—</dd></div>
+    <div><dt>Лет статистики</dt><dd>${statisticsYears}</dd></div>
+    <div><dt>Категорий</dt><dd>${categoryCount}</dd></div>
   </dl>
 </section>
 
