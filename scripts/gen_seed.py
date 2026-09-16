@@ -90,7 +90,7 @@ def main(path):
            [(cid,comp["slug"],comp["name"],comp["date_start"],comp.get("date_end"),comp["city"],comp["country"],ref("competition_ranks",comp["competition_rank"]),Raw(f"(SELECT id FROM federations WHERE name = {esc(comp['federation'])})"),comp.get("source_url"),1)])
     pid = BASE + 1
     insert("protocols", ["id","competition_id","r2_key","filename","page_count","is_scan","status","published_at"],
-           [(pid,cid,f"protocols/{comp['slug']}.pdf",src["filename"],src["page_count"],1 if src["is_scan"] else 0,"published",comp["date_start"])])
+           [(pid,cid,f"protocols/{comp['slug']}.pdf",src["filename"],src.get("page_count"),1 if src.get("is_scan") else 0,"published",comp["date_start"])])
 
     cats=[]; order=0
     for cat in data["categories"]:
