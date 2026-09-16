@@ -89,7 +89,8 @@ INSERT INTO categories (id, competition_id, discipline_id, sex, age_group_id, di
   (8020, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '85', 85, 0, 5, 0, 20),
   (8021, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95+', 95, 1, 7, 0, 21),
   (8022, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95', 95, 0, 7, 0, 22),
-  (8023, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '63', 63, 0, 5, 0, 23);
+  (8023, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '63', 63, 0, 5, 0, 23),
+  (8024, 8001, (SELECT id FROM disciplines WHERE code = 'snatch'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'one', 10, '68', 68, 0, 4, 0, 24);
 
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Трофимова', 'Милена', 'Михайловна', 2007, 'f', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР Маршал' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'msmk')
@@ -361,6 +362,9 @@ INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, regio
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Исаков', 'Станислав', 'Алексеевич', 2006, 'm', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'КСШ №1/ВАВПВО' AND region_id = (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')), 'Калякин С.В.', (SELECT id FROM sport_ranks WHERE code = 'i')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Исаков' AND a.first_name = 'Станислав' AND a.middle_name = 'Алексеевич' AND a.birth_year = 2006 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Петушков', 'Денис', 'Владимирович', 1986, 'm', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'КСШ № 1' AND region_id = (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')), 'Сергеев С.В.', (SELECT id FROM sport_ranks WHERE code = 'ms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Петушков' AND a.first_name = 'Денис' AND a.middle_name = 'Владимирович' AND a.birth_year = 1986 LIMIT 1);
 
 INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'trofimova-milena-2007' AND s.athlete_id <> a.id)
@@ -812,6 +816,11 @@ INSERT INTO athlete_slugs (slug, athlete_id)
               THEN 'isakov-stanislav-2006-' || a.id ELSE 'isakov-stanislav-2006' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Исаков' AND first_name = 'Станислав' AND middle_name = 'Алексеевич' AND birth_year = 2006 LIMIT 1)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'petushkov-denis-1986' AND s.athlete_id <> a.id)
+              THEN 'petushkov-denis-1986-' || a.id ELSE 'petushkov-denis-1986' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Петушков' AND first_name = 'Денис' AND middle_name = 'Владимирович' AND birth_year = 1986 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 
 INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, body_weight_kg, rank_achieved_id, discipline_id, bell_kg, hands, time_limit_min, competition_id, event_date, raw_name, raw_club, raw_region, protocol_id, source_page) VALUES
   (8001, 8001, (SELECT id FROM athletes WHERE last_name = 'Трофимова' AND first_name = 'Милена' AND middle_name = 'Михайловна' AND birth_year = 2007 LIMIT 1), 1, 69, NULL, 58.0, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 24, 'two', 10, 8001, '2026-04-13', 'Трофимова Милена Михайловна', 'СШОР Маршал', 'Калужская область', 8001, 24),
@@ -936,7 +945,11 @@ INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, bod
   (8120, 8023, (SELECT id FROM athletes WHERE last_name = 'Сушков' AND first_name = 'Андрей' AND middle_name = 'Васильевич' AND birth_year = 1992 LIMIT 1), 2, 120, NULL, 62.9, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Сушков Андрей Васильевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 28),
   (8121, 8023, (SELECT id FROM athletes WHERE last_name = 'Исаков' AND first_name = 'Станислав' AND middle_name = 'Алексеевич' AND birth_year = 2006 LIMIT 1), 3, 98, NULL, 62.5, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Исаков Станислав Алексеевич', 'КСШ №1/ВАВПВО', 'Смоленская область', 8001, 28),
   (8122, 8023, (SELECT id FROM athletes WHERE last_name = 'Кормилицын' AND first_name = 'Иван' AND middle_name = 'Николаевич' AND birth_year = 2010 LIMIT 1), 4, 85, NULL, 62.7, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Кормилицын Иван Николаевич', 'СШОР Маршал', 'Калужская область', 8001, 28),
-  (8123, 8023, (SELECT id FROM athletes WHERE last_name = 'Буданов' AND first_name = 'Григорий' AND middle_name = 'Денисович' AND birth_year = 2010 LIMIT 1), 5, 40, NULL, 61.75, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Буданов Григорий Денисович', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 28);
+  (8123, 8023, (SELECT id FROM athletes WHERE last_name = 'Буданов' AND first_name = 'Григорий' AND middle_name = 'Денисович' AND birth_year = 2010 LIMIT 1), 5, 40, NULL, 61.75, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Буданов Григорий Денисович', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 28),
+  (8124, 8024, (SELECT id FROM athletes WHERE last_name = 'Петушков' AND first_name = 'Денис' AND middle_name = 'Владимирович' AND birth_year = 1986 LIMIT 1), 1, 140, NULL, 67.7, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Петушков Денис Владимирович', 'КСШ № 1', 'Смоленская область', 8001, 29),
+  (8125, 8024, (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002 LIMIT 1), 2, 111, NULL, 68.0, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Хамидов Фахриддин Фарход угли', 'СШОР Маршал', 'Калужская область', 8001, 29),
+  (8126, 8024, (SELECT id FROM athletes WHERE last_name = 'Горячев' AND first_name = 'Ярослав' AND middle_name = 'Алексеевич' AND birth_year = 2010 LIMIT 1), 3, 100, NULL, 67.9, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Горячев Ярослав Алексеевич', 'СШОР Маршал', 'Калужская область', 8001, 29),
+  (8127, 8024, (SELECT id FROM athletes WHERE last_name = 'Копаевский' AND first_name = 'Артём' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 4, 93, NULL, 67.1, NULL, (SELECT id FROM disciplines WHERE code = 'snatch'), 32, 'one', 10, 8001, '2026-04-13', 'Копаевский Артём Александрович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 29);
 
 INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8001, 8001, 'jerk', 'both', 69),
@@ -1061,5 +1074,9 @@ INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8120, 8120, 'snatch', 'both', 120),
   (8121, 8121, 'snatch', 'both', 98),
   (8122, 8122, 'snatch', 'both', 85),
-  (8123, 8123, 'snatch', 'both', 40);
+  (8123, 8123, 'snatch', 'both', 40),
+  (8124, 8124, 'snatch', 'both', 140),
+  (8125, 8125, 'snatch', 'both', 111),
+  (8126, 8126, 'snatch', 'both', 100),
+  (8127, 8127, 'snatch', 'both', 93);
 
