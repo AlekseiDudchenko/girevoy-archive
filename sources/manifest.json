@@ -1,0 +1,84 @@
+{
+  "files": [
+    {
+      "path": "sources/2023/chempionat-rossii-2023.xlsx",
+      "size_bytes": 568795,
+      "sha256": "3d8b74409ab24b7da3b4d2ae637dbe45452befc2a9d4e2a5ae1ca97c48500489"
+    },
+    {
+      "path": "sources/2023/protokol-dfo-sfo-2023.xls",
+      "size_bytes": 342016,
+      "sha256": "33f55ea7aed95fec040e625d1bb49a87c2749d786fc6554e23a1717887d85d17"
+    },
+    {
+      "path": "sources/2023/protokol-pfo-7-9.04.2023.xlsx",
+      "size_bytes": 360078,
+      "sha256": "ccb1c8ce476abf575f44d5d000702ff922f6447b00de65db47dd81a54bb697a9"
+    },
+    {
+      "path": "sources/2024/Protokoly_PFO_12-14_04_24.xlsx",
+      "size_bytes": 497336,
+      "sha256": "54e28b05db74e503188119eeb13439191c4b6ead7f3181fd25873a3cee181379"
+    },
+    {
+      "path": "sources/2024/cfo-2024.xlsx",
+      "size_bytes": 572736,
+      "sha256": "d75e464e363241a946e19dd3e4f1cde9c3b7480e15cd7941fbb2dbb442c30cae"
+    },
+    {
+      "path": "sources/2024/chempionat-ufo-sfo-dfo4.xlsx",
+      "size_bytes": 328822,
+      "sha256": "44a10eb82367320c44f201964f458bf6ab87a377fd7e06909f9cc977bcbd70f5"
+    },
+    {
+      "path": "sources/2024/chempionat-yufo-i-skfo.xlsx",
+      "size_bytes": 419066,
+      "sha256": "4d5bcf5fd6d1290c995fed0b94a65dbcd294e63577691c6de15cb6f62f72582c"
+    },
+    {
+      "path": "sources/2024/protokol-chr-2024.xlsx",
+      "size_bytes": 2694609,
+      "sha256": "c183baf0f4a66a67e9b8a7e13cfb8d6cf6fc9789da94c850e6bfb4273a7eb255"
+    },
+    {
+      "path": "sources/2024/szfo-2024.xlsx",
+      "size_bytes": 1145374,
+      "sha256": "3f84b47e10dbc8df80f91366de111258099ba093ac38100d85b5ec35373c7493"
+    },
+    {
+      "path": "sources/2025/chemp.-cfo-9-13.04.2025_compressed.pdf",
+      "size_bytes": 4665934,
+      "sha256": "94c38f33ebe5537183586730f0bab64cba41dba8022c4428f1b5679087ada155"
+    },
+    {
+      "path": "sources/2025/chszfo-2025-s-pechatyami_250422_114952.pdf",
+      "size_bytes": 5207828,
+      "sha256": "606fe8de06aa73421d31fbda07bd6e0ea5a8920f498775c0004c9053c6b97976"
+    },
+    {
+      "path": "sources/2025/pfo_2025.pdf",
+      "size_bytes": 4102877,
+      "sha256": "c0ceed6a5b65796aa5963bbe5c8fa2066ade66a1ac5aac93290541f766318fb8"
+    },
+    {
+      "path": "sources/2025/protokol-kubok-rossii-2025-g-sankt-peterburg.pdf",
+      "size_bytes": 9011625,
+      "sha256": "63f3138b5aa8c3cd3de66e2556f46e0bdc7da86e28b7250cb352099fe29640da"
+    },
+    {
+      "path": "sources/2026/protokol-chempionata-szfo.pdf",
+      "size_bytes": 4400853,
+      "sha256": "445d3107af03ced9b7c0062addf3fdc780d593a6b4aa24e22b97190009f87622"
+    },
+    {
+      "path": "sources/2026/protokoly-chempionata-yufo-i-skfo.pdf",
+      "size_bytes": 4584363,
+      "sha256": "042bec5d05792493eddd3b1d8b90c7ddf06712d9726914875cf593df1f4a36fa"
+    },
+    {
+      "path": "sources/2026/protokoly-ufo.pdf",
+      "size_bytes": 6591230,
+      "sha256": "cabe35a067cd170bc3ad61098db71413852a123104651e1db6fa5981db34dc91"
+    }
+  ]
+}
