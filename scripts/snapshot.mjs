@@ -4,7 +4,8 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import * as q from '../src/queries.js';
-import { links, renderIndex, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
+import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
+import { renderIndex } from '../src/render-home.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
