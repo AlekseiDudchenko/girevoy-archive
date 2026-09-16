@@ -43,7 +43,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <div><dt>Турниров</dt><dd>${stats.competitions}</dd></div>
     <div><dt>Результатов</dt><dd>${stats.results}</dd></div>
     <div><dt>Спортсменов</dt><dd>${stats.athletes}</dd></div>
-    <div><dt>Тренеров</dt><dd>${stats.coaches}</dd></div>
+    <div class="tally-link"><dt><a href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
   </dl>
 </section>
 
@@ -131,6 +131,8 @@ export function renderIndex({ stats, competitions, L, bare }) {
 </div>
 
 <style>
+.tally-link a { color:inherit; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; }
+.tally-link a:hover, .tally-link a:focus-visible { color:var(--accent); text-decoration-thickness:2px; }
 .home-list-head { display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:.7rem 1rem; margin-top:2.4rem; }
 .home-list-head h2.sec { flex:1 1 auto; margin:0; }
 .view-toggle { display:inline-flex; border:1px solid var(--rule); background:var(--surface); padding:2px; }
