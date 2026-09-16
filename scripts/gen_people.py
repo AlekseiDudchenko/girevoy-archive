@@ -25,12 +25,39 @@ def athlete_sql(full_name: str, born: str, names_without_middle: bool = False) -
     return "(SELECT id FROM athletes WHERE " + " AND ".join(conditions) + " LIMIT 1)"
 
 
-def coach_names(raw: str | None) -> list[str]:
+def normalize_coach_name(name: str) -> str:
+    return name.strip().replace(". ", ".")
+
+
+def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
+    try:
+        data = json.load(open("data/person_merges.json", encoding="utf-8"))
+    except FileNotFoundError:
+        return {}, {}
+
+    merges: dict[str, str] = {}
+    for item in data.get("merges", []):
+        duplicate = item["duplicate"].strip()
+        canonical = normalize_coach_name(item["canonical"])
+        merges[duplicate] = canonical
+        merges[normalize_coach_name(duplicate)] = canonical
+
+    splits = {
+        item["source"].strip(): [normalize_coach_name(name) for name in item["persons"]]
+        for item in data.get("splits", [])
+    }
+    return merges, splits
+
+
+def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[str]]) -> list[str]:
     if not raw: return []
     names=[]
     for token in raw.split(","):
-        name=token.strip().replace(". ", ".")
-        if name and name not in SELF_MARKERS: names.append(name)
+        raw_name=token.strip()
+        for part in splits.get(raw_name, [raw_name]):
+            normalized=normalize_coach_name(part)
+            if normalized and normalized not in SELF_MARKERS:
+                names.append(merges.get(part.strip(), merges.get(normalized, normalized)))
     return names
 
 
@@ -50,7 +77,7 @@ def load_protocols():
 
 
 def main() -> None:
-    protocols=list(load_protocols()); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
+    protocols=list(load_protocols()); merges,splits=load_person_rules(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
     for data in protocols:
         comp_slug=data["competition"]["slug"]
         names_without_middle=bool(data.get("source",{}).get("names_without_middle",False))
@@ -58,7 +85,7 @@ def main() -> None:
             for row in category.get("rows",[]):
                 full_name,born,raw_coach=row[1],row[2],row[10]
                 athlete=athlete_sql(full_name,born,names_without_middle)
-                for coach in coach_names(raw_coach):
+                for coach in coach_names(raw_coach, merges, splits):
                     coaches.add(coach); links.add((coach,athlete,full_name)); mentions.add((coach,athlete,full_name,comp_slug))
     print("-- Сгенерировано scripts/gen_people.py из data/*.json и data/categories/. Не править руками.")
     print("-- История тренеров берётся из строк конкретных протоколов.\n")
