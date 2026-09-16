@@ -39,6 +39,7 @@ jobs:
           python3 scripts/gen_seed.py data/chempionat-rossii-2023.json > .local/chempionat-rossii-2023.sql
           python3 scripts/gen_seed.py data/chempionat-pfo-2026.json > .local/chempionat-pfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > .local/chempionat-dfo-sfo-2026.sql
+          python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > .local/chempionat-ufo-2026.sql
           python3 scripts/gen_people.py > .local/people.sql
           cat migrations/*.sql \
               seeds/0001_reference.sql \
@@ -48,6 +49,7 @@ jobs:
               .local/chempionat-rossii-2023.sql \
               .local/chempionat-pfo-2026.sql \
               .local/chempionat-dfo-sfo-2026.sql \
+              .local/chempionat-ufo-2026.sql \
               seeds/0005_merges.sql \
               .local/people.sql | sqlite3 .local/girevoy.db
           echo "таблиц: $(sqlite3 .local/girevoy.db "SELECT COUNT(*) FROM sqlite_master WHERE type='table'")"
