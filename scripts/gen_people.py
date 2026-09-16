@@ -51,13 +51,17 @@ def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
 
 def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[str]]) -> list[str]:
     if not raw: return []
+
+    raw_value = raw.strip()
+    parts = splits.get(raw_value)
+    if parts is None:
+        parts = [token.strip() for token in raw_value.split(",")]
+
     names=[]
-    for token in raw.split(","):
-        raw_name=token.strip()
-        for part in splits.get(raw_name, [raw_name]):
-            normalized=normalize_coach_name(part)
-            if normalized and normalized not in SELF_MARKERS:
-                names.append(merges.get(part.strip(), merges.get(normalized, normalized)))
+    for part in parts:
+        normalized=normalize_coach_name(part)
+        if normalized and normalized not in SELF_MARKERS:
+            names.append(merges.get(part.strip(), merges.get(normalized, normalized)))
     return names
 
 
