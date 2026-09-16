@@ -54,7 +54,7 @@ test('confirmed missing delimiters split into separate coach people', () => {
   const separate = [
     'Емельянов Н.А.', 'Ефимов А.В.',
     'Бабичев М.А.', 'Горбачёв В.В.',
-    'Семенов А.Н.', 'Руднев С.Л.',
+    'Семёнов А.Н.', 'Руднев С.Л.',
   ];
 
   for (const name of combined) {
