@@ -54,7 +54,7 @@ jobs:
               .local/chempionat-szfo-2026.sql \
               seeds/0005_merges.sql \
               .local/people.sql | sqlite3 .local/girevoy.db
-          echo "таблиц: $(sqlite3 .local/girevoy.db \"SELECT COUNT(*) FROM sqlite_master WHERE type='table'\")"
+          echo "таблиц: $(sqlite3 .local/girevoy.db "SELECT COUNT(*) FROM sqlite_master WHERE type='table'")"
           echo "результатов: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results')"
           echo "упоминаний тренеров: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions')"
 
