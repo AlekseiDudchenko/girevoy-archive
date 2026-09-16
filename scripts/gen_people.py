@@ -144,6 +144,11 @@ def main() -> None:
     print("SELECT p.id, a.id FROM athletes a")
     print("JOIN athlete_slugs s ON s.athlete_id = COALESCE(a.merged_into_id, a.id) AND s.is_current = 1")
     print("JOIN persons p ON p.slug = s.slug;\n")
+    for coach in sorted(role_links):
+        person=coach_person_sql(coach, role_links)
+        print(f"DELETE FROM persons WHERE slug = {esc(coach_slug(coach))} AND {person} IS NOT NULL;")
+    if role_links:
+        print()
     standalone_coaches = [name for name in sorted(coaches) if name not in role_links]
     if standalone_coaches:
         print("INSERT OR IGNORE INTO persons (slug, display_name) VALUES")
