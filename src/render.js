@@ -378,11 +378,11 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     ${chart(ordered)}
   </section>
 
-  <section class="chart-block athlete-weight-chart">
-    <h3>Личный вес</h3>
+  <details class="chart-block athlete-weight-chart" open>
+    <summary><span class="athlete-weight-title">Личный вес</span></summary>
     <p class="note">Только значения, прямо указанные в протоколах. Пропуски не рассчитываются и не интерполируются.</p>
     ${weightChart(results)}
-  </section>
+  </details>
 
   <section class="cat athlete-results">
     <div class="athlete-results-head">
@@ -428,6 +428,9 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
 .view-toggle { display:inline-flex; border:1px solid var(--rule); background:var(--surface); padding:2px; }
 .view-toggle button { border:0; background:transparent; color:var(--ink-2); font:inherit; font-size:.88rem; padding:.3rem .65rem; cursor:pointer; }
 .view-toggle button.on { background:var(--accent); color:var(--surface); }
+.athlete-weight-chart summary { cursor:pointer; }
+.athlete-weight-chart[open] summary { margin-bottom:.5rem; }
+.athlete-weight-title { font-family:"Bitter",Georgia,serif; font-size:1.17em; font-weight:500; }
 .discipline-badge { display:inline-flex; align-items:center; gap:.38rem; white-space:nowrap; }
 .discipline-dot { width:.58rem; height:.58rem; border-radius:50%; background:var(--series-color); flex:0 0 auto; }
 .discipline-group { margin:1.4rem 0 2rem; }

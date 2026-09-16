@@ -50,6 +50,13 @@ test('athlete results show sortable body weight and a weight history chart', () 
   assert.ok(html.includes('var numeric = { wc: 1, weight: 1, place: 1, value: 1 };'));
 });
 
+test('body weight section is collapsible and open by default', () => {
+  const html = render([result()]);
+  assert.ok(html.includes('<details class="chart-block athlete-weight-chart" open>'));
+  assert.ok(html.includes('<summary><span class="athlete-weight-title">Личный вес</span></summary>'));
+  assert.ok(html.includes('.athlete-weight-chart summary { cursor:pointer; }'));
+});
+
 test('weight chart ignores missing values and deduplicates the same competition weighing', () => {
   const html = render([
     result(),
