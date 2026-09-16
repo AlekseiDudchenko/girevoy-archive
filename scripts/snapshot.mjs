@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import * as q from '../src/queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
 import { renderIndex } from '../src/render-home.js';
+import { personTabs } from '../src/person-tabs.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
@@ -134,7 +135,7 @@ const coaches = await q.listCoaches(db);
 write('coaches.html', sortableCoaches(renderCoaches({ coaches, L }), coaches));
 for (const { slug } of await q.listPersonSlugs(db)) {
   const data = await q.getPerson(db, slug);
-  write(L.person(slug), personCoachYears(renderPerson({ ...data, L })));
+  write(L.person(slug), personTabs(personCoachYears(renderPerson({ ...data, L }))));
 }
 
 for (const c of competitions) {
@@ -147,7 +148,7 @@ let athletePages = 0;
 for (const { slug } of slugs) {
   const data = await q.getPerson(db, slug);
   if (!data?.athleteData?.results.length) continue;
-  write(`a-${slug}.html`, personCoachYears(renderPerson({ ...data, L })));
+  write(`a-${slug}.html`, personTabs(personCoachYears(renderPerson({ ...data, L }))));
   athletePages++;
 }
 
