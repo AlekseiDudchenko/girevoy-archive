@@ -6,8 +6,6 @@ name: Снимок на GitHub Pages
 
 on:
   push:
-    # В репозитории пока нет main: ветка разработки и есть ветка по умолчанию.
-    # Когда main появится, вторую строку можно убрать.
     branches:
       - main
       - claude/google-docs-link-review-uny4pe
@@ -20,7 +18,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -30,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'   # снимок использует node:sqlite
+          node-version: '22'
 
       - name: Собрать базу со схемой, справочниками и данными протоколов
         run: |
@@ -58,9 +56,8 @@ jobs:
               .local/kubok-rossii-2025.sql \
               seeds/0005_merges.sql \
               .local/people.sql | sqlite3 .local/girevoy.db
-          echo "таблиц: $(sqlite3 .local/girevoy.db \"SELECT COUNT(*) FROM sqlite_master WHERE type='table'\")"
-          echo "результатов: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results')"
-          echo "упоминаний тренеров: $(sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions')"
+          sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results;'
+          sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions;'
 
       - name: Проверить персоны
         run: node --test tests/people.test.mjs
