@@ -13,9 +13,10 @@ const coachPeopleBlock = sql.match(
 )?.[1] ?? '';
 
 const roleLinks = JSON.parse(readFileSync('data/person_role_links.json', 'utf8'));
-const linkedCoachIdentities = new Set(
-  (roleLinks.coach_athlete_links ?? []).map((item) => item.coach),
-);
+const linkedCoachIdentities = new Set([
+  ...(roleLinks.coach_athlete_links ?? []).map((item) => item.coach),
+  ...(roleLinks.coach_profiles ?? []).map((item) => item.coach),
+]);
 
 function generatesCoachPerson(name) {
   return coachPeopleBlock.includes(`'${name}'`);
