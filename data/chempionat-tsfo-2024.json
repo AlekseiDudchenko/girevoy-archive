@@ -1,0 +1,39 @@
+{
+  "source": {
+    "filename": "cfo-2024.xlsx",
+    "page_count": 30,
+    "is_scan": false,
+    "id_base": 35000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальная Excel-книга чемпионата Центрального федерального округа 2024. У спортсменов указаны фамилия и имя без отчества, год рождения без полной даты. По указанию администратора эстафеты, командный зачёт и командные очки не импортируются. Жонглирование не импортируется: дисциплина пока не поддержана текущей схемой. Список судей не импортируется."
+  },
+  "competition": {
+    "slug": "chempionat-tsfo-2024",
+    "name": "Чемпионат Центрального федерального округа 2024",
+    "date_start": "2024-04-11",
+    "date_end": "2024-04-15",
+    "city": "Рыбинск",
+    "country": "RU",
+    "competition_rank": "federal_district",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "2065760017021407",
+    "regions_total": 13,
+    "participants_total": 158
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": []
+}

@@ -45,6 +45,7 @@ jobs:
           python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2025.json > .local/chempionat-yufo-skfo-2025.sql
           python3 scripts/gen_seed.py data/chempionat-tsfo-2026.json > .local/chempionat-tsfo-2026.sql
           python3 scripts/gen_seed.py data/chempionat-tsfo-2025.json > .local/chempionat-tsfo-2025.sql
+          python3 scripts/gen_seed.py data/chempionat-tsfo-2024.json > .local/chempionat-tsfo-2024.sql
           python3 scripts/gen_seed.py data/kubok-rossii-2025.json > .local/kubok-rossii-2025.sql
           python3 scripts/gen_people.py > .local/people.sql
           cat migrations/*.sql \
@@ -63,6 +64,7 @@ jobs:
               .local/chempionat-yufo-skfo-2025.sql \
               .local/chempionat-tsfo-2026.sql \
               .local/chempionat-tsfo-2025.sql \
+              .local/chempionat-tsfo-2024.sql \
               .local/kubok-rossii-2025.sql \
               seeds/0005_merges.sql \
               .local/people.sql | sqlite3 .local/girevoy.db
