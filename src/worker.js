@@ -2,6 +2,7 @@
 import * as q from './queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from './render.js';
 import { renderIndex } from './render-home.js';
+import { personTabs } from './person-tabs.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
@@ -142,7 +143,7 @@ export default {
       }
       if (path.startsWith('/p/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
-        return data ? html(personCoachYears(renderPerson({ ...data, L }))) : html(notFound(L), 404);
+        return data ? html(personTabs(personCoachYears(renderPerson({ ...data, L })))) : html(notFound(L), 404);
       }
       if (path.startsWith('/c/')) {
         const data = await q.getCompetition(db, decodeURIComponent(path.slice(3)));
@@ -150,7 +151,7 @@ export default {
       }
       if (path.startsWith('/a/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
-        return data ? html(personCoachYears(renderPerson({ ...data, L }))) : html(notFound(L), 404);
+        return data ? html(personTabs(personCoachYears(renderPerson({ ...data, L })))) : html(notFound(L), 404);
       }
       return html(notFound(L), 404);
     } catch (err) {
