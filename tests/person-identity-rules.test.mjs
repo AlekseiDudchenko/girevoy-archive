@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 const sql = execFileSync('python3', ['scripts/gen_people.py'], {
   encoding: 'utf8',
@@ -11,8 +12,17 @@ const coachPeopleBlock = sql.match(
   /INSERT OR IGNORE INTO persons \(slug, display_name\) VALUES\n([\s\S]*?);\n/,
 )?.[1] ?? '';
 
+const roleLinks = JSON.parse(readFileSync('data/person_role_links.json', 'utf8'));
+const linkedCoachIdentities = new Set(
+  (roleLinks.coach_athlete_links ?? []).map((item) => item.coach),
+);
+
 function generatesCoachPerson(name) {
   return coachPeopleBlock.includes(`'${name}'`);
+}
+
+function generatesCoachIdentity(name) {
+  return generatesCoachPerson(name) || linkedCoachIdentities.has(name);
 }
 
 test('confirmed coach aliases generate only canonical people', () => {
@@ -53,7 +63,7 @@ test('confirmed coach aliases generate only canonical people', () => {
   }
 });
 
-test('confirmed missing delimiters split into separate coach people', () => {
+test('confirmed missing delimiters split into separate coach identities', () => {
   const combined = [
     'Емельянов Н.А. Ефимов А.В.',
     'Бабичев М.А. Горбачёв В.В.',
@@ -101,6 +111,6 @@ test('confirmed missing delimiters split into separate coach people', () => {
     assert.ok(!generatesCoachPerson(name), `combined coach person must not be generated: ${name}`);
   }
   for (const name of separate) {
-    assert.ok(generatesCoachPerson(name), `split coach person must be generated: ${name}`);
+    assert.ok(generatesCoachIdentity(name), `split coach identity must be generated: ${name}`);
   }
 });
