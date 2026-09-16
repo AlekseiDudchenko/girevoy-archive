@@ -9,7 +9,7 @@ const sql = execFileSync('python3', ['scripts/gen_people.py'], {
 });
 
 const coachPeopleBlock = sql.match(
-  /INSERT OR IGNORE INTO persons \(slug, display_name\) VALUES\n([\s\S]*?);\n/,
+  /INSERT OR IGNORE INTO persons \(slug, display_name(?:, birth_year)?\) VALUES\n([\s\S]*?);\n/,
 )?.[1] ?? '';
 
 const roleLinks = JSON.parse(readFileSync('data/person_role_links.json', 'utf8'));
