@@ -3,8 +3,10 @@
 from __future__ import annotations
 import glob
 import json
+import re
 
 SELF_MARKERS = {"-", "—", "–", "Самостоя.С.", "Самостоятельно", "самостоятельно"}
+COACH_NAME_RE = re.compile(r"[А-ЯЁ][А-Яа-яЁё-]+\s*[А-ЯЁ]\.\s*[А-ЯЁ]\.?", re.UNICODE)
 
 
 def esc(value: str | None) -> str:
@@ -81,6 +83,17 @@ def split_coach_value(value: str, splits: dict[str, list[str]]) -> list[str] | N
     return splits.get(value, splits.get(normalize_coach_name(value)))
 
 
+def split_coach_token(token: str, splits: dict[str, list[str]]) -> list[str]:
+    token = token.strip()
+    explicit = split_coach_value(token, splits)
+    if explicit is not None:
+        return explicit
+    matches = [normalize_coach_name(m.group(0)) for m in COACH_NAME_RE.finditer(token)]
+    if len(matches) > 1:
+        return matches
+    return [token]
+
+
 def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[str]]) -> list[str]:
     if not raw: return []
 
@@ -88,10 +101,8 @@ def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[
     parts = split_coach_value(raw_value, splits)
     if parts is None:
         parts = []
-        for token in raw_value.split(","):
-            token = token.strip()
-            token_parts = split_coach_value(token, splits)
-            parts.extend(token_parts if token_parts is not None else [token])
+        for token in re.split(r"[,;]", raw_value):
+            parts.extend(split_coach_token(token, splits))
 
     names=[]
     for part in parts:
