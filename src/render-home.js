@@ -30,7 +30,6 @@ const competitionType = (name) => {
 
 export function renderIndex({ stats, competitions, L, bare }) {
   const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
-  const categoryCount = competitions.reduce((sum, c) => sum + (Number(c.categories) || 0), 0);
   const statisticsYears = uniq(competitions.map((c) => yearOf(c.date_start)).filter((year) => year !== '—')).length;
   return page({
     bare,
@@ -47,10 +46,10 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(athletesHref)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
-    <div><dt>Регионов</dt><dd title="Будет заполнено после нормализации регионов">—</dd></div>
-    <div><dt>Клубов и школ</dt><dd title="Будет заполнено после нормализации клубов и школ">—</dd></div>
+    <div><dt>Регионов</dt><dd class="tally-pending" title="Будет заполнено после нормализации регионов">подсчитывается…</dd></div>
+    <div><dt>Клубов и школ</dt><dd class="tally-pending" title="Будет заполнено после нормализации клубов и школ">подсчитывается…</dd></div>
     <div><dt>Лет статистики</dt><dd>${statisticsYears}</dd></div>
-    <div><dt>Категорий</dt><dd>${categoryCount}</dd></div>
+    <div><dt>Категорий</dt><dd>${stats.unique_categories}</dd></div>
   </dl>
 </section>
 
@@ -144,6 +143,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
 .tally-card-link-wrap:hover { background:var(--accent-soft); }
 .tally-card-link::after { content:''; position:absolute; inset:0; }
 .tally-card-link:focus-visible::after { outline:2px solid var(--accent); outline-offset:-2px; }
+.tally dd.tally-pending { margin-top:.35rem; font-family:"PT Sans",sans-serif; font-size:.88rem; font-weight:400; line-height:1.2; color:var(--ink-3); }
 .home-list-head { display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:.7rem 1rem; margin-top:2.4rem; }
 .home-list-head h2.sec { flex:1 1 auto; margin:0; }
 .view-toggle { display:inline-flex; border:1px solid var(--rule); background:var(--surface); padding:2px; }
