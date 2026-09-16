@@ -37,4 +37,5 @@ INSERT INTO competition_ranks (id, code, name, sort_order) VALUES
   (4, 'national_jr',   'Первенство России',  4),
   (5, 'international', 'Международные',      5),
   (6, 'european_ch',   'Чемпионат Европы',   6),
-  (7, 'world_ch',      'Чемпионат мира',     7);
+  (7, 'world_ch',      'Чемпионат мира',     7),
+  (8, 'federal_district', 'Чемпионат федерального округа', 8);
