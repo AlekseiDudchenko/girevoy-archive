@@ -1,0 +1,92 @@
+name: Archive source protocols
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/archive-source-protocols.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Download original protocols
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          download() {
+            local year="$1"
+            local url="$2"
+            local filename="$3"
+            mkdir -p "sources/$year"
+            echo "Downloading $url -> sources/$year/$filename"
+            curl --fail --location --retry 3 --retry-delay 2 \
+              --user-agent 'vsegiri.ru protocol archive' \
+              "$url" -o "sources/$year/$filename"
+          }
+
+          # Files already used as source material for girevoy-archive.
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/chempionat-rossii-2023.xlsx' 'chempionat-rossii-2023.xlsx'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-dfo-sfo-2023.xls' 'protokol-dfo-sfo-2023.xls'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-pfo-7-9.04.2023.xlsx' 'protokol-pfo-7-9.04.2023.xlsx'
+
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/protokol-chr-2024.xlsx' 'protokol-chr-2024.xlsx'
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/Protokoly_PFO_12-14_04_24.xlsx' 'Protokoly_PFO_12-14_04_24.xlsx'
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/chempionat-ufo-sfo-dfo4.xlsx' 'chempionat-ufo-sfo-dfo4.xlsx'
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/chempionat-yufo-i-skfo.xlsx' 'chempionat-yufo-i-skfo.xlsx'
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/szfo-2024.xlsx' 'szfo-2024.xlsx'
+          download 2024 'https://vfgs.ru/assets/files/protocoly/2024/cfo-2024.xlsx' 'cfo-2024.xlsx'
+
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/protokol-kubok-rossii-2025-g-sankt-peterburg.pdf' 'protokol-kubok-rossii-2025-g-sankt-peterburg.pdf'
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/chemp.-cfo-9-13.04.2025_compressed.pdf' 'chemp.-cfo-9-13.04.2025_compressed.pdf'
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/pfo_2025.pdf' 'pfo_2025.pdf'
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/chszfo-2025-s-pechatyami_250422_114952.pdf' 'chszfo-2025-s-pechatyami_250422_114952.pdf'
+
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly-chempionata-yufo-i-skfo.pdf' 'protokoly-chempionata-yufo-i-skfo.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokol-chempionata-szfo.pdf' 'protokol-chempionata-szfo.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly-ufo.pdf' 'protokoly-ufo.pdf'
+
+      - name: Build source manifest
+        shell: python
+        run: |
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('sources')
+          files = []
+          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name != 'manifest.json'):
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              files.append({
+                  'path': path.as_posix(),
+                  'size_bytes': path.stat().st_size,
+                  'sha256': digest,
+              })
+
+          (root / 'manifest.json').write_text(
+              json.dumps({'files': files}, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+
+      - name: Commit archived protocols
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- sources && [ -z "$(git ls-files --others --exclude-standard sources)" ]; then
+            echo 'No source changes.'
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sources
+          git commit -m 'Archive original competition protocols'
+          git push origin "HEAD:${{ github.ref_name }}"
