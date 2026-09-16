@@ -258,6 +258,13 @@ th[aria-sort="descending"] .home-sort-indicator::after { content:'↓'; opacity:
     applyFilters(true);
   }
 
+  function setOnlyFilter(key, value) {
+    if (!form.elements[key]) return;
+    filterKeys.forEach(function (filterKey) { form.elements[filterKey].value = ''; });
+    form.elements[key].value = value;
+    applyFilters(true);
+  }
+
   function compareValues(a, b, type) {
     if (type === 'number') {
       var aNum = a === '' ? Number.NEGATIVE_INFINITY : Number(a);
@@ -305,7 +312,7 @@ th[aria-sort="descending"] .home-sort-indicator::after { content:'↓'; opacity:
     }
     var button = ev.target.closest('[data-filter]');
     if (!button) return;
-    setFilter(button.dataset.filter, button.dataset.value);
+    setOnlyFilter(button.dataset.filter, button.dataset.value);
   });
   active.addEventListener('click', function (ev) {
     var chip = ev.target.closest('[data-clear-filter]');
