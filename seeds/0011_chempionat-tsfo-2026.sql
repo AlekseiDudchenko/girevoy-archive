@@ -26,15 +26,15 @@ INSERT OR IGNORE INTO clubs (name, region_id) VALUES
   ('РО ООО «ВФГС» в г. Москве', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')),
   ('МКУ ДО "Бобровская СШ им. В.Л. Паткина"', (SELECT id FROM regions WHERE name = 'Воронежская область' AND country = 'RU')),
   ('', (SELECT id FROM regions WHERE name = 'Курская область' AND country = 'RU')),
-  ('КСШ №1/СГУС', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')),
+  ('СШОР "Маршал"', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')),
   ('СШОР «Маршал»', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')),
+  ('МАУ ДО СШОР "Метеор"', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')),
+  ('МБУ ДО СШ "ОСКОЛ"', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')),
+  ('КСШ №1/СГУС', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')),
   ('РО ООО "ВФГС" в г.Москве', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')),
   ('КСШ №1', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')),
-  ('СШОР "Маршал"', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')),
-  ('МБУ ДО СШ "ОСКОЛ"', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')),
   ('СШОР по борьбе', (SELECT id FROM regions WHERE name = 'Брянская область' AND country = 'RU')),
   ('КСШ № 1', (SELECT id FROM regions WHERE name = 'Смоленская область' AND country = 'RU')),
-  ('МАУ ДО СШОР "Метеор"', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')),
   ('МБУ ДО СШ "ОСКОЛ"/СШОР 5 Белгород', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')),
   ('ГБУ ДО МКСШОР "Запад" отделение "Семёрка"', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')),
   ('Владимирская область', (SELECT id FROM regions WHERE name = 'Владимирская область' AND country = 'RU')),
@@ -60,17 +60,18 @@ INSERT INTO protocols (id, competition_id, r2_key, filename, page_count, is_scan
 INSERT INTO categories (id, competition_id, discipline_id, sex, age_group_id, division_id, bell_kg, hands, time_limit_min, weight_class_raw, weight_class_kg, weight_class_is_open, participants_declared, is_deferred, sort_order) VALUES
   (8001, 8001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '63', 63, 0, 4, 0, 1),
   (8002, 8001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '68', 68, 0, 6, 0, 2),
-  (8003, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '58', 58, 0, 4, 0, 3),
-  (8004, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '63', 63, 0, 3, 0, 4),
-  (8005, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68+', 68, 1, 4, 0, 5),
-  (8006, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68', 68, 0, 2, 0, 6),
-  (8007, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '63', 63, 0, 4, 0, 7),
-  (8008, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '68', 68, 0, 4, 0, 8),
-  (8009, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '73', 73, 0, 9, 0, 9),
-  (8010, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '78', 78, 0, 9, 0, 10),
-  (8011, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '85', 85, 0, 5, 0, 11),
-  (8012, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95+', 95, 1, 7, 0, 12),
-  (8013, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95', 95, 0, 7, 0, 13);
+  (8003, 8001, (SELECT id FROM disciplines WHERE code = 'jerk'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '73', 73, 0, 6, 0, 3),
+  (8004, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '58', 58, 0, 4, 0, 4),
+  (8005, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '63', 63, 0, 3, 0, 5),
+  (8006, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68+', 68, 1, 4, 0, 6),
+  (8007, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'f', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 24, 'two', 10, '68', 68, 0, 2, 0, 7),
+  (8008, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '63', 63, 0, 4, 0, 8),
+  (8009, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '68', 68, 0, 4, 0, 9),
+  (8010, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '73', 73, 0, 9, 0, 10),
+  (8011, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '78', 78, 0, 9, 0, 11),
+  (8012, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '85', 85, 0, 5, 0, 12),
+  (8013, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95+', 95, 1, 7, 0, 13),
+  (8014, 8001, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 'm', (SELECT id FROM age_groups WHERE code = 'adult'), NULL, 32, 'two', 10, '95', 95, 0, 7, 0, 14);
 
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Арсентьев', 'Виталий', 'Александрович', 2001, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'ЯРОО ФГС' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Елькин Ю.Г., Кузнецов О.Г.', (SELECT id FROM sport_ranks WHERE code = 'ms')
@@ -102,6 +103,24 @@ INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, regio
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Пухучкин', 'Евгений', 'Викторович', 1979, 'm', (SELECT id FROM regions WHERE name = 'Курская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = '' AND region_id = (SELECT id FROM regions WHERE name = 'Курская область' AND country = 'RU')), 'Самостоятельно', (SELECT id FROM sport_ranks WHERE code = 'kms')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Пухучкин' AND a.first_name = 'Евгений' AND a.middle_name = 'Викторович' AND a.birth_year = 1979 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Трофимов', 'Тимур', 'Михайлович', 2011, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР "Маршал"' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Трофимов' AND a.first_name = 'Тимур' AND a.middle_name = 'Михайлович' AND a.birth_year = 2011 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Сергеев', 'Александр', 'Сергеевич', 1991, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР «Маршал»' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Трофимов М.А.', (SELECT id FROM sport_ranks WHERE code = 'ms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Сергеев' AND a.first_name = 'Александр' AND a.middle_name = 'Сергеевич' AND a.birth_year = 1991 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Васин', 'Артём', 'Иванович', 2007, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР "Маршал"' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'ms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Васин' AND a.first_name = 'Артём' AND a.middle_name = 'Иванович' AND a.birth_year = 2007 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Лисицын', 'Кирилл', 'Сергеевич', 2007, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МАУ ДО СШОР "Метеор"' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Егоров В.В.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Лисицын' AND a.first_name = 'Кирилл' AND a.middle_name = 'Сергеевич' AND a.birth_year = 2007 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Исмаилов', 'Артём', 'Николаевич', 2008, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШ "ОСКОЛ"' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Ермаков К.И.', (SELECT id FROM sport_ranks WHERE code = 'kms')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Исмаилов' AND a.first_name = 'Артём' AND a.middle_name = 'Николаевич' AND a.birth_year = 2008 LIMIT 1);
+INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
+  SELECT 'Щипков', 'Даниил', 'Олегович', 2009, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МАУ ДО СШОР "Метеор"' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Егоров В.В.', (SELECT id FROM sport_ranks WHERE code = 'i')
+  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Щипков' AND a.first_name = 'Даниил' AND a.middle_name = 'Олегович' AND a.birth_year = 2009 LIMIT 1);
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Трофимова', 'Милена', 'Михайловна', 2007, 'f', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР Маршал' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'msmk')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Трофимова' AND a.first_name = 'Милена' AND a.middle_name = 'Михайловна' AND a.birth_year = 2007 LIMIT 1);
@@ -157,23 +176,11 @@ INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, regio
   SELECT 'Фомин', 'Фёдор', 'Алексеевич', 2004, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШОР 5 г Белгород' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Меркулин С.В.', (SELECT id FROM sport_ranks WHERE code = 'ms')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Фомин' AND a.first_name = 'Фёдор' AND a.middle_name = 'Алексеевич' AND a.birth_year = 2004 LIMIT 1);
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
-  SELECT 'Трофимов', 'Тимур', 'Михайлович', 2011, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР "Маршал"' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'kms')
-  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Трофимов' AND a.first_name = 'Тимур' AND a.middle_name = 'Михайлович' AND a.birth_year = 2011 LIMIT 1);
-INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
-  SELECT 'Сергеев', 'Александр', 'Сергеевич', 1991, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР «Маршал»' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Трофимов М.А.', (SELECT id FROM sport_ranks WHERE code = 'ms')
-  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Сергеев' AND a.first_name = 'Александр' AND a.middle_name = 'Сергеевич' AND a.birth_year = 1991 LIMIT 1);
-INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
-  SELECT 'Васин', 'Артём', 'Иванович', 2007, 'm', (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'СШОР "Маршал"' AND region_id = (SELECT id FROM regions WHERE name = 'Калужская область' AND country = 'RU')), 'Пянко И.А.', (SELECT id FROM sport_ranks WHERE code = 'ms')
-  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Васин' AND a.first_name = 'Артём' AND a.middle_name = 'Иванович' AND a.birth_year = 2007 LIMIT 1);
-INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Сушков', 'Владимир', 'Валерьевия', 2000, 'm', (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МБУ ДО СШ "ОСКОЛ"/СШОР 5 Белгород' AND region_id = (SELECT id FROM regions WHERE name = 'Белгородская область' AND country = 'RU')), 'Ермаков К.И., Вильган А.П.', (SELECT id FROM sport_ranks WHERE code = 'ms')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Сушков' AND a.first_name = 'Владимир' AND a.middle_name = 'Валерьевия' AND a.birth_year = 2000 LIMIT 1);
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Шахрай', 'Владислав', 'Сергеевич', 2002, 'm', (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'РО ООО «ВФГС» в г. Москве' AND region_id = (SELECT id FROM regions WHERE name = 'г. Москва' AND country = 'RU')), 'Ландин А.Ю.', (SELECT id FROM sport_ranks WHERE code = 'i')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Шахрай' AND a.first_name = 'Владислав' AND a.middle_name = 'Сергеевич' AND a.birth_year = 2002 LIMIT 1);
-INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
-  SELECT 'Щипков', 'Даниил', 'Олегович', 2009, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МАУ ДО СШОР "Метеор"' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Егоров В.В.', (SELECT id FROM sport_ranks WHERE code = 'i')
-  WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Щипков' AND a.first_name = 'Даниил' AND a.middle_name = 'Олегович' AND a.birth_year = 2009 LIMIT 1);
 INSERT INTO athletes (last_name, first_name, middle_name, birth_year, sex, region_id, club_id, coach, sport_rank_id)
   SELECT 'Науменко', 'Мирослав', 'Константинович', 2007, 'm', (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU'), (SELECT id FROM clubs WHERE name = 'МАУ ДО СШОР "Метеор"' AND region_id = (SELECT id FROM regions WHERE name = 'Ярославская область' AND country = 'RU')), 'Федулов А.Ю.', (SELECT id FROM sport_ranks WHERE code = 'i')
   WHERE NOT EXISTS (SELECT 1 FROM athletes a WHERE a.last_name = 'Науменко' AND a.first_name = 'Мирослав' AND a.middle_name = 'Константинович' AND a.birth_year = 2007 LIMIT 1);
@@ -313,6 +320,36 @@ INSERT INTO athlete_slugs (slug, athlete_id)
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Пухучкин' AND first_name = 'Евгений' AND middle_name = 'Викторович' AND birth_year = 1979 LIMIT 1)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'trofimov-timur-2011' AND s.athlete_id <> a.id)
+              THEN 'trofimov-timur-2011-' || a.id ELSE 'trofimov-timur-2011' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Трофимов' AND first_name = 'Тимур' AND middle_name = 'Михайлович' AND birth_year = 2011 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'sergeev-aleksandr-1991' AND s.athlete_id <> a.id)
+              THEN 'sergeev-aleksandr-1991-' || a.id ELSE 'sergeev-aleksandr-1991' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Сергеев' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'vasin-artem-2007' AND s.athlete_id <> a.id)
+              THEN 'vasin-artem-2007-' || a.id ELSE 'vasin-artem-2007' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'lisicyn-kirill-2007' AND s.athlete_id <> a.id)
+              THEN 'lisicyn-kirill-2007-' || a.id ELSE 'lisicyn-kirill-2007' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Лисицын' AND first_name = 'Кирилл' AND middle_name = 'Сергеевич' AND birth_year = 2007 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'ismailov-artem-2008' AND s.athlete_id <> a.id)
+              THEN 'ismailov-artem-2008-' || a.id ELSE 'ismailov-artem-2008' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Исмаилов' AND first_name = 'Артём' AND middle_name = 'Николаевич' AND birth_year = 2008 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
+  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'schipkov-daniil-2009' AND s.athlete_id <> a.id)
+              THEN 'schipkov-daniil-2009-' || a.id ELSE 'schipkov-daniil-2009' END, a.id
+    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Щипков' AND first_name = 'Даниил' AND middle_name = 'Олегович' AND birth_year = 2009 LIMIT 1)
+     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
+INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'trofimova-milena-2007' AND s.athlete_id <> a.id)
               THEN 'trofimova-milena-2007-' || a.id ELSE 'trofimova-milena-2007' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Трофимова' AND first_name = 'Милена' AND middle_name = 'Михайловна' AND birth_year = 2007 LIMIT 1)
@@ -403,21 +440,6 @@ INSERT INTO athlete_slugs (slug, athlete_id)
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Фомин' AND first_name = 'Фёдор' AND middle_name = 'Алексеевич' AND birth_year = 2004 LIMIT 1)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 INSERT INTO athlete_slugs (slug, athlete_id)
-  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'trofimov-timur-2011' AND s.athlete_id <> a.id)
-              THEN 'trofimov-timur-2011-' || a.id ELSE 'trofimov-timur-2011' END, a.id
-    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Трофимов' AND first_name = 'Тимур' AND middle_name = 'Михайлович' AND birth_year = 2011 LIMIT 1)
-     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
-INSERT INTO athlete_slugs (slug, athlete_id)
-  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'sergeev-aleksandr-1991' AND s.athlete_id <> a.id)
-              THEN 'sergeev-aleksandr-1991-' || a.id ELSE 'sergeev-aleksandr-1991' END, a.id
-    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Сергеев' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1)
-     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
-INSERT INTO athlete_slugs (slug, athlete_id)
-  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'vasin-artem-2007' AND s.athlete_id <> a.id)
-              THEN 'vasin-artem-2007-' || a.id ELSE 'vasin-artem-2007' END, a.id
-    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007 LIMIT 1)
-     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
-INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'sushkov-vladimir-2000' AND s.athlete_id <> a.id)
               THEN 'sushkov-vladimir-2000-' || a.id ELSE 'sushkov-vladimir-2000' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Сушков' AND first_name = 'Владимир' AND middle_name = 'Валерьевия' AND birth_year = 2000 LIMIT 1)
@@ -426,11 +448,6 @@ INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'shahray-vladislav-2002' AND s.athlete_id <> a.id)
               THEN 'shahray-vladislav-2002-' || a.id ELSE 'shahray-vladislav-2002' END, a.id
     FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Шахрай' AND first_name = 'Владислав' AND middle_name = 'Сергеевич' AND birth_year = 2002 LIMIT 1)
-     AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
-INSERT INTO athlete_slugs (slug, athlete_id)
-  SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'schipkov-daniil-2009' AND s.athlete_id <> a.id)
-              THEN 'schipkov-daniil-2009-' || a.id ELSE 'schipkov-daniil-2009' END, a.id
-    FROM athletes a WHERE a.id = (SELECT id FROM athletes WHERE last_name = 'Щипков' AND first_name = 'Даниил' AND middle_name = 'Олегович' AND birth_year = 2009 LIMIT 1)
      AND NOT EXISTS (SELECT 1 FROM athlete_slugs s2 WHERE s2.athlete_id = a.id);
 INSERT INTO athlete_slugs (slug, athlete_id)
   SELECT CASE WHEN EXISTS (SELECT 1 FROM athlete_slugs s WHERE s.slug = 'naumenko-miroslav-2007' AND s.athlete_id <> a.id)
@@ -589,64 +606,70 @@ INSERT INTO results (id, category_id, athlete_id, place, total_reps, points, bod
   (8008, 8002, (SELECT id FROM athletes WHERE last_name = 'Сидоренков' AND first_name = 'Александр' AND middle_name = 'Александрович' AND birth_year = 2010 LIMIT 1), 4, 73, NULL, 67.8, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Сидоренков Александр Александрович', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 18),
   (8009, 8002, (SELECT id FROM athletes WHERE last_name = 'Подволоцкий' AND first_name = 'Сергей' AND middle_name = 'Александрович' AND birth_year = 1997 LIMIT 1), 5, 72, NULL, 66.5, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Подволоцкий Сергей Александрович', 'МКУ ДО "Бобровская СШ им. В.Л. Паткина"', 'Воронежская область', 8001, 18),
   (8010, 8002, (SELECT id FROM athletes WHERE last_name = 'Пухучкин' AND first_name = 'Евгений' AND middle_name = 'Викторович' AND birth_year = 1979 LIMIT 1), 6, 45, NULL, 66.9, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Пухучкин Евгений Викторович', '', 'Курская область', 8001, 18),
-  (8011, 8003, (SELECT id FROM athletes WHERE last_name = 'Трофимова' AND first_name = 'Милена' AND middle_name = 'Михайловна' AND birth_year = 2007 LIMIT 1), 1, 50, NULL, 58.0, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Трофимова Милена Михайловна', 'СШОР Маршал', 'Калужская область', 8001, 9),
-  (8012, 8003, (SELECT id FROM athletes WHERE last_name = 'Шилихина' AND first_name = 'Дарья' AND middle_name = 'Павловна' AND birth_year = 2006 LIMIT 1), 2, 29, NULL, 57.92, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Шилихина Дарья Павловна', 'КСШ №1/СГУС', 'Смоленская область', 8001, 9),
-  (8013, 8003, (SELECT id FROM athletes WHERE last_name = 'Фомина' AND first_name = 'Елизавета' AND middle_name = 'Алексеевна' AND birth_year = 2009 LIMIT 1), 3, 26, NULL, 54.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Фомина Елизавета Алексеевна', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 9),
-  (8014, 8003, (SELECT id FROM athletes WHERE last_name = 'Чернова' AND first_name = 'Кира' AND middle_name = 'Николаевна' AND birth_year = 2009 LIMIT 1), 4, 26, NULL, 56.86, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Чернова Кира Николаевна', 'СШОР «Маршал»', 'Калужская область', 8001, 9),
-  (8015, 8004, (SELECT id FROM athletes WHERE last_name = 'Пивень' AND first_name = 'Александра' AND middle_name = 'Максимовна' AND birth_year = 2004 LIMIT 1), 1, 72, NULL, 60.6, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Пивень Александра Максимовна', 'СШОР «Маршал»', 'Калужская область', 8001, 10),
-  (8016, 8004, (SELECT id FROM athletes WHERE last_name = 'Мартынова' AND first_name = 'Любовь' AND middle_name = 'Владимировна' AND birth_year = 2007 LIMIT 1), 2, 46, NULL, 63.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Мартынова Любовь Владимировна', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 10),
-  (8017, 8004, (SELECT id FROM athletes WHERE last_name = 'Подольская' AND first_name = 'Анастасия' AND middle_name = 'Владимировна' AND birth_year = 2005 LIMIT 1), 3, 45, NULL, 58.1, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Подольская Анастасия Владимировна', 'РО ООО "ВФГС" в г.Москве', 'г. Москва', 8001, 10),
-  (8018, 8005, (SELECT id FROM athletes WHERE last_name = 'Мартынова' AND first_name = 'Ирина' AND middle_name = 'Александровна' AND birth_year = 1999 LIMIT 1), 1, 75, NULL, 88.3, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Мартынова Ирина Александровна', 'СШОР «Маршал»', 'Калужская область', 8001, 12),
-  (8019, 8005, (SELECT id FROM athletes WHERE last_name = 'Якубенкова' AND first_name = 'Анна' AND middle_name = 'Андреевна' AND birth_year = 2007 LIMIT 1), 2, 36, NULL, 84.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Якубенкова Анна Андреевна', 'КСШ №1', 'Смоленская область', 8001, 12),
-  (8020, 8005, (SELECT id FROM athletes WHERE last_name = 'Побережная' AND first_name = 'Анна' AND middle_name = 'Владимировна' AND birth_year = 2010 LIMIT 1), 3, 35, NULL, 78.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Побережная Анна Владимировна', 'СШОР "Маршал"', 'Калужская область', 8001, 12),
-  (8021, 8005, (SELECT id FROM athletes WHERE last_name = 'Щекина' AND first_name = 'Алеся' AND middle_name = 'Константиновна' AND birth_year = 2002 LIMIT 1), 4, 25, NULL, 98.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Щекина Алеся Константиновна', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 12),
-  (8022, 8006, (SELECT id FROM athletes WHERE last_name = 'Воропаева' AND first_name = 'Виктория' AND middle_name = 'Витальевна' AND birth_year = 2004 LIMIT 1), 1, 70, NULL, 66.75, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Воропаева Виктория Витальевна', 'МКУ ДО "Бобровская СШ им. В.Л. Паткина"', 'Воронежская область', 8001, 11),
-  (8023, 8006, (SELECT id FROM athletes WHERE last_name = 'Альянова' AND first_name = 'Виктория' AND middle_name = 'Евгеньевна' AND birth_year = 2004 LIMIT 1), 2, 20, NULL, 67.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Альянова Виктория Евгеньевна', 'СШОР по борьбе', 'Брянская область', 8001, 11),
-  (8024, 8007, (SELECT id FROM athletes WHERE last_name = 'Цвик' AND first_name = 'Данил' AND middle_name = 'Александрович' AND birth_year = 2003 LIMIT 1), 1, 44, NULL, 62.9, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Цвик Данил Александрович', 'КСШ № 1', 'Смоленская область', 8001, 2),
-  (8025, 8007, (SELECT id FROM athletes WHERE last_name = 'Кормилицын' AND first_name = 'Иван' AND middle_name = 'Николаевич' AND birth_year = 2010 LIMIT 1), 2, 43, NULL, 63.0, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кормилицын Иван Николаевич', 'СШОР Маршал', 'Калужская область', 8001, 2),
-  (8026, 8007, (SELECT id FROM athletes WHERE last_name = 'Дубинин' AND first_name = 'Максим' AND middle_name = 'Николаевич' AND birth_year = 1989 LIMIT 1), 3, 40, NULL, 62.7, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Дубинин Максим Николаевич', 'СШОР по борьбе', 'Брянская область', 8001, 2),
-  (8027, 8007, (SELECT id FROM athletes WHERE last_name = 'Кривко' AND first_name = 'Никита' AND middle_name = 'Алексеевич' AND birth_year = 2002 LIMIT 1), 4, 39, NULL, 62.9, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кривко Никита Алексеевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 2),
-  (8028, 8008, (SELECT id FROM athletes WHERE last_name = 'Горячев' AND first_name = 'Ярослав' AND middle_name = 'Алексеевич' AND birth_year = 2010 LIMIT 1), 1, 64, NULL, 68.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Горячев Ярослав Алексеевич', 'СШОР Маршал', 'Калужская область', 8001, 3),
-  (8029, 8008, (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002 LIMIT 1), 2, 63, NULL, 67.85, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Хамидов Фахриддин Фарход угли', 'СШОР Маршал', 'Калужская область', 8001, 3),
-  (8030, 8008, (SELECT id FROM athletes WHERE last_name = 'Сидоренков' AND first_name = 'Александр' AND middle_name = 'Александрович' AND birth_year = 2010 LIMIT 1), 3, 46, NULL, 67.7, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сидоренков Александр Александрович', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 3),
-  (8031, 8008, (SELECT id FROM athletes WHERE last_name = 'Копаевский' AND first_name = 'Артём' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 4, 16, NULL, 67.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Копаевский Артём Александрович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 3),
-  (8032, 8009, (SELECT id FROM athletes WHERE last_name = 'Багров' AND first_name = 'Максим' AND middle_name = 'Дмитриевич' AND birth_year = 2009 LIMIT 1), 1, 73, NULL, 72.5, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Багров Максим Дмитриевич', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 4),
-  (8033, 8009, (SELECT id FROM athletes WHERE last_name = 'Фомин' AND first_name = 'Фёдор' AND middle_name = 'Алексеевич' AND birth_year = 2004 LIMIT 1), 2, 71, NULL, 72.75, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Фомин Фёдор Алексеевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 4),
-  (8034, 8009, (SELECT id FROM athletes WHERE last_name = 'Трофимов' AND first_name = 'Тимур' AND middle_name = 'Михайлович' AND birth_year = 2011 LIMIT 1), 3, 62, NULL, 72.9, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Трофимов Тимур Михайлович', 'СШОР "Маршал"', 'Калужская область', 8001, 4),
-  (8035, 8009, (SELECT id FROM athletes WHERE last_name = 'Сергеев' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1), 4, 58, NULL, 72.2, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сергеев Александр Сергеевич', 'СШОР «Маршал»', 'Калужская область', 8001, 4),
-  (8036, 8009, (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007 LIMIT 1), 5, 57, NULL, 72.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Васин Артём Иванович', 'СШОР "Маршал"', 'Калужская область', 8001, 4),
-  (8037, 8009, (SELECT id FROM athletes WHERE last_name = 'Сушков' AND first_name = 'Владимир' AND middle_name = 'Валерьевия' AND birth_year = 2000 LIMIT 1), 6, 46, NULL, 70.9, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сушков Владимир Валерьевия', 'МБУ ДО СШ "ОСКОЛ"/СШОР 5 Белгород', 'Белгородская область', 8001, 4),
-  (8038, 8009, (SELECT id FROM athletes WHERE last_name = 'Шахрай' AND first_name = 'Владислав' AND middle_name = 'Сергеевич' AND birth_year = 2002 LIMIT 1), 7, 31, NULL, 72.3, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Шахрай Владислав Сергеевич', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 4),
-  (8039, 8009, (SELECT id FROM athletes WHERE last_name = 'Щипков' AND first_name = 'Даниил' AND middle_name = 'Олегович' AND birth_year = 2009 LIMIT 1), 8, 26, NULL, 71.75, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Щипков Даниил Олегович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 4),
-  (8040, 8009, (SELECT id FROM athletes WHERE last_name = 'Науменко' AND first_name = 'Мирослав' AND middle_name = 'Константинович' AND birth_year = 2007 LIMIT 1), 9, 24, NULL, 72.3, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Науменко Мирослав Константинович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 4),
-  (8041, 8010, (SELECT id FROM athletes WHERE last_name = 'Астахов' AND first_name = 'Евгений' AND middle_name = 'Михайлович' AND birth_year = 2002 LIMIT 1), 1, 73, NULL, 76.8, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Астахов Евгений Михайлович', 'ГБУ ДО МКСШОР "Запад" отделение "Семёрка"', 'г. Москва', 8001, 5),
-  (8042, 8010, (SELECT id FROM athletes WHERE last_name = 'Лебеденко' AND first_name = 'Андрей' AND middle_name = 'Евгеньевич' AND birth_year = 2008 LIMIT 1), 2, 55, NULL, 77.95, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Лебеденко Андрей Евгеньевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 5),
-  (8043, 8010, (SELECT id FROM athletes WHERE last_name = 'Савинов' AND first_name = 'Андрей' AND middle_name = 'Вячеславович' AND birth_year = 1984 LIMIT 1), 3, 50, NULL, 77.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Савинов Андрей Вячеславович', 'Владимирская область', 'Владимирская область', 8001, 5),
-  (8044, 8010, (SELECT id FROM athletes WHERE last_name = 'Гордеев' AND first_name = 'Михаил' AND middle_name = 'Сергеевич' AND birth_year = 1998 LIMIT 1), 4, 50, NULL, 77.9, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Гордеев Михаил Сергеевич', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 5),
-  (8045, 8010, (SELECT id FROM athletes WHERE last_name = 'Абдразаков' AND first_name = 'Рафик' AND middle_name = 'Шавкатович' AND birth_year = 2002 LIMIT 1), 5, 46, NULL, 77.8, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Абдразаков Рафик Шавкатович', 'КСШ № 1', 'Смоленская область', 8001, 5),
-  (8046, 8010, (SELECT id FROM athletes WHERE last_name = 'Володин' AND first_name = 'Денис' AND middle_name = 'Игоревич' AND birth_year = 1993 LIMIT 1), 6, 40, NULL, 76.75, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Володин Денис Игоревич', 'МУ ДО "СШ "Легион"', 'Московская область', 8001, 5),
-  (8047, 8010, (SELECT id FROM athletes WHERE last_name = 'Тупиков' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1), 7, 40, NULL, 76.8, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Тупиков Александр Сергеевич', 'РОООО "ВФГС по ИО"', 'Ивановская область', 8001, 5),
-  (8048, 8010, (SELECT id FROM athletes WHERE last_name = 'Луценко' AND first_name = 'Никита' AND middle_name = 'Ильич' AND birth_year = 2003 LIMIT 1), 8, 37, NULL, 77.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Луценко Никита Ильич', 'РО ООО "ВФГС" в г. Москве', 'г. Москва', 8001, 5),
-  (8049, 8010, (SELECT id FROM athletes WHERE last_name = 'Курбаков' AND first_name = 'Данила' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 9, 23, NULL, 78.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Курбаков Данила Александрович', 'СШОР Маршал', 'Калужская область', 8001, 5),
-  (8050, 8011, (SELECT id FROM athletes WHERE last_name = 'Андрущенко' AND first_name = 'Сергей' AND middle_name = 'Александрович' AND birth_year = 2005 LIMIT 1), 1, 80, NULL, 84.45, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Андрущенко Сергей Александрович', 'ГБУ ДО МКСШОР "Запад" Отделение "Семёрка"', 'г. Москва, Белгородская область', 8001, 6),
-  (8051, 8011, (SELECT id FROM athletes WHERE last_name = 'Мухитов' AND first_name = 'Андрей' AND middle_name = 'Вячеславович' AND birth_year = 1999 LIMIT 1), 2, 65, NULL, 84.15, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Мухитов Андрей Вячеславович', 'СШОР по борьбе', 'Брянская область', 8001, 6),
-  (8052, 8011, (SELECT id FROM athletes WHERE last_name = 'Кузьмин' AND first_name = 'Илья' AND middle_name = 'Алексеевич' AND birth_year = 2007 LIMIT 1), 3, 50, NULL, 84.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кузьмин Илья Алексеевич', 'МБУДО КСШ1 , СГУС', 'Смоленская область', 8001, 6),
-  (8053, 8011, (SELECT id FROM athletes WHERE last_name = 'Витков' AND first_name = 'Алексей' AND middle_name = 'Викторович' AND birth_year = 1990 LIMIT 1), 4, 45, NULL, 84.15, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Витков Алексей Викторович', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 6),
-  (8054, 8011, (SELECT id FROM athletes WHERE last_name = 'Аманатиди' AND first_name = 'Михаил' AND middle_name = 'Константинович' AND birth_year = 2009 LIMIT 1), 5, 35, NULL, 83.05, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Аманатиди Михаил Константинович', 'МБУ ДО СШ "Юность"', 'Белгородская область', 8001, 6),
-  (8055, 8012, (SELECT id FROM athletes WHERE last_name = 'Турищев' AND first_name = 'Дмитрий' AND middle_name = 'Владимирович' AND birth_year = 1992 LIMIT 1), 1, 78, NULL, 103.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Турищев Дмитрий Владимирович', 'ГБУ ДО МКСШОР "Запад" отделение "Семёрка"', 'г. Москва', 8001, 8),
-  (8056, 8012, (SELECT id FROM athletes WHERE last_name = 'Калистратов' AND first_name = 'Артем' AND middle_name = 'Валерьевич' AND birth_year = 1992 LIMIT 1), 2, 74, NULL, 110.2, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Калистратов Артем Валерьевич', 'КСШ № 1', 'Смоленская область', 8001, 8),
-  (8057, 8012, (SELECT id FROM athletes WHERE last_name = 'Слащев' AND first_name = 'Степан' AND middle_name = 'Сергеевич' AND birth_year = 2008 LIMIT 1), 3, 57, NULL, 105.95, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Слащев Степан Сергеевич', 'МУ ДО "СШ "Легион"', 'Московская область', 8001, 8),
-  (8058, 8012, (SELECT id FROM athletes WHERE last_name = 'Фартучный' AND first_name = 'Иван' AND middle_name = 'Сергеевич' AND birth_year = 2007 LIMIT 1), 4, 50, NULL, 122.05, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Фартучный Иван Сергеевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 8),
-  (8059, 8012, (SELECT id FROM athletes WHERE last_name = 'Станкович' AND first_name = 'Боян' AND middle_name IS NULL AND birth_year = 1988 LIMIT 1), 5, 45, NULL, 103.65, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Станкович Боян', 'ЯРОО ФГС', 'Ярославская область', 8001, 8),
-  (8060, 8012, (SELECT id FROM athletes WHERE last_name = 'Дворцов' AND first_name = 'Владимир' AND middle_name = 'Владимирович' AND birth_year = 1986 LIMIT 1), 6, 40, NULL, 108.95, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Дворцов Владимир Владимирович', 'СШОР по борьбе', 'Брянская область', 8001, 8),
-  (8061, 8012, (SELECT id FROM athletes WHERE last_name = 'Митрофанов' AND first_name = 'Тимофей' AND middle_name = 'Андреевич' AND birth_year = 2009 LIMIT 1), 7, 16, NULL, 118.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Митрофанов Тимофей Андреевич', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 8),
-  (8062, 8013, (SELECT id FROM athletes WHERE last_name = 'Кулаков' AND first_name = 'Иван' AND middle_name = 'Иванович' AND birth_year = 1998 LIMIT 1), 1, 90, NULL, 94.95, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кулаков Иван Иванович', 'СШОР «Маршал»', 'Калужская область', 8001, 7),
-  (8063, 8013, (SELECT id FROM athletes WHERE last_name = 'Кирюхин' AND first_name = 'Роман' AND middle_name = 'Александрович' AND birth_year = 1997 LIMIT 1), 2, 75, NULL, 88.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кирюхин Роман Александрович', 'ФГС КО', 'Калужская область', 8001, 7),
-  (8064, 8013, (SELECT id FROM athletes WHERE last_name = 'Кулик' AND first_name = 'Никита' AND middle_name = 'Алексеевич' AND birth_year = 2005 LIMIT 1), 3, 62, NULL, 92.25, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кулик Никита Алексеевич', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 7),
-  (8065, 8013, (SELECT id FROM athletes WHERE last_name = 'Булгаков' AND first_name = 'Денис' AND middle_name = 'Витальевич' AND birth_year = 1984 LIMIT 1), 4, 45, NULL, 86.4, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Булгаков Денис Витальевич', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 7),
-  (8066, 8013, (SELECT id FROM athletes WHERE last_name = 'Захаров' AND first_name = 'Станислав' AND middle_name = 'Олегович' AND birth_year = 1991 LIMIT 1), 5, 43, NULL, 86.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Захаров Станислав Олегович', 'РО ООО ВФГС в г. Москве', 'г. Москва', 8001, 7),
-  (8067, 8013, (SELECT id FROM athletes WHERE last_name = 'Муссалиев' AND first_name = 'Муса' AND middle_name = 'Габиб Оглы' AND birth_year = 2007 LIMIT 1), 6, 37, NULL, 85.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Муссалиев Муса Габиб Оглы', 'СШОР по борьбе', 'Брянская область', 8001, 7),
-  (8068, 8013, (SELECT id FROM athletes WHERE last_name = 'Мамедсаатов' AND first_name = 'Егор' AND middle_name = 'Русланович' AND birth_year = 2008 LIMIT 1), 7, 31, NULL, 91.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Мамедсаатов Егор Русланович', 'МБУ ДО СШ "Юность"', 'Белгородская область', 8001, 7);
+  (8011, 8003, (SELECT id FROM athletes WHERE last_name = 'Трофимов' AND first_name = 'Тимур' AND middle_name = 'Михайлович' AND birth_year = 2011 LIMIT 1), 1, 115, NULL, 73.0, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Трофимов Тимур Михайлович', 'СШОР "Маршал"', 'Калужская область', 8001, 19),
+  (8012, 8003, (SELECT id FROM athletes WHERE last_name = 'Сергеев' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1), 2, 108, NULL, 71.75, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Сергеев Александр Сергеевич', 'СШОР «Маршал»', 'Калужская область', 8001, 19),
+  (8013, 8003, (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007 LIMIT 1), 3, 99, NULL, 71.1, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Васин Артём Иванович', 'СШОР "Маршал"', 'Калужская область', 8001, 19),
+  (8014, 8003, (SELECT id FROM athletes WHERE last_name = 'Лисицын' AND first_name = 'Кирилл' AND middle_name = 'Сергеевич' AND birth_year = 2007 LIMIT 1), 4, 86, NULL, 72.9, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Лисицын Кирилл Сергеевич', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 19),
+  (8015, 8003, (SELECT id FROM athletes WHERE last_name = 'Исмаилов' AND first_name = 'Артём' AND middle_name = 'Николаевич' AND birth_year = 2008 LIMIT 1), 5, 80, NULL, 70.35, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Исмаилов Артём Николаевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 19),
+  (8016, 8003, (SELECT id FROM athletes WHERE last_name = 'Щипков' AND first_name = 'Даниил' AND middle_name = 'Олегович' AND birth_year = 2009 LIMIT 1), 6, 57, NULL, 71.55, NULL, (SELECT id FROM disciplines WHERE code = 'jerk'), 32, 'two', 10, 8001, '2026-04-13', 'Щипков Даниил Олегович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 19),
+  (8017, 8004, (SELECT id FROM athletes WHERE last_name = 'Трофимова' AND first_name = 'Милена' AND middle_name = 'Михайловна' AND birth_year = 2007 LIMIT 1), 1, 50, NULL, 58.0, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Трофимова Милена Михайловна', 'СШОР Маршал', 'Калужская область', 8001, 9),
+  (8018, 8004, (SELECT id FROM athletes WHERE last_name = 'Шилихина' AND first_name = 'Дарья' AND middle_name = 'Павловна' AND birth_year = 2006 LIMIT 1), 2, 29, NULL, 57.92, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Шилихина Дарья Павловна', 'КСШ №1/СГУС', 'Смоленская область', 8001, 9),
+  (8019, 8004, (SELECT id FROM athletes WHERE last_name = 'Фомина' AND first_name = 'Елизавета' AND middle_name = 'Алексеевна' AND birth_year = 2009 LIMIT 1), 3, 26, NULL, 54.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Фомина Елизавета Алексеевна', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 9),
+  (8020, 8004, (SELECT id FROM athletes WHERE last_name = 'Чернова' AND first_name = 'Кира' AND middle_name = 'Николаевна' AND birth_year = 2009 LIMIT 1), 4, 26, NULL, 56.86, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Чернова Кира Николаевна', 'СШОР «Маршал»', 'Калужская область', 8001, 9),
+  (8021, 8005, (SELECT id FROM athletes WHERE last_name = 'Пивень' AND first_name = 'Александра' AND middle_name = 'Максимовна' AND birth_year = 2004 LIMIT 1), 1, 72, NULL, 60.6, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Пивень Александра Максимовна', 'СШОР «Маршал»', 'Калужская область', 8001, 10),
+  (8022, 8005, (SELECT id FROM athletes WHERE last_name = 'Мартынова' AND first_name = 'Любовь' AND middle_name = 'Владимировна' AND birth_year = 2007 LIMIT 1), 2, 46, NULL, 63.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Мартынова Любовь Владимировна', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 10),
+  (8023, 8005, (SELECT id FROM athletes WHERE last_name = 'Подольская' AND first_name = 'Анастасия' AND middle_name = 'Владимировна' AND birth_year = 2005 LIMIT 1), 3, 45, NULL, 58.1, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Подольская Анастасия Владимировна', 'РО ООО "ВФГС" в г.Москве', 'г. Москва', 8001, 10),
+  (8024, 8006, (SELECT id FROM athletes WHERE last_name = 'Мартынова' AND first_name = 'Ирина' AND middle_name = 'Александровна' AND birth_year = 1999 LIMIT 1), 1, 75, NULL, 88.3, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Мартынова Ирина Александровна', 'СШОР «Маршал»', 'Калужская область', 8001, 12),
+  (8025, 8006, (SELECT id FROM athletes WHERE last_name = 'Якубенкова' AND first_name = 'Анна' AND middle_name = 'Андреевна' AND birth_year = 2007 LIMIT 1), 2, 36, NULL, 84.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Якубенкова Анна Андреевна', 'КСШ №1', 'Смоленская область', 8001, 12),
+  (8026, 8006, (SELECT id FROM athletes WHERE last_name = 'Побережная' AND first_name = 'Анна' AND middle_name = 'Владимировна' AND birth_year = 2010 LIMIT 1), 3, 35, NULL, 78.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Побережная Анна Владимировна', 'СШОР "Маршал"', 'Калужская область', 8001, 12),
+  (8027, 8006, (SELECT id FROM athletes WHERE last_name = 'Щекина' AND first_name = 'Алеся' AND middle_name = 'Константиновна' AND birth_year = 2002 LIMIT 1), 4, 25, NULL, 98.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Щекина Алеся Константиновна', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 12),
+  (8028, 8007, (SELECT id FROM athletes WHERE last_name = 'Воропаева' AND first_name = 'Виктория' AND middle_name = 'Витальевна' AND birth_year = 2004 LIMIT 1), 1, 70, NULL, 66.75, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Воропаева Виктория Витальевна', 'МКУ ДО "Бобровская СШ им. В.Л. Паткина"', 'Воронежская область', 8001, 11),
+  (8029, 8007, (SELECT id FROM athletes WHERE last_name = 'Альянова' AND first_name = 'Виктория' AND middle_name = 'Евгеньевна' AND birth_year = 2004 LIMIT 1), 2, 20, NULL, 67.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 24, 'two', 10, 8001, '2026-04-13', 'Альянова Виктория Евгеньевна', 'СШОР по борьбе', 'Брянская область', 8001, 11),
+  (8030, 8008, (SELECT id FROM athletes WHERE last_name = 'Цвик' AND first_name = 'Данил' AND middle_name = 'Александрович' AND birth_year = 2003 LIMIT 1), 1, 44, NULL, 62.9, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Цвик Данил Александрович', 'КСШ № 1', 'Смоленская область', 8001, 2),
+  (8031, 8008, (SELECT id FROM athletes WHERE last_name = 'Кормилицын' AND first_name = 'Иван' AND middle_name = 'Николаевич' AND birth_year = 2010 LIMIT 1), 2, 43, NULL, 63.0, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кормилицын Иван Николаевич', 'СШОР Маршал', 'Калужская область', 8001, 2),
+  (8032, 8008, (SELECT id FROM athletes WHERE last_name = 'Дубинин' AND first_name = 'Максим' AND middle_name = 'Николаевич' AND birth_year = 1989 LIMIT 1), 3, 40, NULL, 62.7, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Дубинин Максим Николаевич', 'СШОР по борьбе', 'Брянская область', 8001, 2),
+  (8033, 8008, (SELECT id FROM athletes WHERE last_name = 'Кривко' AND first_name = 'Никита' AND middle_name = 'Алексеевич' AND birth_year = 2002 LIMIT 1), 4, 39, NULL, 62.9, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кривко Никита Алексеевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 2),
+  (8034, 8009, (SELECT id FROM athletes WHERE last_name = 'Горячев' AND first_name = 'Ярослав' AND middle_name = 'Алексеевич' AND birth_year = 2010 LIMIT 1), 1, 64, NULL, 68.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Горячев Ярослав Алексеевич', 'СШОР Маршал', 'Калужская область', 8001, 3),
+  (8035, 8009, (SELECT id FROM athletes WHERE last_name = 'Хамидов' AND first_name = 'Фахриддин' AND middle_name = 'Фарход угли' AND birth_year = 2002 LIMIT 1), 2, 63, NULL, 67.85, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Хамидов Фахриддин Фарход угли', 'СШОР Маршал', 'Калужская область', 8001, 3),
+  (8036, 8009, (SELECT id FROM athletes WHERE last_name = 'Сидоренков' AND first_name = 'Александр' AND middle_name = 'Александрович' AND birth_year = 2010 LIMIT 1), 3, 46, NULL, 67.7, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сидоренков Александр Александрович', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 3),
+  (8037, 8009, (SELECT id FROM athletes WHERE last_name = 'Копаевский' AND first_name = 'Артём' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 4, 16, NULL, 67.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Копаевский Артём Александрович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 3),
+  (8038, 8010, (SELECT id FROM athletes WHERE last_name = 'Багров' AND first_name = 'Максим' AND middle_name = 'Дмитриевич' AND birth_year = 2009 LIMIT 1), 1, 73, NULL, 72.5, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Багров Максим Дмитриевич', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 4),
+  (8039, 8010, (SELECT id FROM athletes WHERE last_name = 'Фомин' AND first_name = 'Фёдор' AND middle_name = 'Алексеевич' AND birth_year = 2004 LIMIT 1), 2, 71, NULL, 72.75, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Фомин Фёдор Алексеевич', 'МБУ ДО СШОР 5 г Белгород', 'Белгородская область', 8001, 4),
+  (8040, 8010, (SELECT id FROM athletes WHERE last_name = 'Трофимов' AND first_name = 'Тимур' AND middle_name = 'Михайлович' AND birth_year = 2011 LIMIT 1), 3, 62, NULL, 72.9, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Трофимов Тимур Михайлович', 'СШОР "Маршал"', 'Калужская область', 8001, 4),
+  (8041, 8010, (SELECT id FROM athletes WHERE last_name = 'Сергеев' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1), 4, 58, NULL, 72.2, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сергеев Александр Сергеевич', 'СШОР «Маршал»', 'Калужская область', 8001, 4),
+  (8042, 8010, (SELECT id FROM athletes WHERE last_name = 'Васин' AND first_name = 'Артём' AND middle_name = 'Иванович' AND birth_year = 2007 LIMIT 1), 5, 57, NULL, 72.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Васин Артём Иванович', 'СШОР "Маршал"', 'Калужская область', 8001, 4),
+  (8043, 8010, (SELECT id FROM athletes WHERE last_name = 'Сушков' AND first_name = 'Владимир' AND middle_name = 'Валерьевия' AND birth_year = 2000 LIMIT 1), 6, 46, NULL, 70.9, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Сушков Владимир Валерьевия', 'МБУ ДО СШ "ОСКОЛ"/СШОР 5 Белгород', 'Белгородская область', 8001, 4),
+  (8044, 8010, (SELECT id FROM athletes WHERE last_name = 'Шахрай' AND first_name = 'Владислав' AND middle_name = 'Сергеевич' AND birth_year = 2002 LIMIT 1), 7, 31, NULL, 72.3, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Шахрай Владислав Сергеевич', 'РО ООО «ВФГС» в г. Москве', 'г. Москва', 8001, 4),
+  (8045, 8010, (SELECT id FROM athletes WHERE last_name = 'Щипков' AND first_name = 'Даниил' AND middle_name = 'Олегович' AND birth_year = 2009 LIMIT 1), 8, 26, NULL, 71.75, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Щипков Даниил Олегович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 4),
+  (8046, 8010, (SELECT id FROM athletes WHERE last_name = 'Науменко' AND first_name = 'Мирослав' AND middle_name = 'Константинович' AND birth_year = 2007 LIMIT 1), 9, 24, NULL, 72.3, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Науменко Мирослав Константинович', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 4),
+  (8047, 8011, (SELECT id FROM athletes WHERE last_name = 'Астахов' AND first_name = 'Евгений' AND middle_name = 'Михайлович' AND birth_year = 2002 LIMIT 1), 1, 73, NULL, 76.8, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Астахов Евгений Михайлович', 'ГБУ ДО МКСШОР "Запад" отделение "Семёрка"', 'г. Москва', 8001, 5),
+  (8048, 8011, (SELECT id FROM athletes WHERE last_name = 'Лебеденко' AND first_name = 'Андрей' AND middle_name = 'Евгеньевич' AND birth_year = 2008 LIMIT 1), 2, 55, NULL, 77.95, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Лебеденко Андрей Евгеньевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 5),
+  (8049, 8011, (SELECT id FROM athletes WHERE last_name = 'Савинов' AND first_name = 'Андрей' AND middle_name = 'Вячеславович' AND birth_year = 1984 LIMIT 1), 3, 50, NULL, 77.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Савинов Андрей Вячеславович', 'Владимирская область', 'Владимирская область', 8001, 5),
+  (8050, 8011, (SELECT id FROM athletes WHERE last_name = 'Гордеев' AND first_name = 'Михаил' AND middle_name = 'Сергеевич' AND birth_year = 1998 LIMIT 1), 4, 50, NULL, 77.9, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Гордеев Михаил Сергеевич', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 5),
+  (8051, 8011, (SELECT id FROM athletes WHERE last_name = 'Абдразаков' AND first_name = 'Рафик' AND middle_name = 'Шавкатович' AND birth_year = 2002 LIMIT 1), 5, 46, NULL, 77.8, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Абдразаков Рафик Шавкатович', 'КСШ № 1', 'Смоленская область', 8001, 5),
+  (8052, 8011, (SELECT id FROM athletes WHERE last_name = 'Володин' AND first_name = 'Денис' AND middle_name = 'Игоревич' AND birth_year = 1993 LIMIT 1), 6, 40, NULL, 76.75, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Володин Денис Игоревич', 'МУ ДО "СШ "Легион"', 'Московская область', 8001, 5),
+  (8053, 8011, (SELECT id FROM athletes WHERE last_name = 'Тупиков' AND first_name = 'Александр' AND middle_name = 'Сергеевич' AND birth_year = 1991 LIMIT 1), 7, 40, NULL, 76.8, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Тупиков Александр Сергеевич', 'РОООО "ВФГС по ИО"', 'Ивановская область', 8001, 5),
+  (8054, 8011, (SELECT id FROM athletes WHERE last_name = 'Луценко' AND first_name = 'Никита' AND middle_name = 'Ильич' AND birth_year = 2003 LIMIT 1), 8, 37, NULL, 77.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Луценко Никита Ильич', 'РО ООО "ВФГС" в г. Москве', 'г. Москва', 8001, 5),
+  (8055, 8011, (SELECT id FROM athletes WHERE last_name = 'Курбаков' AND first_name = 'Данила' AND middle_name = 'Александрович' AND birth_year = 2009 LIMIT 1), 9, 23, NULL, 78.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Курбаков Данила Александрович', 'СШОР Маршал', 'Калужская область', 8001, 5),
+  (8056, 8012, (SELECT id FROM athletes WHERE last_name = 'Андрущенко' AND first_name = 'Сергей' AND middle_name = 'Александрович' AND birth_year = 2005 LIMIT 1), 1, 80, NULL, 84.45, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Андрущенко Сергей Александрович', 'ГБУ ДО МКСШОР "Запад" Отделение "Семёрка"', 'г. Москва, Белгородская область', 8001, 6),
+  (8057, 8012, (SELECT id FROM athletes WHERE last_name = 'Мухитов' AND first_name = 'Андрей' AND middle_name = 'Вячеславович' AND birth_year = 1999 LIMIT 1), 2, 65, NULL, 84.15, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Мухитов Андрей Вячеславович', 'СШОР по борьбе', 'Брянская область', 8001, 6),
+  (8058, 8012, (SELECT id FROM athletes WHERE last_name = 'Кузьмин' AND first_name = 'Илья' AND middle_name = 'Алексеевич' AND birth_year = 2007 LIMIT 1), 3, 50, NULL, 84.35, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кузьмин Илья Алексеевич', 'МБУДО КСШ1 , СГУС', 'Смоленская область', 8001, 6),
+  (8059, 8012, (SELECT id FROM athletes WHERE last_name = 'Витков' AND first_name = 'Алексей' AND middle_name = 'Викторович' AND birth_year = 1990 LIMIT 1), 4, 45, NULL, 84.15, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Витков Алексей Викторович', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 6),
+  (8060, 8012, (SELECT id FROM athletes WHERE last_name = 'Аманатиди' AND first_name = 'Михаил' AND middle_name = 'Константинович' AND birth_year = 2009 LIMIT 1), 5, 35, NULL, 83.05, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Аманатиди Михаил Константинович', 'МБУ ДО СШ "Юность"', 'Белгородская область', 8001, 6),
+  (8061, 8013, (SELECT id FROM athletes WHERE last_name = 'Турищев' AND first_name = 'Дмитрий' AND middle_name = 'Владимирович' AND birth_year = 1992 LIMIT 1), 1, 78, NULL, 103.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Турищев Дмитрий Владимирович', 'ГБУ ДО МКСШОР "Запад" отделение "Семёрка"', 'г. Москва', 8001, 8),
+  (8062, 8013, (SELECT id FROM athletes WHERE last_name = 'Калистратов' AND first_name = 'Артем' AND middle_name = 'Валерьевич' AND birth_year = 1992 LIMIT 1), 2, 74, NULL, 110.2, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Калистратов Артем Валерьевич', 'КСШ № 1', 'Смоленская область', 8001, 8),
+  (8063, 8013, (SELECT id FROM athletes WHERE last_name = 'Слащев' AND first_name = 'Степан' AND middle_name = 'Сергеевич' AND birth_year = 2008 LIMIT 1), 3, 57, NULL, 105.95, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Слащев Степан Сергеевич', 'МУ ДО "СШ "Легион"', 'Московская область', 8001, 8),
+  (8064, 8013, (SELECT id FROM athletes WHERE last_name = 'Фартучный' AND first_name = 'Иван' AND middle_name = 'Сергеевич' AND birth_year = 2007 LIMIT 1), 4, 50, NULL, 122.05, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Фартучный Иван Сергеевич', 'МБУ ДО СШ "ОСКОЛ"', 'Белгородская область', 8001, 8),
+  (8065, 8013, (SELECT id FROM athletes WHERE last_name = 'Станкович' AND first_name = 'Боян' AND middle_name IS NULL AND birth_year = 1988 LIMIT 1), 5, 45, NULL, 103.65, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Станкович Боян', 'ЯРОО ФГС', 'Ярославская область', 8001, 8),
+  (8066, 8013, (SELECT id FROM athletes WHERE last_name = 'Дворцов' AND first_name = 'Владимир' AND middle_name = 'Владимирович' AND birth_year = 1986 LIMIT 1), 6, 40, NULL, 108.95, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Дворцов Владимир Владимирович', 'СШОР по борьбе', 'Брянская область', 8001, 8),
+  (8067, 8013, (SELECT id FROM athletes WHERE last_name = 'Митрофанов' AND first_name = 'Тимофей' AND middle_name = 'Андреевич' AND birth_year = 2009 LIMIT 1), 7, 16, NULL, 118.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Митрофанов Тимофей Андреевич', 'МАУ ДО СШОР "Метеор"', 'Ярославская область', 8001, 8),
+  (8068, 8014, (SELECT id FROM athletes WHERE last_name = 'Кулаков' AND first_name = 'Иван' AND middle_name = 'Иванович' AND birth_year = 1998 LIMIT 1), 1, 90, NULL, 94.95, (SELECT id FROM sport_ranks WHERE code = 'msmk'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кулаков Иван Иванович', 'СШОР «Маршал»', 'Калужская область', 8001, 7),
+  (8069, 8014, (SELECT id FROM athletes WHERE last_name = 'Кирюхин' AND first_name = 'Роман' AND middle_name = 'Александрович' AND birth_year = 1997 LIMIT 1), 2, 75, NULL, 88.0, (SELECT id FROM sport_ranks WHERE code = 'ms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кирюхин Роман Александрович', 'ФГС КО', 'Калужская область', 8001, 7),
+  (8070, 8014, (SELECT id FROM athletes WHERE last_name = 'Кулик' AND first_name = 'Никита' AND middle_name = 'Алексеевич' AND birth_year = 2005 LIMIT 1), 3, 62, NULL, 92.25, (SELECT id FROM sport_ranks WHERE code = 'kms'), (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Кулик Никита Алексеевич', 'ГБУ ДО МКСШОР «Запад» Отделение «Семёрка»', 'г. Москва', 8001, 7),
+  (8071, 8014, (SELECT id FROM athletes WHERE last_name = 'Булгаков' AND first_name = 'Денис' AND middle_name = 'Витальевич' AND birth_year = 1984 LIMIT 1), 4, 45, NULL, 86.4, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Булгаков Денис Витальевич', 'РО ООО "ВФГС" в Московской области', 'Московская область', 8001, 7),
+  (8072, 8014, (SELECT id FROM athletes WHERE last_name = 'Захаров' AND first_name = 'Станислав' AND middle_name = 'Олегович' AND birth_year = 1991 LIMIT 1), 5, 43, NULL, 86.0, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Захаров Станислав Олегович', 'РО ООО ВФГС в г. Москве', 'г. Москва', 8001, 7),
+  (8073, 8014, (SELECT id FROM athletes WHERE last_name = 'Муссалиев' AND first_name = 'Муса' AND middle_name = 'Габиб Оглы' AND birth_year = 2007 LIMIT 1), 6, 37, NULL, 85.6, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Муссалиев Муса Габиб Оглы', 'СШОР по борьбе', 'Брянская область', 8001, 7),
+  (8074, 8014, (SELECT id FROM athletes WHERE last_name = 'Мамедсаатов' AND first_name = 'Егор' AND middle_name = 'Русланович' AND birth_year = 2008 LIMIT 1), 7, 31, NULL, 91.5, NULL, (SELECT id FROM disciplines WHERE code = 'long_cycle'), 32, 'two', 10, 8001, '2026-04-13', 'Мамедсаатов Егор Русланович', 'МБУ ДО СШ "Юность"', 'Белгородская область', 8001, 7);
 
 INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8001, 8001, 'jerk', 'both', 95),
@@ -659,62 +682,68 @@ INSERT INTO result_reps (id, result_id, exercise, hand, reps) VALUES
   (8008, 8008, 'jerk', 'both', 73),
   (8009, 8009, 'jerk', 'both', 72),
   (8010, 8010, 'jerk', 'both', 45),
-  (8011, 8011, 'long_cycle', 'both', 50),
-  (8012, 8012, 'long_cycle', 'both', 29),
-  (8013, 8013, 'long_cycle', 'both', 26),
-  (8014, 8014, 'long_cycle', 'both', 26),
-  (8015, 8015, 'long_cycle', 'both', 72),
-  (8016, 8016, 'long_cycle', 'both', 46),
-  (8017, 8017, 'long_cycle', 'both', 45),
-  (8018, 8018, 'long_cycle', 'both', 75),
-  (8019, 8019, 'long_cycle', 'both', 36),
-  (8020, 8020, 'long_cycle', 'both', 35),
-  (8021, 8021, 'long_cycle', 'both', 25),
-  (8022, 8022, 'long_cycle', 'both', 70),
-  (8023, 8023, 'long_cycle', 'both', 20),
-  (8024, 8024, 'long_cycle', 'both', 44),
-  (8025, 8025, 'long_cycle', 'both', 43),
-  (8026, 8026, 'long_cycle', 'both', 40),
-  (8027, 8027, 'long_cycle', 'both', 39),
-  (8028, 8028, 'long_cycle', 'both', 64),
-  (8029, 8029, 'long_cycle', 'both', 63),
-  (8030, 8030, 'long_cycle', 'both', 46),
-  (8031, 8031, 'long_cycle', 'both', 16),
-  (8032, 8032, 'long_cycle', 'both', 73),
-  (8033, 8033, 'long_cycle', 'both', 71),
-  (8034, 8034, 'long_cycle', 'both', 62),
-  (8035, 8035, 'long_cycle', 'both', 58),
-  (8036, 8036, 'long_cycle', 'both', 57),
-  (8037, 8037, 'long_cycle', 'both', 46),
-  (8038, 8038, 'long_cycle', 'both', 31),
-  (8039, 8039, 'long_cycle', 'both', 26),
-  (8040, 8040, 'long_cycle', 'both', 24),
-  (8041, 8041, 'long_cycle', 'both', 73),
-  (8042, 8042, 'long_cycle', 'both', 55),
-  (8043, 8043, 'long_cycle', 'both', 50),
-  (8044, 8044, 'long_cycle', 'both', 50),
-  (8045, 8045, 'long_cycle', 'both', 46),
-  (8046, 8046, 'long_cycle', 'both', 40),
-  (8047, 8047, 'long_cycle', 'both', 40),
-  (8048, 8048, 'long_cycle', 'both', 37),
-  (8049, 8049, 'long_cycle', 'both', 23),
-  (8050, 8050, 'long_cycle', 'both', 80),
-  (8051, 8051, 'long_cycle', 'both', 65),
-  (8052, 8052, 'long_cycle', 'both', 50),
-  (8053, 8053, 'long_cycle', 'both', 45),
-  (8054, 8054, 'long_cycle', 'both', 35),
-  (8055, 8055, 'long_cycle', 'both', 78),
-  (8056, 8056, 'long_cycle', 'both', 74),
-  (8057, 8057, 'long_cycle', 'both', 57),
+  (8011, 8011, 'jerk', 'both', 115),
+  (8012, 8012, 'jerk', 'both', 108),
+  (8013, 8013, 'jerk', 'both', 99),
+  (8014, 8014, 'jerk', 'both', 86),
+  (8015, 8015, 'jerk', 'both', 80),
+  (8016, 8016, 'jerk', 'both', 57),
+  (8017, 8017, 'long_cycle', 'both', 50),
+  (8018, 8018, 'long_cycle', 'both', 29),
+  (8019, 8019, 'long_cycle', 'both', 26),
+  (8020, 8020, 'long_cycle', 'both', 26),
+  (8021, 8021, 'long_cycle', 'both', 72),
+  (8022, 8022, 'long_cycle', 'both', 46),
+  (8023, 8023, 'long_cycle', 'both', 45),
+  (8024, 8024, 'long_cycle', 'both', 75),
+  (8025, 8025, 'long_cycle', 'both', 36),
+  (8026, 8026, 'long_cycle', 'both', 35),
+  (8027, 8027, 'long_cycle', 'both', 25),
+  (8028, 8028, 'long_cycle', 'both', 70),
+  (8029, 8029, 'long_cycle', 'both', 20),
+  (8030, 8030, 'long_cycle', 'both', 44),
+  (8031, 8031, 'long_cycle', 'both', 43),
+  (8032, 8032, 'long_cycle', 'both', 40),
+  (8033, 8033, 'long_cycle', 'both', 39),
+  (8034, 8034, 'long_cycle', 'both', 64),
+  (8035, 8035, 'long_cycle', 'both', 63),
+  (8036, 8036, 'long_cycle', 'both', 46),
+  (8037, 8037, 'long_cycle', 'both', 16),
+  (8038, 8038, 'long_cycle', 'both', 73),
+  (8039, 8039, 'long_cycle', 'both', 71),
+  (8040, 8040, 'long_cycle', 'both', 62),
+  (8041, 8041, 'long_cycle', 'both', 58),
+  (8042, 8042, 'long_cycle', 'both', 57),
+  (8043, 8043, 'long_cycle', 'both', 46),
+  (8044, 8044, 'long_cycle', 'both', 31),
+  (8045, 8045, 'long_cycle', 'both', 26),
+  (8046, 8046, 'long_cycle', 'both', 24),
+  (8047, 8047, 'long_cycle', 'both', 73),
+  (8048, 8048, 'long_cycle', 'both', 55),
+  (8049, 8049, 'long_cycle', 'both', 50),
+  (8050, 8050, 'long_cycle', 'both', 50),
+  (8051, 8051, 'long_cycle', 'both', 46),
+  (8052, 8052, 'long_cycle', 'both', 40),
+  (8053, 8053, 'long_cycle', 'both', 40),
+  (8054, 8054, 'long_cycle', 'both', 37),
+  (8055, 8055, 'long_cycle', 'both', 23),
+  (8056, 8056, 'long_cycle', 'both', 80),
+  (8057, 8057, 'long_cycle', 'both', 65),
   (8058, 8058, 'long_cycle', 'both', 50),
   (8059, 8059, 'long_cycle', 'both', 45),
-  (8060, 8060, 'long_cycle', 'both', 40),
-  (8061, 8061, 'long_cycle', 'both', 16),
-  (8062, 8062, 'long_cycle', 'both', 90),
-  (8063, 8063, 'long_cycle', 'both', 75),
-  (8064, 8064, 'long_cycle', 'both', 62),
+  (8060, 8060, 'long_cycle', 'both', 35),
+  (8061, 8061, 'long_cycle', 'both', 78),
+  (8062, 8062, 'long_cycle', 'both', 74),
+  (8063, 8063, 'long_cycle', 'both', 57),
+  (8064, 8064, 'long_cycle', 'both', 50),
   (8065, 8065, 'long_cycle', 'both', 45),
-  (8066, 8066, 'long_cycle', 'both', 43),
-  (8067, 8067, 'long_cycle', 'both', 37),
-  (8068, 8068, 'long_cycle', 'both', 31);
+  (8066, 8066, 'long_cycle', 'both', 40),
+  (8067, 8067, 'long_cycle', 'both', 16),
+  (8068, 8068, 'long_cycle', 'both', 90),
+  (8069, 8069, 'long_cycle', 'both', 75),
+  (8070, 8070, 'long_cycle', 'both', 62),
+  (8071, 8071, 'long_cycle', 'both', 45),
+  (8072, 8072, 'long_cycle', 'both', 43),
+  (8073, 8073, 'long_cycle', 'both', 37),
+  (8074, 8074, 'long_cycle', 'both', 31);
 
