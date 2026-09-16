@@ -16,7 +16,20 @@ export async function getStats(db) {
            (SELECT COUNT(DISTINCT pcm.person_id)
               FROM person_coach_mentions pcm
               JOIN competitions c ON c.id = pcm.competition_id
-             WHERE c.is_published = 1) AS coaches`);
+             WHERE c.is_published = 1) AS coaches,
+           (SELECT COUNT(*) FROM (
+              SELECT DISTINCT d.name AS discipline_name,
+                     r.bell_kg,
+                     CASE WHEN r.hands = 'one' THEN 'one' ELSE '' END AS hands_key,
+                     r.time_limit_min,
+                     cat.sex,
+                     COALESCE(cat.weight_class_raw, '') AS weight_class_raw
+                FROM results r
+                JOIN competitions c ON c.id = r.competition_id
+                JOIN disciplines d ON d.id = r.discipline_id
+                JOIN categories cat ON cat.id = r.category_id
+               WHERE c.is_published = 1
+           )) AS unique_categories`);
 }
 
 export async function listCompetitions(db) {
