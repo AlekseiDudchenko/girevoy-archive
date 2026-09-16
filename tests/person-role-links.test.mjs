@@ -32,6 +32,7 @@ function realDb() {
 const cases = [
   { coach: 'Каргин С.Я.', athlete: 'Каргин Сергей Ярославович', birthYear: 1998 },
   { coach: 'Коломин Д.А.', athlete: 'Коломин Дмитрий Андреевич', birthYear: 1999 },
+  { coach: 'Анасенко А.В.', athlete: 'Анасенко Антон Владимирович', birthYear: 1979 },
 ];
 
 for (const item of cases) {
