@@ -93,15 +93,28 @@ export function renderIndex({ stats, competitions, L, bare }) {
   <div class="scroll">
     <table class="home-competitions-table" id="home-competitions-table">
       <thead><tr>
-        <th>Год</th><th>Соревнование</th><th>Место</th><th>Дата</th>
-        <th>Уровень</th><th class="r">Категорий</th><th class="r">Результатов</th><th aria-label="Открыть"></th>
+        <th aria-sort="none"><button type="button" class="home-sort" data-sort-key="sortYear" data-sort-type="number">Год<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th aria-sort="none"><button type="button" class="home-sort" data-sort-key="sortName" data-sort-type="text">Соревнование<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th aria-sort="none"><button type="button" class="home-sort" data-sort-key="sortCity" data-sort-type="text">Место<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th aria-sort="none"><button type="button" class="home-sort" data-sort-key="sortDate" data-sort-type="text">Дата<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th aria-sort="none"><button type="button" class="home-sort" data-sort-key="sortRank" data-sort-type="text">Уровень<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th class="r" aria-sort="none"><button type="button" class="home-sort home-sort-right" data-sort-key="sortCategories" data-sort-type="number">Категорий<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th class="r" aria-sort="none"><button type="button" class="home-sort home-sort-right" data-sort-key="sortResults" data-sort-type="number">Результатов<span class="home-sort-indicator" aria-hidden="true"></span></button></th>
+        <th aria-label="Открыть"></th>
       </tr></thead>
       <tbody>
       ${competitions.map((c) => `<tr
         data-year="${e(yearOf(c.date_start))}"
         data-type="${e(competitionType(c.name))}"
         data-city="${e(c.city || '')}"
-        data-rank="${e(c.rank_name || '')}">
+        data-rank="${e(c.rank_name || '')}"
+        data-sort-year="${e(yearOf(c.date_start))}"
+        data-sort-name="${e(c.name || '')}"
+        data-sort-city="${e(c.city || '')}"
+        data-sort-date="${e(c.date_start || '')}"
+        data-sort-rank="${e(c.rank_name || '')}"
+        data-sort-categories="${e(c.categories ?? '')}"
+        data-sort-results="${e(c.results ?? '')}">
         <td class="n"><button type="button" class="home-quick-filter" data-filter="year" data-value="${e(yearOf(c.date_start))}">${e(yearOf(c.date_start))}</button></td>
         <td><button type="button" class="home-quick-filter home-quick-name" data-filter="type" data-value="${e(competitionType(c.name))}">${e(c.name)}</button></td>
         <td>${c.city ? `<button type="button" class="home-quick-filter" data-filter="city" data-value="${e(c.city)}">${e(c.city)}</button>` : '—'}</td>
@@ -132,6 +145,13 @@ export function renderIndex({ stats, competitions, L, bare }) {
 .home-filter-chip { border:1px solid var(--accent); background:var(--accent-soft); color:var(--accent); font:inherit; font-size:.82rem; padding:.18rem .45rem; cursor:pointer; }
 .home-filter-count { margin:.3rem 0 .7rem; }
 .home-competitions-table td:first-child { color:var(--ink-3); }
+.home-sort { display:inline-flex; align-items:center; gap:.3rem; width:100%; border:0; padding:0; background:none; color:inherit; font:inherit; font-weight:inherit; text-align:left; cursor:pointer; }
+.home-sort-right { justify-content:flex-end; text-align:right; }
+.home-sort:hover, .home-sort:focus-visible { color:var(--accent); }
+.home-sort-indicator { display:inline-block; min-width:.7em; color:var(--accent); }
+.home-sort-indicator::after { content:'↕'; opacity:.4; }
+th[aria-sort="ascending"] .home-sort-indicator::after { content:'↑'; opacity:1; }
+th[aria-sort="descending"] .home-sort-indicator::after { content:'↓'; opacity:1; }
 .home-quick-filter { border:0; padding:0; background:none; color:var(--accent); font:inherit; text-align:left; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; cursor:pointer; }
 .home-quick-filter:hover { text-decoration-thickness:2px; }
 .home-quick-name { font-weight:700; }
@@ -156,11 +176,13 @@ export function renderIndex({ stats, competitions, L, bare }) {
   var form = document.getElementById('home-filters');
   var table = document.getElementById('home-competitions-table');
   var rows = table ? Array.prototype.slice.call(table.tBodies[0].rows) : [];
+  var sortButtons = table ? Array.prototype.slice.call(table.querySelectorAll('[data-sort-key]')) : [];
   var active = document.getElementById('home-active-filters');
   var count = document.getElementById('home-filter-count');
   var empty = document.getElementById('home-filter-empty');
   var filterKeys = ['year', 'type', 'city', 'rank'];
   var labels = { year: 'Год', type: 'Тип', city: 'Место', rank: 'Уровень' };
+  var sortState = { key: '', direction: 'ascending' };
 
   function setView(view, persist) {
     var expandedOn = view === 'expanded';
@@ -229,6 +251,36 @@ export function renderIndex({ stats, competitions, L, bare }) {
     applyFilters(true);
   }
 
+  function compareValues(a, b, type) {
+    if (type === 'number') {
+      var aNum = a === '' ? Number.NEGATIVE_INFINITY : Number(a);
+      var bNum = b === '' ? Number.NEGATIVE_INFINITY : Number(b);
+      return aNum - bNum;
+    }
+    return String(a).localeCompare(String(b), 'ru', { numeric: true, sensitivity: 'base' });
+  }
+
+  function sortTable(button) {
+    var key = button.dataset.sortKey;
+    var type = button.dataset.sortType || 'text';
+    var direction = sortState.key === key && sortState.direction === 'ascending' ? 'descending' : 'ascending';
+    var factor = direction === 'ascending' ? 1 : -1;
+    var originalOrder = new Map(rows.map(function (row, index) { return [row, index]; }));
+
+    rows.sort(function (a, b) {
+      var compared = compareValues(a.dataset[key] || '', b.dataset[key] || '', type);
+      return compared ? compared * factor : originalOrder.get(a) - originalOrder.get(b);
+    });
+    rows.forEach(function (row) { table.tBodies[0].appendChild(row); });
+
+    sortState.key = key;
+    sortState.direction = direction;
+    sortButtons.forEach(function (sortButton) {
+      var th = sortButton.closest('th');
+      th.setAttribute('aria-sort', sortButton === button ? direction : 'none');
+    });
+  }
+
   buttons.forEach(function (button) {
     button.addEventListener('click', function () { setView(button.dataset.homeView, true); });
   });
@@ -239,6 +291,11 @@ export function renderIndex({ stats, competitions, L, bare }) {
     applyFilters(true);
   });
   table.addEventListener('click', function (ev) {
+    var sortButton = ev.target.closest('[data-sort-key]');
+    if (sortButton) {
+      sortTable(sortButton);
+      return;
+    }
     var button = ev.target.closest('[data-filter]');
     if (!button) return;
     setFilter(button.dataset.filter, button.dataset.value);
