@@ -568,11 +568,16 @@ export function renderResults({ rows, L }) {
   const opts = (vals) => [...new Set(vals)].sort().map((v) => `<option>${e(v)}</option>`).join('');
   // подпись серии в ячейке и она же ключ сортировки столбца «Дисциплина»
   const series = (r) => `${r.discipline_name} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин`;
+  // пол берётся из категории протокола, поэтому «смешанная» появляется, только если такая есть
+  const sexLabel = { m: 'мужчины', f: 'женщины', mixed: 'смешанная' };
+  const sexOpts = [...new Set(rows.map((r) => r.sex))]
+    .sort((a, b) => (a === 'm' ? -1 : b === 'm' ? 1 : String(a).localeCompare(String(b))))
+    .map((v) => `<option value="${e(v)}">${e(sexLabel[v] || v)}</option>`).join('');
   const th = (key, label, cls) =>
     `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({
     title: 'Все результаты',
-    description: 'Таблица всех результатов с фильтрами по дисциплине, весу снаряда и регламенту.',
+    description: 'Таблица всех результатов с фильтрами по полу, дисциплине, весу снаряда и регламенту.',
     L, active: 'results',
     body: `
 <div class="page-head">
@@ -582,6 +587,7 @@ export function renderResults({ rows, L }) {
 </div>
 
 <form class="filters" id="f">
+  <label>Пол <select name="sex"><option value="">любой</option>${sexOpts}</select></label>
   <label>Дисциплина <select name="discipline_name"><option value="">любая</option>${opts(rows.map((r) => r.discipline_name))}</select></label>
   <label>Вес снаряда <select name="bell_kg"><option value="">любой</option>${opts(rows.map((r) => String(r.bell_kg)))}</select></label>
   <label>Руки <select name="hands"><option value="">любые</option><option value="two">двумя</option><option value="one">одной</option></select></label>
@@ -601,7 +607,7 @@ export function renderResults({ rows, L }) {
   <tbody>
   ${rows.map((r) => `
     <tr data-discipline_name="${e(r.discipline_name)}" data-bell_kg="${r.bell_kg}"
-        data-hands="${r.hands}" data-time_limit_min="${r.time_limit_min}"
+        data-hands="${r.hands}" data-time_limit_min="${r.time_limit_min}" data-sex="${e(r.sex)}"
         data-weight_class_raw="${e(r.weight_class_raw || '')}" data-value="${r.result_value ?? ''}"
         data-date="${r.event_date ?? ''}" data-name="${e(fio(r))}" data-series="${e(series(r))}"
         data-wc="${weightClassKey(r.weight_class_raw)}" data-comp="${e(r.competition)}"
@@ -623,7 +629,7 @@ export function renderResults({ rows, L }) {
   var form = document.getElementById('f'), tbody = document.querySelector('#t tbody');
   var note = document.getElementById('sortnote'), col = document.getElementById('sortcol');
   var heads = Array.prototype.slice.call(document.querySelectorAll('#t th.sort'));
-  var keys = ['discipline_name', 'bell_kg', 'hands', 'time_limit_min', 'weight_class_raw'];
+  var keys = ['sex', 'discipline_name', 'bell_kg', 'hands', 'time_limit_min', 'weight_class_raw'];
   var NUM = { wc: 1, place: 1, value: 1 };
   // столбец и направление, выбранные кликом; пока не кликали — дата по убыванию,
   // а заданная серия сама включает сортировку по результату
