@@ -7,6 +7,14 @@ const sql = execFileSync('python3', ['scripts/gen_people.py'], {
   maxBuffer: 32 * 1024 * 1024,
 });
 
+const coachPeopleBlock = sql.match(
+  /INSERT OR IGNORE INTO persons \(slug, display_name\) VALUES\n([\s\S]*?);\n/,
+)?.[1] ?? '';
+
+function generatesCoachPerson(name) {
+  return coachPeopleBlock.includes(`'${name}'`);
+}
+
 test('confirmed coach aliases generate only canonical people', () => {
   const duplicates = [
     'Соловьев А.В.',
@@ -38,10 +46,10 @@ test('confirmed coach aliases generate only canonical people', () => {
   ];
 
   for (const name of duplicates) {
-    assert.ok(!sql.includes(`'${name}'`), `duplicate person must not be generated: ${name}`);
+    assert.ok(!generatesCoachPerson(name), `duplicate person must not be generated: ${name}`);
   }
   for (const name of canonical) {
-    assert.ok(sql.includes(`'${name}'`), `canonical person must be generated: ${name}`);
+    assert.ok(generatesCoachPerson(name), `canonical person must be generated: ${name}`);
   }
 });
 
@@ -90,9 +98,9 @@ test('confirmed missing delimiters split into separate coach people', () => {
   ];
 
   for (const name of combined) {
-    assert.ok(!sql.includes(`'${name}'`), `combined coach person must not be generated: ${name}`);
+    assert.ok(!generatesCoachPerson(name), `combined coach person must not be generated: ${name}`);
   }
   for (const name of separate) {
-    assert.ok(sql.includes(`'${name}'`), `split coach person must be generated: ${name}`);
+    assert.ok(generatesCoachPerson(name), `split coach person must be generated: ${name}`);
   }
 });
