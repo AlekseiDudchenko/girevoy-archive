@@ -41,7 +41,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
   <p class="lead">Каждый турнир целиком: все категории, все участники, а не только призёры.
   Числа сверены с оригиналом протокола.</p>
   <dl class="tally">
-    <div><dt>Турниров</dt><dd>${stats.competitions}</dd></div>
+    <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.home)}">Турниров</a></dt><dd>${stats.competitions}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(athletesHref)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
