@@ -51,11 +51,11 @@ def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
     return merges, splits
 
 
-def load_role_links() -> dict[str, dict[str, object]]:
+def load_role_data() -> tuple[dict[str, dict[str, object]], dict[str, dict[str, object]]]:
     try:
         data = json.load(open("data/person_role_links.json", encoding="utf-8"))
     except FileNotFoundError:
-        return {}
+        return {}, {}
 
     links: dict[str, dict[str, object]] = {}
     for item in data.get("coach_athlete_links", []):
@@ -64,7 +64,16 @@ def load_role_links() -> dict[str, dict[str, object]]:
             "athlete": item["athlete"].strip(),
             "birth_year": int(item["birth_year"]),
         }
-    return links
+
+    profiles: dict[str, dict[str, object]] = {}
+    for item in data.get("coach_profiles", []):
+        coach = normalize_coach_name(item["coach"])
+        profiles[coach] = {
+            "display_name": item["display_name"].strip(),
+            "birth_year": int(item["birth_year"]) if item.get("birth_year") is not None else None,
+            "activities": item.get("activities", []),
+        }
+    return links, profiles
 
 
 def split_coach_value(value: str, splits: dict[str, list[str]]) -> list[str] | None:
@@ -125,7 +134,7 @@ def load_protocols():
 
 
 def main() -> None:
-    protocols=list(load_protocols()); merges,splits=load_person_rules(); role_links=load_role_links(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
+    protocols=list(load_protocols()); merges,splits=load_person_rules(); role_links,profiles=load_role_data(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
     for data in protocols:
         comp_slug=data["competition"]["slug"]
         names_without_middle=bool(data.get("source",{}).get("names_without_middle",False))
@@ -151,8 +160,22 @@ def main() -> None:
         print()
     standalone_coaches = [name for name in sorted(coaches) if name not in role_links]
     if standalone_coaches:
-        print("INSERT OR IGNORE INTO persons (slug, display_name) VALUES")
-        print(",\n".join(f"  ({esc(coach_slug(name))}, {esc(name)})" for name in standalone_coaches) + ";\n")
+        print("INSERT OR IGNORE INTO persons (slug, display_name, birth_year) VALUES")
+        values=[]
+        for name in standalone_coaches:
+            profile=profiles.get(name,{})
+            display_name=str(profile.get("display_name") or name)
+            birth_year=profile.get("birth_year")
+            values.append(f"  ({esc(coach_slug(name))}, {esc(display_name)}, {birth_year if birth_year is not None else 'NULL'})")
+        print(",\n".join(values) + ";\n")
+    for coach,profile in sorted(profiles.items()):
+        if coach not in coaches or coach in role_links: continue
+        for activity in profile.get("activities", []):
+            person=coach_person_sql(coach, role_links)
+            print("INSERT INTO person_activities (person_id, organization, position, date_from, date_to, source_url)")
+            print(f"SELECT {person}, {esc(activity['organization'])}, {esc(activity['position'])}, {esc(activity.get('date_from'))}, {esc(activity.get('date_to'))}, {esc(activity.get('source_url'))} WHERE {person} IS NOT NULL;")
+    if profiles:
+        print()
     for coach,athlete,_ in sorted(links):
         person=coach_person_sql(coach, role_links)
         print("INSERT OR IGNORE INTO person_coach_athletes (person_id, athlete_id)")
