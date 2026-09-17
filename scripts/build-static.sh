@@ -30,6 +30,7 @@ python3 scripts/gen_seed.py data/chempionat-szfo-2023.json > "$BUILD_DIR/chempio
 python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2026.json > "$BUILD_DIR/chempionat-yufo-skfo-2026.sql"
 python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2025.json > "$BUILD_DIR/chempionat-yufo-skfo-2025.sql"
 python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2024.json > "$BUILD_DIR/chempionat-yufo-skfo-2024.sql"
+python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2023.json > "$BUILD_DIR/chempionat-yufo-skfo-2023.sql"
 python3 scripts/gen_seed.py data/chempionat-tsfo-2026.json > "$BUILD_DIR/chempionat-tsfo-2026.sql"
 python3 scripts/gen_seed.py data/chempionat-tsfo-2025.json > "$BUILD_DIR/chempionat-tsfo-2025.sql"
 python3 scripts/gen_seed.py data/chempionat-tsfo-2024.json > "$BUILD_DIR/chempionat-tsfo-2024.sql"
@@ -59,6 +60,7 @@ cat \
   "$BUILD_DIR/chempionat-yufo-skfo-2026.sql" \
   "$BUILD_DIR/chempionat-yufo-skfo-2025.sql" \
   "$BUILD_DIR/chempionat-yufo-skfo-2024.sql" \
+  "$BUILD_DIR/chempionat-yufo-skfo-2023.sql" \
   "$BUILD_DIR/chempionat-tsfo-2026.sql" \
   "$BUILD_DIR/chempionat-tsfo-2025.sql" \
   "$BUILD_DIR/chempionat-tsfo-2024.sql" \
