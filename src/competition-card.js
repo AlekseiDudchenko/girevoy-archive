@@ -44,6 +44,15 @@ function archiveHref(path) {
   return `/protocols/${relative.split('/').map(encodeURIComponent).join('/')}`;
 }
 
+function visual(comp, year) {
+  if (comp.poster_path) {
+    return `<a class="competition-visual competition-visual-poster" href="${esc(comp.poster_path)}" target="_blank" rel="noopener noreferrer" aria-label="Открыть афишу турнира">
+      <img src="${esc(comp.poster_path)}" alt="Афиша: ${esc(comp.name)}" loading="lazy" decoding="async">
+    </a>`;
+  }
+  return `<div class="competition-visual competition-visual-placeholder" aria-label="Афиша турнира пока не добавлена"><span>${esc(year)}</span></div>`;
+}
+
 export function competitionCard(body, comp, categories = []) {
   const headerMatch = body.match(/<div class="page-head">[\s\S]*?<\/div>/);
   if (!headerMatch) return body;
@@ -76,7 +85,7 @@ export function competitionCard(body, comp, categories = []) {
 
   const card = `<section class="competition-card" aria-label="Карточка турнира">
   <div class="competition-top">
-    <div class="competition-mark" aria-hidden="true">${esc(year)}</div>
+    ${visual(comp, year)}
     <div class="competition-identity">
       <p class="eyebrow">${esc(comp.rank_name || 'Соревнование')}</p>
       <h1>${esc(comp.name)}</h1>
@@ -93,8 +102,10 @@ export function competitionCard(body, comp, categories = []) {
   body = body.replace(headerMatch[0], card);
   return body.replace('</body>', `<style>
 .competition-card { margin:0 0 1.8rem; border:1px solid var(--rule); background:var(--surface); }
-.competition-top { display:grid; grid-template-columns:5.4rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
-.competition-mark { width:5.4rem; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--rule); border-radius:50%; background:var(--accent-soft); color:var(--accent); font-family:"Bitter",Georgia,serif; font-size:1.35rem; font-weight:600; letter-spacing:-.03em; }
+.competition-top { display:grid; grid-template-columns:7.2rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
+.competition-visual { width:7.2rem; height:9rem; display:grid; place-items:center; overflow:hidden; border:1px solid var(--rule); border-radius:.35rem; background:var(--accent-soft); color:var(--accent); text-decoration:none; }
+.competition-visual-poster img { display:block; width:100%; height:100%; object-fit:cover; }
+.competition-visual-placeholder span { font-family:"Bitter",Georgia,serif; font-size:1.35rem; font-weight:600; letter-spacing:-.03em; }
 .competition-identity h1 { margin:0; }
 .competition-identity .eyebrow { margin-bottom:.35rem; }
 .competition-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
@@ -112,8 +123,9 @@ export function competitionCard(body, comp, categories = []) {
 .competition-source-links a { white-space:nowrap; }
 @media (max-width:760px) { .competition-facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:520px) {
-  .competition-top { grid-template-columns:4.2rem minmax(0,1fr); padding:1rem; gap:.9rem; }
-  .competition-mark { width:4.2rem; font-size:1.05rem; }
+  .competition-top { grid-template-columns:5.2rem minmax(0,1fr); padding:1rem; gap:.9rem; align-items:start; }
+  .competition-visual { width:5.2rem; height:6.5rem; }
+  .competition-visual-placeholder span { font-size:1.05rem; }
   .competition-facts { grid-template-columns:1fr; }
   .competition-stats { grid-template-columns:1fr 1fr; }
   .competition-source-links { flex-direction:column; }
