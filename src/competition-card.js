@@ -130,7 +130,7 @@ export function competitionCard(body, comp, categories = []) {
 .competition-fact-link-wrap:hover { background:var(--accent-soft); }
 .competition-label { display:block; font-family:"PT Mono",monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
 .competition-value { display:block; margin-top:.08rem; color:var(--ink); overflow-wrap:anywhere; }
-.competition-fact-link { color:var(--accent); }
+.competition-fact-link, .competition-fact-link:hover, .competition-fact-link:focus-visible { color:var(--accent); text-decoration:none; }
 .competition-fact-link::after { content:''; position:absolute; inset:0; }
 .competition-fact-link:focus-visible::after { outline:2px solid var(--accent); outline-offset:-2px; }
 .competition-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
