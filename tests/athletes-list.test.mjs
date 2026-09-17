@@ -29,7 +29,7 @@ test('athlete list query derives latest rank and weight class from published res
   assert.match(sql, /c\.is_published = 1/);
 });
 
-test('athlete list renders rank and latest weight class with year and numeric sort values', () => {
+test('athlete list renders rank and latest weight class without duplicate year', () => {
   const html = renderAthletes({
     L,
     athletes: [{
@@ -52,6 +52,7 @@ test('athlete list renders rank and latest weight class with year and numeric so
   assert.match(html, />Разряд<\/th>/);
   assert.match(html, />Последняя весовая<\/th>/);
   assert.match(html, /data-sort-value="5">МС<\/td>/);
-  assert.match(html, /data-sort-value="95\.5">95\+ кг \(2026\)<\/td>/);
+  assert.match(html, /data-sort-value="95\.5">95\+ кг<\/td>/);
+  assert.doesNotMatch(html, /95\+ кг \(2026\)/);
   assert.match(html, /Имя, регион, разряд, весовая категория или год/);
 });

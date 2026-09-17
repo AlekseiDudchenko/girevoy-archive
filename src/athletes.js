@@ -86,8 +86,7 @@ export async function listAthletes(db) {
 function weightClassLabel(athlete) {
   const raw = String(athlete.last_weight_class ?? '').trim();
   if (!raw) return '—';
-  const value = /кг/i.test(raw) ? raw : `${raw} кг`;
-  return athlete.last_weight_year ? `${value} (${athlete.last_weight_year})` : value;
+  return /кг/i.test(raw) ? raw : `${raw} кг`;
 }
 
 function weightClassSortValue(athlete) {
