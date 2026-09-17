@@ -163,8 +163,6 @@ export function renderCoaches({ coaches, L }) {
     description: 'Тренеры и связанные с ними спортсмены из опубликованных соревнований.',
     body: `<h1>Тренеры</h1>
 <p class="lead">Тренеры и их спортсмены в истории соревнований по гиревому спорту.</p>
-<p class="source">Если указано несколько тренеров, спортсмен показан у каждого. Пробелы в инициалах нормализованы; разные написания ФИО не объединяются автоматически. Это не обязательно текущий тренер спортсмена.</p>
-<p class="source">Регион указан по связанным спортсменам, а не как подтверждённое место работы тренера.</p>
 ${coaches.length ? `<label for="coach-search">Поиск по имени или региону</label>
 <input id="coach-search" type="search" placeholder="Имя тренера или регион">
 <div class="scroll"><table id="coaches-table">
@@ -430,7 +428,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     <h2>Судья</h2>
     <div class="scroll"><table><thead><tr><th>Дата</th><th>Соревнование</th><th>Роль</th></tr></thead>
     <tbody>${judgeRoles.map((j) => `<tr><td class="n">${e(j.date_start || '—')}</td>
-      <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug))}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
+      <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug)}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
       <td>${j.source_url ? `<a href="${e(j.source_url)}">${e(j.role)}</a>` : e(j.role)}</td></tr>`).join('')}</tbody></table></div>
   </section>` : ''}
 </article>
