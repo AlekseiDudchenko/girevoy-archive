@@ -4,6 +4,8 @@ import { join } from 'node:path';
 const OUT = process.argv[2] || 'dist';
 const SOURCE_ROOT = 'sources';
 const ARCHIVE_OUT = join(OUT, 'protocols');
+const POSTER_ROOT = 'public/competition-posters';
+const POSTER_OUT = join(OUT, 'competition-posters');
 
 mkdirSync(ARCHIVE_OUT, { recursive: true });
 
@@ -17,4 +19,9 @@ for (const year of readdirSync(SOURCE_ROOT, { withFileTypes: true })) {
   copied++;
 }
 
+if (existsSync(POSTER_ROOT)) {
+  cpSync(POSTER_ROOT, POSTER_OUT, { recursive: true });
+}
+
 console.log(`Protocol archive copied: ${copied} year directories`);
+console.log(`Competition posters copied: ${existsSync(POSTER_ROOT) ? 'yes' : 'no'}`);
