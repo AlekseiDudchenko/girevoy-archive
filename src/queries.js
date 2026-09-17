@@ -3,7 +3,7 @@
 export const HAND_LABEL = { two: 'двумя', one: 'одной рукой', both: '', left: 'левая', right: 'правая' };
 
 export function seriesLabel(r) {
-  const hands = r.hands === 'one' ? ' · одной рукой' : '';
+  const hands = r.hands === 'one' && r.discipline_name !== 'Рывок' ? ' · одной рукой' : '';
   return `${r.discipline_name} · ${r.bell_kg} кг${hands} · ${r.time_limit_min} мин`;
 }
 

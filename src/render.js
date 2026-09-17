@@ -201,7 +201,7 @@ export function renderCompetition({ comp, categories, L }) {
     const sexClass = cat.sex === 'f' ? 'chip-sex-f' : 'chip-sex-m';
     const discipline = cat.discipline_code === 'long_cycle' ? 'ДЦ'
       : cat.discipline_code === 'jerk' ? 'Т'
-        : cat.discipline_code === 'snatch' ? 'Р' : cat.discipline_name;
+        : cat.discipline_code === 'snatch' ? 'Рывок' : cat.discipline_name;
     const weightClass = Number(cat.bell_kg) === 32 ? ' chip-weight-32'
       : Number(cat.bell_kg) === 24 ? ' chip-weight-24' : '';
     const weight = weightClass
@@ -631,7 +631,7 @@ function weightChart(results) {
 export function renderResults({ rows, L }) {
   const opts = (vals) => [...new Set(vals)].sort().map((v) => `<option>${e(v)}</option>`).join('');
   // подпись серии в ячейке и она же ключ сортировки столбца «Дисциплина»
-  const series = (r) => `${r.discipline_name} · ${r.bell_kg} кг${r.hands === 'one' ? ' · одной' : ''} · ${r.time_limit_min} мин`;
+  const series = (r) => seriesLabel(r);
   const th = (key, label, cls) =>
     `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({

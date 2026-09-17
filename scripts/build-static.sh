@@ -61,6 +61,7 @@ cat \
   "$BUILD_DIR/chempionat-tsfo-2024.sql" \
   "$BUILD_DIR/kubok-rossii-2025.sql" \
   seeds/0005_merges.sql \
+  seeds/0006_normalize_snatch.sql \
   "$BUILD_DIR/people.sql" \
   > "$BUILD_DIR/full.sql"
 
@@ -78,8 +79,19 @@ try:
     conn.commit()
     results = conn.execute("SELECT COUNT(*) FROM results").fetchone()[0]
     coach_mentions = conn.execute("SELECT COUNT(*) FROM person_coach_mentions").fetchone()[0]
+    bad_snatch_hands = conn.execute("""
+        SELECT
+          (SELECT COUNT(*) FROM categories cat JOIN disciplines d ON d.id = cat.discipline_id
+            WHERE d.code = 'snatch' AND cat.hands <> 'one')
+          +
+          (SELECT COUNT(*) FROM results r JOIN disciplines d ON d.id = r.discipline_id
+            WHERE d.code = 'snatch' AND r.hands <> 'one')
+    """).fetchone()[0]
+    if bad_snatch_hands:
+        raise RuntimeError(f"snatch rows with hands != one: {bad_snatch_hands}")
     print(f"results: {results}")
     print(f"person_coach_mentions: {coach_mentions}")
+    print("snatch hands: one (verified)")
 finally:
     conn.close()
 PY
