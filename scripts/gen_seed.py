@@ -46,6 +46,10 @@ def rank_id(label):
     return ref("sport_ranks", code) if code else None
 
 
+def normalized_hands(discipline, hands):
+    return "one" if discipline == "snatch" else hands
+
+
 def athlete_key_sql(key, alias=""):
     last, first, middle, year = key
     a = alias + "." if alias else ""
@@ -95,10 +99,10 @@ def main(path):
     cats=[]; order=0
     for cat in data["categories"]:
         order += 1; wc=cat["weight_class"]
-        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups","adult"),None,cat["bell_kg"],cat["hands"],cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups","adult"),None,cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
     for d in data.get("deferred",[]):
         order += 1
-        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups","adult"),None,d["bell_kg"],d["hands"],d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups","adult"),None,d["bell_kg"],normalized_hands(d["discipline"], d["hands"]),d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
     insert("categories", ["id","competition_id","discipline_id","sex","age_group_id","division_id","bell_kg","hands","time_limit_min","weight_class_raw","weight_class_kg","weight_class_is_open","participants_declared","is_deferred","sort_order"], [c[:-1] for c in cats])
     cat_page={c[0]:c[-1] for c in cats}
 
@@ -132,7 +136,7 @@ def main(path):
             rid=BASE+len(results)+1; last,first,middle=split_name(r[1]); aid=index[(last,first,middle,int(r[2].split(".")[-1]))]
             if cat["discipline"] == "biathlon": total_reps=None; points=r[7]
             else: total_reps=r[7]; points=None
-            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],cat["hands"],cat["time_limit_min"],cid,comp["date_start"],r[1],r[5],r[4],pid,cat_page[cat_id]))
+            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],r[1],r[5],r[4],pid,cat_page[cat_id]))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))
