@@ -1,4 +1,5 @@
 // Запросы к базе. Работают и с D1, и с node:sqlite — адаптер даёт all()/get().
+import { attachEffectiveCorrections } from './corrections.js';
 
 export const HAND_LABEL = { two: 'двумя', one: 'одной рукой', both: '', left: 'левая', right: 'правая' };
 
@@ -79,6 +80,7 @@ export async function getCompetition(db, slug) {
 
   const reps = await groupReps(db, rows.map((r) => r.id));
   for (const r of rows) r.reps = reps.get(r.id) || [];
+  await attachEffectiveCorrections(db, rows, categories);
   for (const cat of categories) cat.rows = rows.filter((r) => r.category_id === cat.id);
   return { comp, categories };
 }
@@ -134,6 +136,7 @@ export async function getAthlete(db, slug) {
 
   const reps = await groupReps(db, results.map((r) => r.id));
   for (const r of results) r.reps = reps.get(r.id) || [];
+  await attachEffectiveCorrections(db, results);
   return { athlete: a, results };
 }
 
@@ -238,8 +241,9 @@ export async function getPerson(db, slug) {
 }
 
 export async function listAllResults(db) {
-  return db.all(`
-    SELECT r.id, r.place, r.result_value, r.total_reps, r.points, r.body_weight_kg,
+  const rows = await db.all(`
+    SELECT r.id, r.category_id, r.athlete_id, r.competition_id,
+           r.place, r.result_value, r.total_reps, r.points, r.body_weight_kg,
            r.bell_kg, r.hands, r.time_limit_min, r.event_date,
            d.name AS discipline_name, cat.weight_class_raw, cat.sex, ag.name AS age_group,
            dv.name AS division, a.last_name, a.first_name, a.middle_name,
@@ -256,6 +260,8 @@ export async function listAllResults(db) {
     LEFT JOIN regions reg ON reg.id = a.region_id
     WHERE c.is_published = 1
     ORDER BY r.event_date DESC, r.result_value IS NULL, r.result_value DESC`);
+  await attachEffectiveCorrections(db, rows);
+  return rows;
 }
 
 async function groupReps(db, ids) {
