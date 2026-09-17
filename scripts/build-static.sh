@@ -64,6 +64,7 @@ cat \
   "$BUILD_DIR/kubok-rossii-2025.sql" \
   seeds/0005_merges.sql \
   seeds/0006_normalize_snatch.sql \
+  seeds/0007_fix_pfo_2023_womens_snatch_weight.sql \
   "$BUILD_DIR/people.sql" \
   > "$BUILD_DIR/full.sql"
 
@@ -91,9 +92,36 @@ try:
     """).fetchone()[0]
     if bad_snatch_hands:
         raise RuntimeError(f"snatch rows with hands != one: {bad_snatch_hands}")
+    bad_pfo_2023_womens_snatch_weight = conn.execute("""
+        SELECT
+          (SELECT COUNT(*)
+             FROM categories cat
+             JOIN competitions c ON c.id = cat.competition_id
+             JOIN disciplines d ON d.id = cat.discipline_id
+            WHERE c.slug = 'chempionat-pfo-2023'
+              AND cat.sex = 'f'
+              AND d.code = 'snatch'
+              AND cat.bell_kg <> 24)
+          +
+          (SELECT COUNT(*)
+             FROM results r
+             JOIN categories cat ON cat.id = r.category_id
+             JOIN competitions c ON c.id = r.competition_id
+             JOIN disciplines d ON d.id = r.discipline_id
+            WHERE c.slug = 'chempionat-pfo-2023'
+              AND cat.sex = 'f'
+              AND d.code = 'snatch'
+              AND r.bell_kg <> 24)
+    """).fetchone()[0]
+    if bad_pfo_2023_womens_snatch_weight:
+        raise RuntimeError(
+            "PFO 2023 women's snatch rows with bell_kg != 24: "
+            f"{bad_pfo_2023_womens_snatch_weight}"
+        )
     print(f"results: {results}")
     print(f"person_coach_mentions: {coach_mentions}")
     print("snatch hands: one (verified)")
+    print("PFO 2023 women's snatch: 24 kg (verified)")
 finally:
     conn.close()
 PY
