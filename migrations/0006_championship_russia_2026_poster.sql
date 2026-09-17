@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS competition_posters (
 );
 
 INSERT OR REPLACE INTO competition_posters (competition_slug, poster_path) VALUES
-  ('chempionat-rossii-2026', '/competition-posters/chempionat-rossii-2026.webp');
+  ('chempionat-rossii-2026', '/competition-posters/chempionat-rossii-2026.jpg');
 
 UPDATE competitions
 SET poster_path = (
