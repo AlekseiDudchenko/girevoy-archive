@@ -36,6 +36,7 @@ python3 scripts/gen_seed.py data/chempionat-tsfo-2025.json > "$BUILD_DIR/chempio
 python3 scripts/gen_seed.py data/chempionat-tsfo-2024.json > "$BUILD_DIR/chempionat-tsfo-2024.sql"
 python3 scripts/gen_seed.py data/chempionat-tsfo-2023.json > "$BUILD_DIR/chempionat-tsfo-2023.sql"
 python3 scripts/gen_seed.py data/kubok-rossii-2025.json > "$BUILD_DIR/kubok-rossii-2025.sql"
+python3 scripts/gen_seed.py data/kubok-rossii-2023.json > "$BUILD_DIR/kubok-rossii-2023.sql"
 python3 scripts/gen_people.py > "$BUILD_DIR/people.sql"
 
 cat \
@@ -66,6 +67,7 @@ cat \
   "$BUILD_DIR/chempionat-tsfo-2024.sql" \
   "$BUILD_DIR/chempionat-tsfo-2023.sql" \
   "$BUILD_DIR/kubok-rossii-2025.sql" \
+  "$BUILD_DIR/kubok-rossii-2023.sql" \
   seeds/0005_merges.sql \
   seeds/0006_normalize_snatch.sql \
   "$BUILD_DIR/people.sql" \
