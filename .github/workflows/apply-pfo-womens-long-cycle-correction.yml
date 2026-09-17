@@ -1,0 +1,151 @@
+name: Apply PFO women's long-cycle correction
+
+on:
+  push:
+    branches:
+      - fix/pfo-womens-long-cycle-weight
+    paths:
+      - .github/workflows/apply-pfo-womens-long-cycle-correction.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply editorial corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          def write_json(path, data, pretty=False):
+              if pretty:
+                  Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+              else:
+                  Path(path).write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+
+          p2023 = Path("data/chempionat-pfo-2023.json")
+          d2023 = json.loads(p2023.read_text(encoding="utf-8"))
+          targets_2023 = {"ДЦЖ 58", "ДЦЖ 63", "ДЦЖ 68", "ДЦЖ 68+"}
+          found_2023 = set()
+          affected_2023 = 0
+          for cat in d2023["categories"]:
+              if cat.get("discipline") == "long_cycle" and cat.get("sex") == "f" and cat.get("source_sheet") in targets_2023:
+                  found_2023.add(cat["source_sheet"])
+                  if cat.get("bell_kg") not in (24, 32):
+                      raise SystemExit(f"Unexpected PFO-2023 bell_kg in {cat['source_sheet']}: {cat.get('bell_kg')}")
+                  cat["bell_kg"] = 24
+                  affected_2023 += len(cat.get("rows", []))
+          if found_2023 != targets_2023:
+              raise SystemExit(f"Missing PFO-2023 sheets: {targets_2023 - found_2023}")
+          if affected_2023 != 4:
+              raise SystemExit(f"Unexpected PFO-2023 affected result count: {affected_2023}")
+
+          warning_2023 = {
+              "id": "pfo-2023-womens-long-cycle-bell-weight",
+              "type": "source_error_correction",
+              "severity": "warning",
+              "public": True,
+              "scope": {
+                  "discipline": "long_cycle",
+                  "sex": "f",
+                  "weight_classes": ["58", "63", "68", "68+"],
+                  "source_sheets": ["ДЦЖ 58", "ДЦЖ 63", "ДЦЖ 68", "ДЦЖ 68+"]
+              },
+              "field": "bell_kg",
+              "source_value": 32,
+              "corrected_value": 24,
+              "correction_applied": True,
+              "organizer_confirmation": {
+                  "status": "unconfirmed",
+                  "confirmed_by": None,
+                  "confirmed_at": None,
+                  "evidence": None
+              },
+              "message": "В исходном протоколе ПФО-2023 для женского толчка по длинному циклу указан вес гири 32 кг. Архив исправляет это значение на 24 кг как ошибку протокола. Исправление пока не подтверждено организатором."
+          }
+          warnings = [w for w in d2023.get("warnings", []) if w.get("id") != warning_2023["id"]]
+          warnings.append(warning_2023)
+          d2023["warnings"] = warnings
+          write_json(p2023, d2023)
+
+          p2025 = Path("data/chempionat-pfo-2025.json")
+          d2025 = json.loads(p2025.read_text(encoding="utf-8"))
+          warning_2025 = {
+              "id": "pfo-2025-womens-long-cycle-bell-weight",
+              "type": "source_error_correction",
+              "severity": "warning",
+              "public": True,
+              "scope": {
+                  "discipline": "long_cycle",
+                  "sex": "f",
+                  "weight_classes": ["63", "68", "68+"],
+                  "source_pages": [9, 10, 11]
+              },
+              "field": "bell_kg",
+              "source_value": 32,
+              "corrected_value": 24,
+              "correction_applied": True,
+              "organizer_confirmation": {
+                  "status": "unconfirmed",
+                  "confirmed_by": None,
+                  "confirmed_at": None,
+                  "evidence": None
+              },
+              "message": "В исходном протоколе ПФО-2025 для женского толчка по длинному циклу на страницах 9–11 указан вес гири 32 кг. Архив исправляет это значение на 24 кг как ошибку протокола. Исправление пока не подтверждено организатором."
+          }
+          warnings = [w for w in d2025.get("warnings", []) if w.get("id") != warning_2025["id"]]
+          warnings.append(warning_2025)
+          d2025["warnings"] = warnings
+          write_json(p2025, d2025, pretty=True)
+
+          fragment_paths = [
+              Path("data/categories/chempionat-pfo-2025/long-cycle-f-63.json"),
+              Path("data/categories/chempionat-pfo-2025/long-cycle-f-68.json"),
+              Path("data/categories/chempionat-pfo-2025/long-cycle-f-68-plus.json"),
+          ]
+          affected_2025 = 0
+          for path in fragment_paths:
+              frag = json.loads(path.read_text(encoding="utf-8"))
+              cat = frag["category"]
+              if cat.get("discipline") != "long_cycle" or cat.get("sex") != "f":
+                  raise SystemExit(f"Unexpected category in {path}")
+              if cat.get("bell_kg") not in (24, 32):
+                  raise SystemExit(f"Unexpected bell_kg in {path}: {cat.get('bell_kg')}")
+              cat["bell_kg"] = 24
+              affected_2025 += len(cat.get("rows", []))
+              write_json(path, frag)
+          if affected_2025 != 6:
+              raise SystemExit(f"Unexpected PFO-2025 affected result count: {affected_2025}")
+
+          errata = Path("ERRATA.md")
+          text = errata.read_text(encoding="utf-8")
+          marker = '- **ПФО-2023, женский рывок, листы `Р 63`, `Р 68`, `Р 68+`:**'
+          start = text.find(marker)
+          if start == -1:
+              raise SystemExit("PFO-2023 snatch errata marker not found")
+          end = text.find("\n\n", start)
+          if end == -1:
+              raise SystemExit("PFO-2023 snatch errata block end not found")
+          insert_at = end + 2
+          block = '''- **ПФО-2023, женский толчок ДЦ, листы `ДЦЖ 58`, `ДЦЖ 63`, `ДЦЖ 68`, `ДЦЖ 68+`:**\n  в исходном Excel-протоколе указан вес гири `32 кг`. Архив принимает редакционное\n  решение исправить вес на `24 кг`; изменение затрагивает 4 результата (категории 63\n  и 68 в протоколе пустые, но метаданные категорий также исправлены).\n  **Статус подтверждения организатором: не подтверждено.** В JSON сохранены и исходное\n  значение (`source_value = 32`), и применённое архивом (`corrected_value = 24`).\n- **ПФО-2025, женский толчок ДЦ, стр. 9–11:** в исходном сканированном протоколе указан\n  вес гири `32 кг`. Архив исправляет его на `24 кг`; изменение затрагивает 6 результатов\n  в категориях 63, 68 и 68+ кг. **Статус подтверждения организатором: не подтверждено.**\n  В JSON сохранены `source_value = 32`, `corrected_value = 24` и\n  `organizer_confirmation.status = "unconfirmed"`.\n\n'''
+          if "ПФО-2023, женский толчок ДЦ" not in text:
+              text = text[:insert_at] + block + text[insert_at:]
+              errata.write_text(text, encoding="utf-8")
+
+          Path(".github/workflows/apply-pfo-womens-long-cycle-correction.yml").unlink()
+          PY
+
+          npm run build
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Correct PFO women's long-cycle bell weight"
+          git push origin HEAD:fix/pfo-womens-long-cycle-weight
