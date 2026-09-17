@@ -40,6 +40,17 @@ export function sourceFormat(url) {
   }
 }
 
+function archiveSourceUrl(sourceUrl, year) {
+  if (!sourceUrl || !year) return '';
+  try {
+    const pathname = new URL(sourceUrl, 'https://example.invalid').pathname;
+    const filename = pathname.split('/').filter(Boolean).at(-1);
+    return filename ? `/protocols/${encodeURIComponent(year)}/${filename}` : '';
+  } catch {
+    return '';
+  }
+}
+
 function visual(comp, year) {
   const imageUrl = comp.poster_url || comp.logo_url;
   if (!imageUrl) {
@@ -59,12 +70,14 @@ export function competitionCard(body, comp, categories = []) {
 
   const live = categories.filter((category) => !category.is_deferred);
   const results = live.reduce((sum, category) => sum + (category.rows?.length || 0), 0);
-  const year = comp.date_start?.slice(0, 4) || 'ГС';
+  const year = comp.date_start?.slice(0, 4) || '';
+  const yearLabel = year || 'ГС';
   const date = comp.date_end && comp.date_end !== comp.date_start
     ? `${dateRu(comp.date_start)} — ${dateRu(comp.date_end)}`
     : dateRu(comp.date_start);
   const format = sourceFormat(comp.source_url);
-  const sourceLabel = `Оригинал протокола${format ? ` (${format})` : ''}`;
+  const archiveUrl = archiveSourceUrl(comp.source_url, year);
+  const formatSuffix = format ? ` (${format})` : '';
 
   const facts = [
     fact('calendar', 'Дата', esc(date)),
@@ -73,9 +86,18 @@ export function competitionCard(body, comp, categories = []) {
     fact('trophy', 'Уровень', esc(comp.rank_name || '')),
   ].filter(Boolean).join('');
 
+  const sourceLinks = [
+    comp.source_url
+      ? `<a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">Скачать с сайта организатора${formatSuffix}</a>`
+      : '',
+    archiveUrl
+      ? `<a href="${esc(archiveUrl)}" download>Скачать копию с нашего сайта${formatSuffix}</a>`
+      : '',
+  ].filter(Boolean).join('');
+
   const card = `<section class="competition-card" aria-label="Карточка турнира">
   <div class="competition-top">
-    ${visual(comp, year)}
+    ${visual(comp, yearLabel)}
     <div class="competition-identity">
       <p class="eyebrow">${esc(comp.rank_name || 'Соревнование')}</p>
       <h1>${esc(comp.name)}</h1>
@@ -86,7 +108,7 @@ export function competitionCard(body, comp, categories = []) {
     ${stat('categories', live.length, 'категорий')}
     ${stat('results', results, 'результатов')}
   </div>
-  ${comp.source_url ? `<div class="competition-source">${icon('source')}<a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">${sourceLabel}</a></div>` : ''}
+  ${sourceLinks ? `<div class="competition-source">${icon('source')}<div class="competition-source-links">${sourceLinks}</div></div>` : ''}
 </section>`;
 
   body = body.replace(headerMatch[0], card);
@@ -110,7 +132,9 @@ export function competitionCard(body, comp, categories = []) {
 .competition-stat { display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .competition-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.2rem; line-height:1.1; }
 .competition-stat span { display:block; margin-top:.08rem; color:var(--ink-3); font-size:.82rem; }
-.competition-source { display:flex; gap:.65rem; align-items:center; padding:.8rem .9rem; border-top:1px solid var(--rule); font-size:.92rem; }
+.competition-source { display:flex; gap:.65rem; align-items:flex-start; padding:.8rem .9rem; border-top:1px solid var(--rule); font-size:.92rem; }
+.competition-source-links { display:flex; flex-wrap:wrap; gap:.35rem 1rem; }
+.competition-source-links a { white-space:nowrap; }
 @media (max-width:760px) { .competition-facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:520px) {
   .competition-top { grid-template-columns:5.2rem minmax(0,1fr); padding:1rem; gap:.9rem; align-items:start; }
@@ -118,6 +142,7 @@ export function competitionCard(body, comp, categories = []) {
   .competition-visual-placeholder span { font-size:1.05rem; }
   .competition-facts { grid-template-columns:1fr; }
   .competition-stats { grid-template-columns:1fr 1fr; }
+  .competition-source-links { flex-direction:column; }
 }
 </style></body>`);
 }
