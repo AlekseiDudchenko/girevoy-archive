@@ -184,7 +184,7 @@ export function personTabs(body) {
 .profile-label { display:block; margin-bottom:.2rem; color:var(--ink-3); font-family:"PT Mono",monospace; font-size:.65rem; letter-spacing:.08em; line-height:1.35; text-transform:uppercase; }
 .profile-value { display:block; min-height:1.2em; color:var(--ink); font-weight:700; overflow-wrap:anywhere; }
 .profile-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
-.profile-stat { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--accent-soft); }
+.profile-stat { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .profile-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.45rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
 .profile-stat span:not(.profile-icon) { display:block; margin-top:.22rem; color:var(--ink-3); font-size:.82rem; }
 .profile-details { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); }
