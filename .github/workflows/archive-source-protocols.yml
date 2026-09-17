@@ -37,6 +37,7 @@ jobs:
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-aziatskaya-zona.xls' 'protokol-aziatskaya-zona.xls'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-chemfoszfo-2022.xlsx' 'protokol-chemfoszfo-2022.xlsx'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-pfo-15-17.04.2022.xlsx' 'protokol-pfo-15-17.04.2022.xlsx'
+          download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/chempionat-yufo-i-skfo.xlsx' 'chempionat-yufo-i-skfo.xlsx'
 
           download 2023 'https://vfgs.ru/assets/files/protocoly/2023/chempionat-rossii-2023.xlsx' 'chempionat-rossii-2023.xlsx'
           download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-dfo-sfo-2023.xls' 'protokol-dfo-sfo-2023.xls'
