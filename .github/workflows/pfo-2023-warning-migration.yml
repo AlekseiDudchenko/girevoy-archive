@@ -105,7 +105,8 @@ jobs:
           errata_path.write_text(errata.replace(old, new, 1), encoding='utf-8')
           PY
 
-          git checkout origin/main -- scripts/build-static.sh
+          BASE_SHA="$(git merge-base HEAD origin/main)"
+          git checkout "$BASE_SHA" -- scripts/build-static.sh
           rm -f seeds/0007_fix_pfo_2023_womens_snatch_weight.sql
 
           npm run build
