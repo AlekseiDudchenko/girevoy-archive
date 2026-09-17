@@ -33,14 +33,14 @@ export function renderIndex({ stats, competitions, L, bare }) {
   const statisticsYears = uniq(competitions.map((c) => yearOf(c.date_start)).filter((year) => year !== '—')).length;
   return page({
     bare,
-    title: 'Гиревой архив',
-    description: 'Архив протоколов соревнований по гиревому спорту: результаты, спортсмены, динамика.',
+    title: 'Всегири — архив гиревого спорта',
+    description: 'Архив гиревого спорта: протоколы соревнований, результаты, спортсмены, тренеры и история выступлений.',
     L, active: 'home',
     body: `
 <section class="hero">
-  <h1>Протоколы соревнований<br>по гиревому спорту</h1>
-  <p class="lead">Каждый турнир целиком: все категории, все участники, а не только призёры.
-  Числа сверены с оригиналом протокола.</p>
+  <h1>Архив гиревого спорта</h1>
+  <p class="lead">Протоколы соревнований, результаты, спортсмены и тренеры — в одном месте.
+  Полные данные по всем категориям и участникам с привязкой к оригинальным протоколам.</p>
   <dl class="tally">
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.home)}">Турниров</a></dt><dd>${stats.competitions}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
