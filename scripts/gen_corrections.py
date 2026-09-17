@@ -8,6 +8,10 @@ CATEGORY_FIELDS = {
     "bell_kg", "hands", "time_limit_min", "weight_class_raw", "weight_class_kg",
     "weight_class_is_open", "sex", "age_group_id", "division_id", "discipline_id",
 }
+ATHLETE_FIELDS = {
+    "birth_year", "last_name", "first_name", "middle_name", "region_id", "club_id",
+    "coach", "sport_rank_id",
+}
 COMPETITION_FIELDS = {"name", "date_start", "date_end", "city", "country", "federation_id"}
 
 def esc(value):
@@ -26,6 +30,8 @@ def inferred_entity(warning):
     field = warning.get("field")
     if field in CATEGORY_FIELDS:
         return "categories"
+    if field in ATHLETE_FIELDS:
+        return "athletes"
     if field in COMPETITION_FIELDS:
         return "competitions"
     return "results"
@@ -83,9 +89,13 @@ def warning_sql(comp_slug, warning):
         from_sql = "categories cat JOIN competitions c ON c.id = cat.competition_id JOIN disciplines d ON d.id = cat.discipline_id"
         target = "cat.id"
         where = [f"c.slug = {esc(comp_slug)}", *category_filters(scope)]
-    elif entity in {"results", "athletes"}:
+    elif entity == "results":
         from_sql = "results r JOIN categories cat ON cat.id = r.category_id JOIN competitions c ON c.id = r.competition_id JOIN disciplines d ON d.id = r.discipline_id"
-        target = "r.id" if entity == "results" else "r.athlete_id"
+        target = "r.id"
+        where = [f"c.slug = {esc(comp_slug)}", *category_filters(scope), *result_filters(scope)]
+    elif entity == "athletes":
+        from_sql = "results r JOIN athletes a ON a.id = r.athlete_id JOIN categories cat ON cat.id = r.category_id JOIN competitions c ON c.id = r.competition_id JOIN disciplines d ON d.id = r.discipline_id"
+        target = "COALESCE(a.merged_into_id, a.id)"
         where = [f"c.slug = {esc(comp_slug)}", *category_filters(scope), *result_filters(scope)]
     else:
         raise ValueError(f"Unsupported correction entity {entity!r} in {warning['id']}")
