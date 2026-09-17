@@ -12,5 +12,5 @@ bucket_name = "girevoy-protocols"
 
 main = "src/worker.js"
 
-[site]
-bucket = "./public"
+[assets]
+directory = "./public"
