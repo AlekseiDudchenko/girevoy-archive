@@ -21,11 +21,9 @@ const ICONS = {
 };
 
 const icon = (name) => `<span class="competition-icon" aria-hidden="true">${ICONS[name]}</span>`;
-
 const fact = (iconName, label, value) => value
   ? `<div class="competition-fact">${icon(iconName)}<div><span class="competition-label">${label}</span><span class="competition-value">${value}</span></div></div>`
   : '';
-
 const stat = (iconName, value, label) => `<div class="competition-stat">${icon(iconName)}<div><strong>${value}</strong><span>${label}</span></div></div>`;
 
 export function sourceFormat(url) {
@@ -40,28 +38,10 @@ export function sourceFormat(url) {
   }
 }
 
-function archiveSourceUrl(sourceUrl, year) {
-  if (!sourceUrl || !year) return '';
-  try {
-    const pathname = new URL(sourceUrl, 'https://example.invalid').pathname;
-    const filename = pathname.split('/').filter(Boolean).at(-1);
-    return filename ? `/protocols/${encodeURIComponent(year)}/${filename}` : '';
-  } catch {
-    return '';
-  }
-}
-
-function visual(comp, year) {
-  const imageUrl = comp.poster_url || comp.logo_url;
-  if (!imageUrl) {
-    return `<div class="competition-visual competition-visual-placeholder" aria-label="Изображение турнира пока не добавлено">
-      <span>${esc(year)}</span>
-    </div>`;
-  }
-  const kind = comp.poster_url ? 'poster' : 'logo';
-  return `<div class="competition-visual competition-visual-${kind}">
-    <img src="${esc(imageUrl)}" alt="" loading="lazy" decoding="async">
-  </div>`;
+function archiveHref(path) {
+  if (!path?.startsWith('sources/')) return '';
+  const relative = path.slice('sources/'.length);
+  return `/protocols/${relative.split('/').map(encodeURIComponent).join('/')}`;
 }
 
 export function competitionCard(body, comp, categories = []) {
@@ -70,14 +50,13 @@ export function competitionCard(body, comp, categories = []) {
 
   const live = categories.filter((category) => !category.is_deferred);
   const results = live.reduce((sum, category) => sum + (category.rows?.length || 0), 0);
-  const year = comp.date_start?.slice(0, 4) || '';
-  const yearLabel = year || 'ГС';
+  const year = comp.date_start?.slice(0, 4) || 'ГС';
   const date = comp.date_end && comp.date_end !== comp.date_start
     ? `${dateRu(comp.date_start)} — ${dateRu(comp.date_end)}`
     : dateRu(comp.date_start);
-  const format = sourceFormat(comp.source_url);
-  const archiveUrl = archiveSourceUrl(comp.source_url, year);
+  const format = sourceFormat(comp.source_url || comp.archive_path);
   const formatSuffix = format ? ` (${format})` : '';
+  const archived = archiveHref(comp.archive_path);
 
   const facts = [
     fact('calendar', 'Дата', esc(date)),
@@ -90,14 +69,14 @@ export function competitionCard(body, comp, categories = []) {
     comp.source_url
       ? `<a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">Скачать с сайта организатора${formatSuffix}</a>`
       : '',
-    archiveUrl
-      ? `<a href="${esc(archiveUrl)}" download>Скачать копию с нашего сайта${formatSuffix}</a>`
+    archived
+      ? `<a href="${esc(archived)}" download>Скачать копию с нашего сайта${formatSuffix}</a>`
       : '',
   ].filter(Boolean).join('');
 
   const card = `<section class="competition-card" aria-label="Карточка турнира">
   <div class="competition-top">
-    ${visual(comp, yearLabel)}
+    <div class="competition-mark" aria-hidden="true">${esc(year)}</div>
     <div class="competition-identity">
       <p class="eyebrow">${esc(comp.rank_name || 'Соревнование')}</p>
       <h1>${esc(comp.name)}</h1>
@@ -114,12 +93,8 @@ export function competitionCard(body, comp, categories = []) {
   body = body.replace(headerMatch[0], card);
   return body.replace('</body>', `<style>
 .competition-card { margin:0 0 1.8rem; border:1px solid var(--rule); background:var(--surface); }
-.competition-top { display:grid; grid-template-columns:7.2rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
-.competition-visual { width:7.2rem; height:9rem; display:grid; place-items:center; overflow:hidden; border:1px solid var(--rule); border-radius:.35rem; background:var(--accent-soft); color:var(--accent); }
-.competition-visual img { display:block; width:100%; height:100%; }
-.competition-visual-poster img { object-fit:cover; }
-.competition-visual-logo img { object-fit:contain; padding:.55rem; background:var(--surface); }
-.competition-visual-placeholder span { font-family:"Bitter",Georgia,serif; font-size:1.45rem; font-weight:600; letter-spacing:-.03em; }
+.competition-top { display:grid; grid-template-columns:5.4rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
+.competition-mark { width:5.4rem; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--rule); border-radius:50%; background:var(--accent-soft); color:var(--accent); font-family:"Bitter",Georgia,serif; font-size:1.35rem; font-weight:600; letter-spacing:-.03em; }
 .competition-identity h1 { margin:0; }
 .competition-identity .eyebrow { margin-bottom:.35rem; }
 .competition-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
@@ -137,9 +112,8 @@ export function competitionCard(body, comp, categories = []) {
 .competition-source-links a { white-space:nowrap; }
 @media (max-width:760px) { .competition-facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:520px) {
-  .competition-top { grid-template-columns:5.2rem minmax(0,1fr); padding:1rem; gap:.9rem; align-items:start; }
-  .competition-visual { width:5.2rem; height:6.5rem; }
-  .competition-visual-placeholder span { font-size:1.05rem; }
+  .competition-top { grid-template-columns:4.2rem minmax(0,1fr); padding:1rem; gap:.9rem; }
+  .competition-mark { width:4.2rem; font-size:1.05rem; }
   .competition-facts { grid-template-columns:1fr; }
   .competition-stats { grid-template-columns:1fr 1fr; }
   .competition-source-links { flex-direction:column; }
