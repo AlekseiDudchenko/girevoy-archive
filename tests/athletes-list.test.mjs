@@ -56,3 +56,43 @@ test('athlete list renders rank and latest weight class without duplicate year',
   assert.doesNotMatch(html, /95\+ кг \(2026\)/);
   assert.match(html, /Имя, регион, разряд, весовая категория или год/);
 });
+
+test('athlete list uses compact labels for adult and youth sport ranks', () => {
+  const html = renderAthletes({
+    L,
+    athletes: [
+      {
+        id: 1,
+        name: 'Первый Спортсмен',
+        slug: 'first',
+        sport_rank: 'I разряд',
+        sport_rank_sort: 3,
+        results_count: 1,
+        last_year: '2026',
+      },
+      {
+        id: 2,
+        name: 'Второй Спортсмен',
+        slug: 'second',
+        sport_rank: 'II спортивный разряд',
+        sport_rank_sort: 2,
+        results_count: 1,
+        last_year: '2026',
+      },
+      {
+        id: 3,
+        name: 'Юный Спортсмен',
+        slug: 'youth',
+        sport_rank: 'III юношеский спортивный разряд',
+        sport_rank_sort: 0,
+        results_count: 1,
+        last_year: '2026',
+      },
+    ],
+  });
+
+  assert.match(html, /data-sort-value="3">I<\/td>/);
+  assert.match(html, /data-sort-value="2">II<\/td>/);
+  assert.match(html, /data-sort-value="0">III юн\.<\/td>/);
+  assert.doesNotMatch(html, />I разряд<\/td>/);
+});

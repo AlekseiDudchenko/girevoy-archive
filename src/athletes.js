@@ -83,6 +83,19 @@ export async function listAthletes(db) {
     ORDER BY canonical.full_name COLLATE NOCASE`);
 }
 
+function sportRankLabel(rank) {
+  const value = String(rank ?? '').trim();
+  if (!value) return '—';
+
+  const youth = value.match(/^(I{1,3})\s+юношеский(?:\s+спортивный)?\s+разряд$/i);
+  if (youth) return `${youth[1].toUpperCase()} юн.`;
+
+  const adult = value.match(/^(I{1,3})\s+(?:спортивный\s+)?разряд$/i);
+  if (adult) return adult[1].toUpperCase();
+
+  return value;
+}
+
 function weightClassLabel(athlete) {
   const raw = String(athlete.last_weight_class ?? '').trim();
   if (!raw) return '—';
@@ -117,7 +130,7 @@ ${athletes.length ? `<label for="athlete-search">Поиск по имени, р�
 <td>${athlete.slug ? `<a href="${e(L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
 <td>${e(athlete.region || '—')}</td>
 <td class="c n" data-sort-value="${athlete.birth_year ?? ''}">${e(athlete.birth_year || '—')}</td>
-<td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(athlete.sport_rank || '—')}</td>
+<td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(sportRankLabel(athlete.sport_rank))}</td>
 <td class="c n" data-sort-value="${weightClassSortValue(athlete)}">${e(weightClassLabel(athlete))}</td>
 <td class="c n" data-sort-value="${athlete.results_count ?? ''}">${e(athlete.results_count)}</td>
 <td class="c n" data-sort-value="${athlete.last_year ?? ''}">${e(athlete.last_year || '—')}</td>
