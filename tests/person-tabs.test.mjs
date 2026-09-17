@@ -35,6 +35,51 @@ test('person roles render as populated tabs in profile order', () => {
   assert.ok(html.includes("activate(tabs[0].dataset.personTab, false)"));
   assert.ok(html.includes('href="/p/coach#coach"'));
   assert.ok(html.includes('href="/p/athlete#athlete"'));
+
+  assert.match(html, /<section class="profile-card" aria-label="Карточка спортсмена">/);
+  assert.match(html, /<div class="profile-avatar" aria-hidden="true">ТП<\/div>/);
+  assert.ok(html.includes('<p class="profile-roles">Спортивный деятель · Спортсмен · Тренер · Судья</p>'));
+  assert.ok(html.includes('<span class="profile-label">Тренеры</span>'));
+  assert.ok(html.includes('data-profile-icon="coach"'));
+  assert.ok(!html.includes('<div class="profile-stats">'));
+});
+
+test('athlete profile shows the proposed icon set', () => {
+  const html = personTabs(`<!doctype html><body>
+    <div class="page-head">
+      <h1>Иванов Иван Иванович</h1>
+      <p class="meta-line">1989 г. р. · Москва · СШОР №3</p>
+      <p class="source">Тренеры: Петров А.А.</p>
+    </div>
+    <section class="person-role"><h2>Спортсмен</h2>
+      <section class="chart-block"></section>
+      <section class="cat athlete-results">
+        <table class="athlete-result-table" id="athlete-results-table"><tbody>
+          <tr data-date="2025-01-01" data-comp="Чемпионат"><td class="c dim">85</td></tr>
+        </tbody></table>
+        <section class="discipline-group"><h4>Рывок <span class="dim">1</span></h4></section>
+      </section>
+    </section>
+  </body>`);
+
+  for (const icon of ['calendar', 'pin', 'scale', 'club', 'flag', 'bars', 'clock', 'discipline', 'coach']) {
+    assert.ok(html.includes(`data-profile-icon="${icon}"`), `missing profile icon: ${icon}`);
+  }
+  assert.match(html, /data-profile-icon="scale"[^>]*>[\s\S]*?<svg viewBox="0 0 24 24"/);
+  assert.ok(!html.includes('data-profile-icon="kettlebell"'));
+});
+
+test('athlete profile keeps the club field when club data is missing', () => {
+  const html = personTabs(`<!doctype html><body>
+    <div class="page-head">
+      <h1>Марков Иван Эдуардович</h1>
+      <p class="meta-line">1995 г. р. · г. Санкт-Петербург</p>
+    </div>
+    <section class="person-role"><h2>Спортсмен</h2></section>
+  </body>`);
+
+  assert.ok(html.includes('data-profile-icon="club"'));
+  assert.ok(html.includes('<span class="profile-label">Клуб</span><span class="profile-value"></span>'));
 });
 
 test('empty roles do not create tabs', () => {
@@ -49,6 +94,7 @@ test('empty roles do not create tabs', () => {
   assert.ok(!html.includes('data-person-tab="official"'));
   assert.ok(!html.includes('data-person-tab="athlete"'));
   assert.ok(!html.includes('data-person-tab="judge"'));
+  assert.ok(!html.includes('class="profile-card"'));
 });
 
 test('role-specific page links open the requested person tab', () => {
