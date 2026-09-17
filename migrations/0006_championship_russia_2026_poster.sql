@@ -1,5 +1,5 @@
 -- Poster assignment for Championship of Russia 2026.
--- The poster asset is stored locally under public/competition-posters.
+-- The source JPEG is stored locally under public/competition-posters.
 
 CREATE TABLE IF NOT EXISTS competition_posters (
   competition_slug TEXT PRIMARY KEY,
