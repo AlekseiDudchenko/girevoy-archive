@@ -1,6 +1,11 @@
 {
   "files": [
     {
+      "path": "sources/2022/chempionat-yufo-i-skfo.xlsx",
+      "size_bytes": 745704,
+      "sha256": "7a6350be6e5d9518a412ae8bc1c11b8632d08d91b11140121218d9b3b7ba9702"
+    },
+    {
       "path": "sources/2022/protokol-aziatskaya-zona.xls",
       "size_bytes": 434688,
       "sha256": "c080ca3ab00c1c8c76f402a4da27c43adde8d1375315baf86171a952a29dfabe"
