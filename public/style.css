@@ -276,3 +276,14 @@ h1 .rank { font-size: 0.85rem; vertical-align: 0.4em; margin-left: 0.4rem; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+
+/* ---------------------------------------------------- публичные исправления */
+.correction-col { width: 2rem; padding-left: .2rem !important; padding-right: .35rem !important; }
+.correction-mark {
+  border: 0; background: transparent; color: var(--ink-3); padding: 0 .12rem;
+  font: inherit; line-height: 1; cursor: help; vertical-align: baseline;
+}
+.correction-mark:hover, .correction-mark:focus-visible { color: var(--accent); }
+.correction-inline { margin-left: .18rem; vertical-align: .06em; }
+.tip { white-space: pre-line; }
