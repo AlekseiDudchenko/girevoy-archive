@@ -1,0 +1,53 @@
+name: Move PFO 2023 source errata
+
+on:
+  push:
+    branches:
+      - fix/pfo-2023-womens-snatch-weight
+    paths:
+      - .github/workflows/pfo-2023-errata-move.yml
+
+permissions:
+  contents: write
+
+jobs:
+  move:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move source error out of corrected section
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('ERRATA.md')
+          text = path.read_text(encoding='utf-8')
+          block = '''- **ПФО-2023, женский рывок, листы `Р 63`, `Р 68`, `Р 68+`:** в исходном
+            Excel-протоколе указан вес гири `32 кг`; на листе `Р 58` указан `24 кг`.
+            Значение `32 кг` затрагивает 12 результатов и сохраняется в архиве как напечатано
+            в источнике. Это выглядит как ошибка самого протокола: для женского рывка
+            ожидается `24 кг`. **На сайте требуется явное предупреждение** на странице
+            ПФО-2023 и у затронутых результатов. Статус подтверждения организатором:
+            **не подтверждено**. Машиночитаемая запись хранится в
+            `data/chempionat-pfo-2023.json` (`organizer_confirmation.status = "unconfirmed"`).
+
+'''
+          if text.count(block) != 1:
+              raise SystemExit(f'expected one PFO-2023 block, found {text.count(block)}')
+          text = text.replace(block, '', 1)
+          marker = '\n## 2. Даты рождения расходятся между страницами\n'
+          if marker not in text:
+              raise SystemExit('section 2 marker not found')
+          intro = '''\n**ПФО-2023 — вероятная ошибка самого источника.**\n\n'''
+          text = text.replace(marker, '\n' + intro + block + marker, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ERRATA.md
+          git commit -m "Classify PFO 2023 snatch weight as source errata"
+          git push origin HEAD:fix/pfo-2023-womens-snatch-weight
