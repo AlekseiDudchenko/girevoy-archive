@@ -122,7 +122,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
         data-sort-categories="${e(c.categories ?? '')}"
         data-sort-results="${e(c.results ?? '')}">
         <td class="n"><button type="button" class="home-quick-filter" data-filter="year" data-value="${e(yearOf(c.date_start))}">${e(yearOf(c.date_start))}</button></td>
-        <td><button type="button" class="home-quick-filter home-quick-name" data-filter="type" data-value="${e(competitionType(c.name))}">${e(c.name)}</button></td>
+        <td><a class="home-quick-filter home-quick-name" href="${L.comp(c.slug)}">${e(c.name)}</a></td>
         <td>${c.city ? `<button type="button" class="home-quick-filter" data-filter="city" data-value="${e(c.city)}">${e(c.city)}</button>` : '—'}</td>
         <td class="n">${e(c.date_start || '—')}</td>
         <td>${c.rank_name ? `<button type="button" class="home-quick-filter" data-filter="rank" data-value="${e(c.rank_name)}">${e(c.rank_name)}</button>` : '—'}</td>
