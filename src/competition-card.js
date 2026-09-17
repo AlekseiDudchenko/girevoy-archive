@@ -26,8 +26,8 @@ const ICONS = {
 };
 
 const icon = (name) => `<span class="competition-icon" aria-hidden="true">${ICONS[name]}</span>`;
-const fact = (iconName, label, value) => value
-  ? `<div class="competition-fact">${icon(iconName)}<div><span class="competition-label">${label}</span><span class="competition-value">${value}</span></div></div>`
+const fact = (iconName, label, value, href = '') => value
+  ? `<div class="competition-fact${href ? ' competition-fact-link-wrap' : ''}">${icon(iconName)}<div><span class="competition-label">${label}</span><span class="competition-value">${href ? `<a class="competition-fact-link" href="${esc(href)}">${value}</a>` : value}</span></div></div>`
   : '';
 const stat = (iconName, value, label) => `<div class="competition-stat">${icon(iconName)}<div><strong>${value}</strong><span>${label}</span></div></div>`;
 
@@ -47,6 +47,12 @@ function archiveHref(path) {
   if (!path?.startsWith('sources/')) return '';
   const relative = path.slice('sources/'.length);
   return `/protocols/${relative.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function filterHref(homeHref, key, value) {
+  if (!value) return '';
+  const separator = homeHref.includes('?') ? '&' : '?';
+  return `${homeHref}${separator}${key}=${encodeURIComponent(value)}`;
 }
 
 function visual(comp, year) {
@@ -71,12 +77,15 @@ export function competitionCard(body, comp, categories = []) {
   const format = sourceFormat(comp.source_url || comp.archive_path);
   const formatSuffix = format ? ` (${format})` : '';
   const archived = archiveHref(comp.archive_path);
+  const homeHref = body.match(/<a class="brand" href="([^"]+)"/)?.[1] || '/';
+  const cityHref = filterHref(homeHref, 'city', comp.city);
+  const rankHref = filterHref(homeHref, 'rank', comp.rank_name);
 
   const facts = [
     fact('calendar', 'Дата', esc(date)),
-    fact('pin', 'Город', esc(comp.city || '')),
+    fact('pin', 'Город', esc(comp.city || ''), cityHref),
     fact('federation', 'Федерация', esc(titleCaseWords(comp.federation_name || ''))),
-    fact('trophy', 'Уровень', esc(comp.rank_name || '')),
+    fact('trophy', 'Уровень', esc(comp.rank_name || ''), rankHref),
   ].filter(Boolean).join('');
 
   const sourceLinks = [
@@ -117,8 +126,13 @@ export function competitionCard(body, comp, categories = []) {
 .competition-icon svg { display:block; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .competition-facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
 .competition-fact { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.6rem; align-items:center; padding:.8rem .9rem; background:var(--surface); }
+.competition-fact-link-wrap { position:relative; transition:background-color .15s ease; }
+.competition-fact-link-wrap:hover { background:var(--accent-soft); }
 .competition-label { display:block; font-family:"PT Mono",monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
 .competition-value { display:block; margin-top:.08rem; color:var(--ink); overflow-wrap:anywhere; }
+.competition-fact-link { color:var(--accent); }
+.competition-fact-link::after { content:''; position:absolute; inset:0; }
+.competition-fact-link:focus-visible::after { outline:2px solid var(--accent); outline-offset:-2px; }
 .competition-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
 .competition-stat { display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .competition-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.2rem; line-height:1.1; }
