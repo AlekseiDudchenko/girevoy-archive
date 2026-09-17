@@ -1,0 +1,41 @@
+name: Fetch poster for PR 193
+
+on:
+  push:
+    branches:
+      - content/championship-russia-2026-poster
+    paths:
+      - .github/workflows/fetch-poster-193.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-poster:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: content/championship-russia-2026-poster
+
+      - name: Download poster and commit it
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/competition-posters
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://sun9-65.vkuserphoto.ru/s/v1/ig2/FFZDenQ_AdQJuuMFJzWze3crWag_ft1k3kzGFpSJvESOIjC79WdD6QO07K9z-NjjyZrmevO3uTeOnZVeJ9KzCRBJ.jpg?quality=95&as=32x45,48x68,72x102,108x153,160x227,240x341,360x511,480x681,540x766,640x908,720x1022,902x1280&from=bu&cs=640x0' \
+            -o public/competition-posters/chempionat-rossii-2026.jpg
+
+          test "$(wc -c < public/competition-posters/chempionat-rossii-2026.jpg)" -gt 50000
+          file public/competition-posters/chempionat-rossii-2026.jpg | grep -qi 'JPEG image data'
+
+          sed -i 's#chempionat-rossii-2026\.webp#chempionat-rossii-2026.jpg#g' migrations/0006_championship_russia_2026_poster.sql
+          rm -f public/competition-posters/chempionat-rossii-2026.webp
+          rm -f .github/workflows/fetch-poster-193.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Replace Championship of Russia 2026 poster with source image'
+          git push origin HEAD:content/championship-russia-2026-poster
