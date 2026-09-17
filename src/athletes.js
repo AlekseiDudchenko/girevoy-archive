@@ -123,8 +123,8 @@ ${athletes.length ? `<label for="athlete-search">Поиск по имени, р�
 <th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Год рождения</th>
 <th scope="col" class="c sort" data-sort="3" data-default="desc" role="button" tabindex="0">Разряд</th>
 <th scope="col" class="c sort" data-sort="4" data-default="desc" role="button" tabindex="0">Последняя весовая</th>
-<th scope="col" class="c sort" data-sort="5" data-default="desc" role="button" tabindex="0">Результатов</th>
-<th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0">Последний протокол</th>
+<th scope="col" class="c sort" data-sort="5" data-default="desc" role="button" tabindex="0">Последний протокол</th>
+<th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0">Результатов</th>
 </tr></thead>
 <tbody>${athletes.map((athlete) => `<tr>
 <td>${athlete.slug ? `<a href="${e(L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
@@ -132,8 +132,8 @@ ${athletes.length ? `<label for="athlete-search">Поиск по имени, р�
 <td class="c n" data-sort-value="${athlete.birth_year ?? ''}">${e(athlete.birth_year || '—')}</td>
 <td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(sportRankLabel(athlete.sport_rank))}</td>
 <td class="c n" data-sort-value="${weightClassSortValue(athlete)}">${e(weightClassLabel(athlete))}</td>
-<td class="c n" data-sort-value="${athlete.results_count ?? ''}">${e(athlete.results_count)}</td>
 <td class="c n" data-sort-value="${athlete.last_year ?? ''}">${e(athlete.last_year || '—')}</td>
+<td class="c n" data-sort-value="${athlete.results_count ?? ''}">${e(athlete.results_count)}</td>
 </tr>`).join('')}</tbody></table></div>
 <p id="athlete-empty" role="status" hidden>Ничего не найдено.</p>
 <script>(function () {
