@@ -4,6 +4,7 @@ import { links, renderCompetition, renderPerson, renderResults, renderCoaches } 
 import { renderIndex } from './render-home.js';
 import { personTabs, personRoleLinks } from './person-tabs.js';
 import { listAthletes, renderAthletes, withAthletesNav } from './athletes.js';
+import { competitionCard } from './competition-card.js';
 
 const d1 = (DB) => ({
   all: async (sql, ...p) => (await DB.prepare(sql).bind(...p).all()).results,
@@ -154,7 +155,9 @@ export default {
       }
       if (path.startsWith('/c/')) {
         const data = await q.getCompetition(db, decodeURIComponent(path.slice(3)));
-        return data ? html(personRoleLinks(renderCompetition({ ...data, L }), 'athlete')) : html(notFound(L), 404);
+        return data
+          ? html(personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete'))
+          : html(notFound(L), 404);
       }
       if (path.startsWith('/a/')) {
         const data = await q.getPerson(db, decodeURIComponent(path.slice(3)));
@@ -167,8 +170,3 @@ export default {
     }
   },
 };
-
-const notFound = () => `<!doctype html><html lang="ru"><meta charset="utf-8">
-<title>Страница не найдена</title><link rel="stylesheet" href="/style.css">
-<main class="inner"><h1>Страница не найдена</h1>
-<p><a href="/">Вернуться к списку соревнований</a></p></main>`;
