@@ -45,6 +45,29 @@
         "evidence": null
       },
       "message": "В исходном протоколе ПФО-2022 для женского рывка в категории 63+ кг указан вес гири 32 кг. Архив исправляет это значение на 24 кг как очевидную ошибку протокола. Исправление пока не подтверждено организатором."
+    },
+    {
+      "id": "pfo-2022-womens-long-cycle-bell-weight",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "discipline": "long_cycle",
+        "sex": "f",
+        "weight_classes": ["63", "63+"],
+        "source_sheets": ["ДЦЖ 63", "ДЦЖ 63+"]
+      },
+      "field": "bell_kg",
+      "source_value": 32,
+      "corrected_value": 24,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "message": "В исходном протоколе ПФО-2022 для женского длинного цикла в категориях 63 и 63+ кг указан вес гири 32 кг. Архив исправляет это значение на 24 кг как очевидную ошибку протокола. Исправление пока не подтверждено организатором."
     }
   ],
   "columns": [
