@@ -29,7 +29,7 @@ export function renderAthletes({ athletes, L }) {
     description: 'Спортсмены из опубликованных протоколов соревнований по гиревому спорту.',
     L,
     body: `<h1>Спортсмены</h1>
-<p class="lead">Все спортсмены, встречающиеся в опубликованных протоколах.</p>
+<p class="lead">Спортсмены и история их выступлений в гиревом спорте. Найдите спортсмена, чтобы посмотреть его результаты, соревнования и динамику выступлений.</p>
 ${athletes.length ? `<label for="athlete-search">Поиск по имени, региону или году</label>
 <input id="athlete-search" type="search" placeholder="Имя, регион, год рождения или последний протокол">
 <div class="scroll"><table id="athletes-table">
