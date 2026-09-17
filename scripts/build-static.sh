@@ -22,6 +22,7 @@ python3 scripts/gen_seed_override.py data/chempionat-pfo-2023.json 137000 > "$BU
 python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > "$BUILD_DIR/chempionat-dfo-sfo-2026.sql"
 python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2023.json > "$BUILD_DIR/chempionat-dfo-sfo-2023.sql"
 python3 scripts/gen_seed.py data/chempionat-dfo-sfo-ufo-2024.json > "$BUILD_DIR/chempionat-dfo-sfo-ufo-2024.sql"
+python3 scripts/gen_seed.py data/chempionat-dfo-sfo-ufo-2022.json > "$BUILD_DIR/chempionat-dfo-sfo-ufo-2022.sql"
 python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > "$BUILD_DIR/chempionat-ufo-2026.sql"
 python3 scripts/gen_seed.py data/chempionat-szfo-2026.json > "$BUILD_DIR/chempionat-szfo-2026.sql"
 python3 scripts/gen_seed.py data/chempionat-szfo-2025.json > "$BUILD_DIR/chempionat-szfo-2025.sql"
@@ -56,6 +57,7 @@ cat \
   "$BUILD_DIR/chempionat-dfo-sfo-2026.sql" \
   "$BUILD_DIR/chempionat-dfo-sfo-2023.sql" \
   "$BUILD_DIR/chempionat-dfo-sfo-ufo-2024.sql" \
+  "$BUILD_DIR/chempionat-dfo-sfo-ufo-2022.sql" \
   "$BUILD_DIR/chempionat-ufo-2026.sql" \
   "$BUILD_DIR/chempionat-szfo-2026.sql" \
   "$BUILD_DIR/chempionat-szfo-2025.sql" \
