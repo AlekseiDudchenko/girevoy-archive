@@ -62,7 +62,7 @@ ${athletes.length ? `<label for="athlete-search">Поиск по имени, р�
     return normalize(text);
   }
   function filter() {
-    var terms = normalize(input.value).split(/\s+/).filter(Boolean);
+    var terms = normalize(input.value).split(/\\s+/).filter(Boolean);
     var visible = 0;
     rows.forEach(function (row) {
       row.hidden = !terms.every(function (term) { return normalize(row.textContent).includes(term); });
