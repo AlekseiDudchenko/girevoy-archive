@@ -22,6 +22,31 @@
     "participants_total": 94,
     "source_url": "https://vfgs.ru/assets/files/sorevnovania/2022/protokol-pfo-15-17.04.2022.xlsx"
   },
+  "warnings": [
+    {
+      "id": "pfo-2022-womens-snatch-63plus-bell-weight",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "discipline": "snatch",
+        "sex": "f",
+        "weight_class": "63+",
+        "source_sheets": ["Р 63 +"]
+      },
+      "field": "bell_kg",
+      "source_value": 32,
+      "corrected_value": 24,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "message": "В исходном протоколе ПФО-2022 для женского рывка в категории 63+ кг указан вес гири 32 кг. Архив исправляет это значение на 24 кг как очевидную ошибку протокола. Исправление пока не подтверждено организатором."
+    }
+  ],
   "columns": [
     "place",
     "name",
