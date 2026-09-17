@@ -57,6 +57,22 @@ test('athlete list renders rank and latest weight class without duplicate year',
   assert.match(html, /Имя, регион, разряд, весовая категория или год/);
 });
 
+test('athlete list shows latest protocol before results count', () => {
+  const html = renderAthletes({
+    L,
+    athletes: [{
+      id: 1,
+      name: 'Иванов Иван',
+      slug: 'ivanov-ivan',
+      results_count: 12,
+      last_year: '2026',
+    }],
+  });
+
+  assert.match(html, /data-sort="5"[^>]*>Последний протокол<\/th>\s*<th[^>]*data-sort="6"[^>]*>Результатов<\/th>/);
+  assert.match(html, /data-sort-value="2026">2026<\/td>\s*<td class="c n" data-sort-value="12">12<\/td>/);
+});
+
 test('athlete list uses compact labels for adult and youth sport ranks', () => {
   const html = renderAthletes({
     L,
