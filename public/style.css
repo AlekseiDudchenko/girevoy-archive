@@ -218,6 +218,28 @@ th.sort[aria-disabled="true"]::after { content: ""; margin-left: 0; }
 .rank-kms { color: var(--silver); }
 h1 .rank { font-size: 0.85rem; vertical-align: 0.4em; margin-left: 0.4rem; }
 
+/* ------------------------------------------------------------- поиск */
+input[type="search"] {
+  display: block;
+  width: min(100%, 32rem);
+  min-height: 44px;
+  margin: .35rem 0 1.2rem;
+  padding: .6rem .8rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input[type="search"]::placeholder { color: var(--ink-3); opacity: 1; }
+input[type="search"]:hover { border-color: var(--ink-3); }
+input[type="search"]:focus {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 1px;
+}
 
 /* ------------------------------------------------------------- фильтры */
 .filters {
