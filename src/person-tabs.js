@@ -175,6 +175,7 @@ export function personTabs(body) {
 .profile-top { display:grid; grid-template-columns:5.4rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
 .profile-avatar { width:5.4rem; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--rule); border-radius:50%; background:var(--accent-soft); color:var(--accent); font-family:"Bitter",Georgia,serif; font-size:1.65rem; font-weight:600; letter-spacing:-.03em; }
 .profile-identity h1 { margin:0 0 .3rem; }
+.profile-identity h1 .rank { font-size:1.05rem; vertical-align:.3em; margin-left:.5rem; }
 .profile-roles { margin:0; color:var(--ink-2); font-size:1rem; }
 .profile-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
 .profile-icon svg { display:block; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -197,6 +198,9 @@ export function personTabs(body) {
 .profile-chips span { padding:.18rem .52rem; background:var(--accent-soft); color:var(--accent); font-size:.82rem; }
 .profile-coaches { color:var(--ink-2); font-size:.93rem; }
 .profile-note { border-top:1px solid var(--rule); padding:.65rem .9rem; color:var(--ink-3); font-size:.82rem; }
+.athlete-weight-chart { --weight-series-color:#8b5cf6; }
+.athlete-weight-chart .chart path { stroke:var(--weight-series-color); }
+.athlete-weight-chart .chart circle[data-tip] { fill:var(--weight-series-color); }
 .person-tabs { display:flex; gap:.2rem; overflow-x:auto; margin:0 0 1.4rem; border-bottom:1px solid var(--rule); scrollbar-width:thin; }
 .person-tab { appearance:none; border:0; border-bottom:3px solid transparent; background:transparent; color:var(--ink-2); font:inherit; font-weight:700; padding:.7rem .85rem .55rem; cursor:pointer; white-space:nowrap; }
 .person-tab:hover { color:var(--ink); }
