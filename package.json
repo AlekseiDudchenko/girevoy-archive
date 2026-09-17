@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "bash scripts/build-static.sh",
     "db:create": "wrangler d1 create girevoy-archive",
     "db:migrate": "wrangler d1 execute girevoy-archive --file=migrations/0001_init.sql && wrangler d1 execute girevoy-archive --file=migrations/0002_people.sql",
     "db:migrate:people": "wrangler d1 execute girevoy-archive --file=migrations/0002_people.sql",
@@ -13,7 +14,7 @@
     "seed:gen": "python3 scripts/gen_seed.py data/chempionat-rossii-2024.json > seeds/0002_chempionat-rossii-2024.sql && python3 scripts/gen_seed.py data/chempionat-rossii-2026.json > seeds/0003_chempionat-rossii-2026.sql && python3 scripts/gen_seed.py data/chempionat-rossii-2025.json > seeds/0004_chempionat-rossii-2025.sql && python3 scripts/gen_merges.py data/merges.json > seeds/0005_merges.sql && python3 scripts/gen_seed.py data/chempionat-rossii-2023.json > seeds/0006_chempionat-rossii-2023.sql && python3 scripts/gen_seed.py data/chempionat-pfo-2026.json > seeds/0007_chempionat-pfo-2026.sql && python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > seeds/0008_chempionat-dfo-sfo-2026.sql && python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > seeds/0009_chempionat-ufo-2026.sql && python3 scripts/gen_seed.py data/chempionat-szfo-2026.json > seeds/0010_chempionat-szfo-2026.sql && python3 scripts/gen_seed.py data/chempionat-tsfo-2026.json > seeds/0011_chempionat-tsfo-2026.sql && python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2026.json > seeds/0012_chempionat-yufo-skfo-2026.sql && python3 scripts/gen_seed.py data/kubok-rossii-2025.json > seeds/0013_kubok-rossii-2025.sql",
     "dev": "wrangler dev",
     "snapshot": "node scripts/snapshot.mjs",
-    "preview": "npm run db:local && node scripts/snapshot.mjs && python3 -m http.server 8080 --directory dist"
+    "preview": "npm run build && python3 -m http.server 8080 --directory dist"
   },
   "devDependencies": {
     "wrangler": "^3"
