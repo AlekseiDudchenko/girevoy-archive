@@ -212,7 +212,8 @@ export function personTabs(body) {
   .profile-top { grid-template-columns:4.25rem minmax(0,1fr); gap:.85rem; padding:1rem; }
   .profile-avatar { width:4.25rem; font-size:1.35rem; }
   .profile-facts { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .profile-stats { grid-template-columns:1fr; }
+  .profile-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .profile-stat:last-child { grid-column:1 / -1; }
   .profile-details { grid-template-columns:1fr; }
   .profile-detail + .profile-detail { border-left:0; border-top:1px solid var(--rule); }
   .person-tabs { margin-left:-.2rem; margin-right:-.2rem; }
