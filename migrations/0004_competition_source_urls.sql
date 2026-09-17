@@ -1,8 +1,9 @@
--- Official source URLs for archived competition protocols.
+-- Official source URLs and archived copies for competition protocols.
 --
 -- The mapping is loaded before seed data in local/static builds, so an INSERT trigger
--- fills competitions.source_url as competitions are created. archive_path points to the
--- immutable copy kept in this repository and published with the static site.
+-- fills competitions.source_url and competitions.archive_path as competitions are created.
+
+ALTER TABLE competitions ADD COLUMN archive_path TEXT;
 
 CREATE TABLE competition_source_urls (
   competition_slug TEXT PRIMARY KEY,
@@ -29,32 +30,34 @@ INSERT INTO competition_source_urls (competition_slug, source_url, archive_path)
   ('chempionat-ufo-2026', 'https://vfgs.ru/assets/files/protocoly/2026/protokoly-ufo.pdf', 'sources/2026/protokoly-ufo.pdf');
 
 UPDATE competitions
-SET source_url = (
-  SELECT source_url
-  FROM competition_source_urls
+SET source_url = COALESCE(source_url, (
+      SELECT source_url FROM competition_source_urls
+      WHERE competition_slug = competitions.slug
+    )),
+    archive_path = (
+      SELECT archive_path FROM competition_source_urls
+      WHERE competition_slug = competitions.slug
+    )
+WHERE EXISTS (
+  SELECT 1 FROM competition_source_urls
   WHERE competition_slug = competitions.slug
-)
-WHERE source_url IS NULL
-  AND EXISTS (
-    SELECT 1
-    FROM competition_source_urls
-    WHERE competition_slug = competitions.slug
-  );
+);
 
-CREATE TRIGGER competitions_fill_source_url_after_insert
+CREATE TRIGGER competitions_fill_sources_after_insert
 AFTER INSERT ON competitions
-WHEN NEW.source_url IS NULL
 BEGIN
   UPDATE competitions
-  SET source_url = (
-    SELECT source_url
-    FROM competition_source_urls
-    WHERE competition_slug = NEW.slug
-  )
+  SET source_url = COALESCE(NEW.source_url, (
+        SELECT source_url FROM competition_source_urls
+        WHERE competition_slug = NEW.slug
+      )),
+      archive_path = (
+        SELECT archive_path FROM competition_source_urls
+        WHERE competition_slug = NEW.slug
+      )
   WHERE id = NEW.id
     AND EXISTS (
-      SELECT 1
-      FROM competition_source_urls
+      SELECT 1 FROM competition_source_urls
       WHERE competition_slug = NEW.slug
     );
 END;
