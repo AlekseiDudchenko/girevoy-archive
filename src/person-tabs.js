@@ -23,7 +23,7 @@ const plain = (value) => String(value ?? '')
 const PROFILE_ICONS = {
   calendar: '<svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>',
   pin: '<svg viewBox="0 0 24 24" focusable="false"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>',
-  scale: '<svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 8.5V7.7a4 4 0 0 1 8 0v.8H8Z"/><path d="M12 6v2.5l1.7-1.7"/><path d="M7.5 12.5c0-1.3 1-2.2 2.1-2.2 1.3 0 2.2 1.1 2 2.4-.1 1-.8 1.8-.8 2.8 0 1.5-.5 3-2 3-1.6 0-2-1.4-1.8-2.7.1-1.1.5-2.2.5-3.3Z"/><path d="M16.5 12.5c0-1.3-1-2.2-2.1-2.2-1.3 0-2.2 1.1-2 2.4.1 1 .8 1.8.8 2.8 0 1.5.5 3 2 3 1.6 0 2-1.4 1.8-2.7-.1-1.1-.5-2.2-.5-3.3Z"/></svg>',
+  scale: '<svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 8.5V7.7a4 4 0 0 1 8 0v.8H8Z"/><path d="M12 6v2.5l1.7-1.7"/></svg>',
   club: '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="7" r="3"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20v-1.5A4.5 4.5 0 0 1 12 14a4.5 4.5 0 0 1 4.5 4.5V20M2.5 19v-1a3 3 0 0 1 3-3h1M21.5 19v-1a3 3 0 0 0-3-3h-1"/></svg>',
   flag: '<svg viewBox="0 0 24 24" focusable="false"><path d="M5 21V4M5 5c4-2 7 2 12 0v9c-5 2-8-2-12 0"/></svg>',
   bars: '<svg viewBox="0 0 24 24" focusable="false"><path d="M5 20v-5M12 20V9M19 20V4"/></svg>',
