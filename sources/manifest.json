@@ -1,6 +1,11 @@
 {
   "files": [
     {
+      "path": "sources/2022/protokol-aziatskaya-zona.xls",
+      "size_bytes": 434688,
+      "sha256": "c080ca3ab00c1c8c76f402a4da27c43adde8d1375315baf86171a952a29dfabe"
+    },
+    {
       "path": "sources/2023/chempionat-rossii-2023.xlsx",
       "size_bytes": 568795,
       "sha256": "3d8b74409ab24b7da3b4d2ae637dbe45452befc2a9d4e2a5ae1ca97c48500489"
@@ -79,6 +84,11 @@
       "path": "sources/2026/protokoly-ufo.pdf",
       "size_bytes": 6591230,
       "sha256": "cabe35a067cd170bc3ad61098db71413852a123104651e1db6fa5981db34dc91"
+    },
+    {
+      "path": "sources/README.md",
+      "size_bytes": 2049,
+      "sha256": "3fa46564c0a57d0430e5f56bf5a3c3f930d31810984aa91654b25189bd3f8588"
     }
   ]
 }
