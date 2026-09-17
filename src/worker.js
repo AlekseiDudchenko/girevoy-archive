@@ -170,3 +170,8 @@ export default {
     }
   },
 };
+
+const notFound = () => `<!doctype html><html lang="ru"><meta charset="utf-8">
+<title>Страница не найдена</title><link rel="stylesheet" href="/style.css">
+<main class="inner"><h1>Страница не найдена</h1>
+<p><a href="/">Вернуться к списку соревнований</a></p></main>`;
