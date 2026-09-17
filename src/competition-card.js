@@ -1,6 +1,11 @@
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
+const titleCaseWords = (value) => String(value ?? '').replace(
+  /(^|[\s-])([а-яёa-z])/giu,
+  (_, separator, char) => separator + char.toLocaleUpperCase('ru-RU'),
+);
+
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
   'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
@@ -70,7 +75,7 @@ export function competitionCard(body, comp, categories = []) {
   const facts = [
     fact('calendar', 'Дата', esc(date)),
     fact('pin', 'Город', esc(comp.city || '')),
-    fact('federation', 'Федерация', esc(comp.federation_name || '')),
+    fact('federation', 'Федерация', esc(titleCaseWords(comp.federation_name || ''))),
     fact('trophy', 'Уровень', esc(comp.rank_name || '')),
   ].filter(Boolean).join('');
 
