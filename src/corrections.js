@@ -16,6 +16,28 @@ export async function attachEffectiveCorrections(db, rows = [], categories = [])
     WHERE changed_by LIKE 'source_correction:%'
     ORDER BY changed_at, id`);
 
+  // Results intentionally keep the athlete id they were imported with even after duplicate
+  // athletes are merged. Resolve those ids to the canonical athlete only when an athlete
+  // correction exists, so one correction is inherited by results of both the canonical row
+  // and any historical duplicates.
+  const athleteMerges = new Map();
+  if (rows.length && edits.some((edit) => edit.entity === 'athletes')) {
+    const mergedAthletes = await db.all(`
+      SELECT id, merged_into_id
+      FROM athletes
+      WHERE merged_into_id IS NOT NULL`);
+    for (const athlete of mergedAthletes) athleteMerges.set(athlete.id, athlete.merged_into_id);
+  }
+  const canonicalAthleteId = (athleteId) => {
+    const seen = new Set();
+    let id = athleteId;
+    while (id != null && athleteMerges.has(id) && !seen.has(id)) {
+      seen.add(id);
+      id = athleteMerges.get(id);
+    }
+    return id;
+  };
+
   const maps = new Map();
   for (const entity of ['results', 'categories', 'athletes', 'competitions']) {
     maps.set(entity, new Map());
@@ -43,7 +65,7 @@ export async function attachEffectiveCorrections(db, rows = [], categories = [])
     row.corrections = [
       ...(maps.get('competitions').get(row.competition_id) || []),
       ...(maps.get('categories').get(row.category_id) || []),
-      ...(maps.get('athletes').get(row.athlete_id) || []),
+      ...(maps.get('athletes').get(canonicalAthleteId(row.athlete_id)) || []),
       ...(maps.get('results').get(row.id) || []),
     ];
   }
