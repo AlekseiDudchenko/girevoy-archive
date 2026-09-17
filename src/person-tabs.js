@@ -20,13 +20,27 @@ const plain = (value) => String(value ?? '')
   .replace(/&#39;/g, "'")
   .trim();
 
-const profileFact = (label, value) => value
-  ? `<div class="profile-fact"><span class="profile-label">${label}</span><span class="profile-value">${value}</span></div>`
+const PROFILE_ICONS = {
+  calendar: '<svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" focusable="false"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>',
+  kettlebell: '<svg viewBox="0 0 24 24" focusable="false"><path d="M7.7 8.7V6.2C7.7 3.6 9.5 2 12 2s4.3 1.6 4.3 4.2v2.5"/><path d="M7.1 8.5h9.8c1.6 1.9 2.6 4.2 2.6 6.6 0 4-3.3 6.9-7.5 6.9s-7.5-2.9-7.5-6.9c0-2.4 1-4.7 2.6-6.6Z"/></svg>',
+  club: '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="7" r="3"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20v-1.5A4.5 4.5 0 0 1 12 14a4.5 4.5 0 0 1 4.5 4.5V20M2.5 19v-1a3 3 0 0 1 3-3h1M21.5 19v-1a3 3 0 0 0-3-3h-1"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" focusable="false"><path d="M5 21V4M5 5c4-2 7 2 12 0v9c-5 2-8-2-12 0"/></svg>',
+  bars: '<svg viewBox="0 0 24 24" focusable="false"><path d="M5 20v-5M12 20V9M19 20V4"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  discipline: '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="12" cy="18" r="2"/><path d="M10.6 7.4 7.4 10.6M13.4 7.4l3.2 3.2M7.4 13.4l3.2 3.2M16.6 13.4l-3.2 3.2"/></svg>',
+  coach: '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="7" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2M4 21h16"/></svg>',
+};
+
+const profileIcon = (name) => `<span class="profile-icon" data-profile-icon="${name}" aria-hidden="true">${PROFILE_ICONS[name]}</span>`;
+
+const profileFact = (icon, label, value) => value
+  ? `<div class="profile-fact">${profileIcon(icon)}<div class="profile-fact-copy"><span class="profile-label">${label}</span><span class="profile-value">${value}</span></div></div>`
   : '';
 
-const profileStat = (value, label) => `<div class="profile-stat">
+const profileStat = (icon, value, label) => `<div class="profile-stat">${profileIcon(icon)}<div class="profile-stat-copy">
   <strong>${value}</strong><span>${label}</span>
-</div>`;
+</div></div>`;
 
 function athleteProfileCard(body, roles) {
   if (!roles.some((role) => role.key === 'athlete')) return body;
@@ -70,27 +84,27 @@ function athleteProfileCard(body, roles) {
   const notes = sourceParagraphs.filter((source) => source !== coaches);
 
   const facts = [
-    profileFact('Год рождения', birth.replace(/\s*г\.\s*р\.$/, '')),
-    profileFact('Регион', region),
-    profileFact('Весовая категория', categoryValue),
-    profileFact('Клуб', club),
+    profileFact('calendar', 'Год рождения', birth.replace(/\s*г\.\s*р\.$/, '')),
+    profileFact('pin', 'Регион', region),
+    profileFact('kettlebell', 'Весовая категория', categoryValue),
+    profileFact('club', 'Клуб', club),
   ].filter(Boolean).join('');
 
   const period = dates.length
     ? `${dates[0].slice(0, 4)}${dates.at(-1).slice(0, 4) !== dates[0].slice(0, 4) ? ` — ${dates.at(-1).slice(0, 4)}` : ''}`
     : '';
   const stats = rows.length ? [
-    profileStat(competitions.size, 'соревнований'),
-    profileStat(rows.length, 'результатов'),
-    profileStat(period, 'период выступлений'),
+    profileStat('flag', competitions.size, 'соревнований'),
+    profileStat('bars', rows.length, 'результатов'),
+    profileStat('clock', period, 'период выступлений'),
   ].join('') : '';
 
   const disciplinesBlock = disciplines.length ? `<div class="profile-detail">
-    <span class="profile-label">Дисциплины</span>
+    <div class="profile-detail-head">${profileIcon('discipline')}<span class="profile-label">Дисциплины</span></div>
     <div class="profile-chips">${disciplines.map((discipline) => `<span>${discipline}</span>`).join('')}</div>
   </div>` : '';
   const coachesBlock = coaches ? `<div class="profile-detail">
-    <span class="profile-label">Тренеры</span>
+    <div class="profile-detail-head">${profileIcon('coach')}<span class="profile-label">Тренеры</span></div>
     <div class="profile-coaches">${coaches.replace(/^Тренер(?:ы)?:\s*/, '')}</div>
   </div>` : '';
 
@@ -162,17 +176,23 @@ export function personTabs(body) {
 .profile-avatar { width:5.4rem; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--rule); border-radius:50%; background:var(--accent-soft); color:var(--accent); font-family:"Bitter",Georgia,serif; font-size:1.65rem; font-weight:600; letter-spacing:-.03em; }
 .profile-identity h1 { margin:0 0 .3rem; }
 .profile-roles { margin:0; color:var(--ink-2); font-size:1rem; }
+.profile-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
+.profile-icon svg { display:block; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .profile-facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
-.profile-fact { min-width:0; padding:.8rem .9rem; background:var(--surface); }
+.profile-fact { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.6rem; align-items:center; padding:.8rem .9rem; background:var(--surface); }
+.profile-fact-copy, .profile-stat-copy { min-width:0; }
 .profile-label { display:block; margin-bottom:.2rem; color:var(--ink-3); font-family:"PT Mono",monospace; font-size:.65rem; letter-spacing:.08em; line-height:1.35; text-transform:uppercase; }
 .profile-value { display:block; color:var(--ink); font-weight:700; overflow-wrap:anywhere; }
 .profile-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
-.profile-stat { min-width:0; padding:.85rem .9rem; background:var(--paper); }
+.profile-stat { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--paper); }
 .profile-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.45rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
-.profile-stat span { display:block; margin-top:.22rem; color:var(--ink-3); font-size:.82rem; }
+.profile-stat span:not(.profile-icon) { display:block; margin-top:.22rem; color:var(--ink-3); font-size:.82rem; }
 .profile-details { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); }
 .profile-detail { min-width:0; padding:.9rem; }
 .profile-detail + .profile-detail { border-left:1px solid var(--rule); }
+.profile-detail-head { display:flex; align-items:center; gap:.45rem; margin-bottom:.45rem; }
+.profile-detail-head .profile-icon { width:1.15rem; height:1.15rem; }
+.profile-detail-head .profile-label { margin:0; }
 .profile-chips { display:flex; flex-wrap:wrap; gap:.35rem; }
 .profile-chips span { padding:.18rem .52rem; background:var(--accent-soft); color:var(--accent); font-size:.82rem; }
 .profile-coaches { color:var(--ink-2); font-size:.93rem; }
