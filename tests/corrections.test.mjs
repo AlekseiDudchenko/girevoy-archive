@@ -26,6 +26,18 @@ test('correction generator materializes public source correction warnings', () =
   assert.match(sql, /cat\.weight_class_raw IN \('63', '68', '68\+'\)/);
 });
 
+test('birth year correction is inferred as an athlete correction on the canonical athlete', () => {
+  const code = [
+    "import runpy",
+    "m = runpy.run_path('scripts/gen_corrections.py')",
+    "warning = {'id': 'test-birth', 'type': 'source_error_correction', 'public': True, 'correction_applied': True, 'field': 'birth_year', 'source_value': 2000, 'corrected_value': 2001, 'scope': {'athlete': 'Тестова Анна'}}",
+    "print(m['warning_sql']('championship', warning))",
+  ].join('; ');
+  const sql = execFileSync('python3', ['-c', code], { encoding: 'utf8' });
+  assert.match(sql, /JOIN athletes a ON a\.id = r\.athlete_id/);
+  assert.match(sql, /SELECT DISTINCT 'athletes', COALESCE\(a\.merged_into_id, a\.id\), 'birth_year'/);
+});
+
 test('category correction is inherited by rows returned from all results', async () => {
   const db = {
     async all(sql) {
@@ -41,6 +53,31 @@ test('category correction is inherited by rows returned from all results', async
   assert.equal(rows[0].corrections.length, 1);
   assert.equal(rows[0].corrections[0].scope, 'category');
   assert.equal(rows[0].corrections[0].source_value, '32');
+});
+
+test('athlete correction is inherited by results of merged duplicate athletes', async () => {
+  const db = {
+    async all(sql) {
+      if (sql.includes('FROM results r')) return [
+        row({ id: 1, athlete_id: 3, corrections: undefined }),
+        row({ id: 5, athlete_id: 9, corrections: undefined }),
+      ];
+      if (sql.includes('FROM edits')) return [{
+        entity: 'athletes', entity_id: 9, field: 'birth_year', old_value: '2000', new_value: '2001',
+        changed_by: 'source_correction:test-birth',
+      }];
+      if (sql.includes('FROM athletes')) return [{ id: 3, merged_into_id: 9 }];
+      throw new Error(`Unexpected query: ${sql}`);
+    },
+  };
+  const rows = await listAllResults(db);
+  assert.equal(rows.length, 2);
+  for (const result of rows) {
+    assert.equal(result.corrections.length, 1);
+    assert.equal(result.corrections[0].scope, 'athlete');
+    assert.equal(result.corrections[0].field, 'birth_year');
+    assert.equal(result.corrections[0].corrected_value, '2001');
+  }
 });
 
 test('competition page marks category heading and every affected result row', () => {
