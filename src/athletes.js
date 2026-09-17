@@ -72,12 +72,12 @@ export async function listAthletes(db) {
              ORDER BY latest_weight.result_date DESC, latest_weight.id DESC
              LIMIT 1
            ) AS last_weight_year
-    FROM athletes a
-    JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
+    FROM athletes canonical
     JOIN published_results pr ON pr.canonical_id = canonical.id
     LEFT JOIN regions reg ON reg.id = canonical.region_id
     LEFT JOIN athlete_slugs s ON s.athlete_id = canonical.id AND s.is_current = 1
     LEFT JOIN sport_ranks current_rank ON current_rank.id = canonical.sport_rank_id
+    WHERE canonical.merged_into_id IS NULL
     GROUP BY canonical.id, canonical.full_name, canonical.birth_year, reg.name, s.slug,
              current_rank.name, current_rank.sort_order
     ORDER BY canonical.full_name COLLATE NOCASE`);
