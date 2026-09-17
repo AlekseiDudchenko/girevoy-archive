@@ -112,6 +112,7 @@ PY
 
 node --test tests/*.test.mjs
 node scripts/snapshot.mjs "$DB_PATH" "$OUT_DIR"
+node scripts/competition-cards.mjs "$OUT_DIR"
 node scripts/person-activities-list.mjs "$OUT_DIR"
 
 test -s "$OUT_DIR/index.html"

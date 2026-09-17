@@ -8,6 +8,7 @@ import { links, renderCompetition, renderPerson, renderResults, renderCoaches } 
 import { renderIndex } from '../src/render-home.js';
 import { personTabs, personRoleLinks } from '../src/person-tabs.js';
 import { listAthletes, renderAthletes, withAthletesNav } from '../src/athletes.js';
+import { competitionCard } from '../src/competition-card.js';
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
@@ -160,7 +161,7 @@ for (const { slug } of await q.listPersonSlugs(db)) {
 
 for (const c of competitions) {
   const data = await q.getCompetition(db, c.slug);
-  write(`c-${c.slug}.html`, personRoleLinks(renderCompetition({ ...data, L }), 'athlete'));
+  write(`c-${c.slug}.html`, personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete'));
 }
 
 const slugs = await q.listAthleteSlugs(db);
