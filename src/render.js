@@ -1,5 +1,6 @@
 // Рендеринг публичных страниц. Чистые функции: один код для Worker и для снимка.
 import { seriesLabel } from './queries.js';
+import { correctionMarker, correctionsForField } from './correction-ui.js';
 
 export const links = {
   worker: {
@@ -86,17 +87,22 @@ ${body}
 <script>
 (function () {
   var tip = document.getElementById('tip');
-  document.addEventListener('mouseover', function (ev) {
-    var p = ev.target.closest('[data-tip]');
+  function showTip(p) {
     if (!p) return;
     tip.textContent = p.getAttribute('data-tip');
     tip.hidden = false;
     var r = p.getBoundingClientRect();
     tip.style.left = Math.min(window.innerWidth - tip.offsetWidth - 8, r.left + window.scrollX - 20) + 'px';
     tip.style.top = (r.top + window.scrollY - tip.offsetHeight - 10) + 'px';
-  });
-  document.addEventListener('mouseout', function (ev) {
-    if (ev.target.closest('[data-tip]')) tip.hidden = true;
+  }
+  function hideTip() { tip.hidden = true; }
+  document.addEventListener('mouseover', function (ev) { showTip(ev.target.closest('[data-tip]')); });
+  document.addEventListener('mouseout', function (ev) { if (ev.target.closest('[data-tip]')) hideTip(); });
+  document.addEventListener('focusin', function (ev) { showTip(ev.target.closest('[data-tip]')); });
+  document.addEventListener('focusout', function (ev) { if (ev.target.closest('[data-tip]')) hideTip(); });
+  document.addEventListener('click', function (ev) {
+    var p = ev.target.closest('[data-tip]');
+    if (p) showTip(p); else hideTip();
   });
 })();
 </script>`;
@@ -190,11 +196,14 @@ export function renderCompetition({ comp, categories, L }) {
   const live = categories.filter((c) => !c.is_deferred);
   const deferred = categories.filter((c) => c.is_deferred);
 
-  const catTitle = (cat) => {
-    const bits = [cat.discipline_name];
+  const catTitleHtml = (cat) => {
+    const bits = [e(cat.discipline_name)];
     if (cat.hands === 'one' && cat.discipline_code !== 'snatch') bits.push('одной рукой');
-    bits.push(`${cat.bell_kg} кг`, `${cat.time_limit_min} мин`);
-    return bits.join(' · ');
+    const bellCorrections = correctionsForField(cat.corrections, 'bell_kg');
+    bits.push(`${e(cat.bell_kg)} кг${correctionMarker(bellCorrections, 'correction-inline')}`,
+      `${e(cat.time_limit_min)} мин`);
+    const otherCorrections = (cat.corrections || []).filter((c) => c.field !== 'bell_kg');
+    return bits.join(' · ') + correctionMarker(otherCorrections, 'correction-inline');
   };
   const chipHtml = (cat) => {
     const sex = cat.sex === 'f' ? 'ж' : 'м';
@@ -246,7 +255,7 @@ export function renderCompetition({ comp, categories, L }) {
 
   ${live.map((cat) => `
   <section class="cat" id="cat-${cat.id}">
-    <h2>${e(catTitle(cat))}</h2>
+    <h2>${catTitleHtml(cat)}</h2>
     <p class="cat-sub">${e(catSub(cat))}${cat.participants_declared ? ` · участников: ${cat.participants_declared}` : ''}</p>
     <div class="scroll">
     <table>
@@ -254,6 +263,7 @@ export function renderCompetition({ comp, categories, L }) {
         <th class="c">Место</th><th>Спортсмен</th><th class="c">Г. р.</th>
         <th>Регион, клуб</th><th class="r">Собств. вес</th>
         <th class="r">Подъёмы</th><th class="r">Результат</th>
+        <th class="c correction-col" aria-label="Исправления"></th>
       </tr></thead>
       <tbody>
       ${cat.rows.map((r) => `
@@ -265,6 +275,7 @@ export function renderCompetition({ comp, categories, L }) {
           <td class="r n">${r.body_weight_kg == null ? '—' : r.body_weight_kg.toFixed(1)}</td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
+          <td class="c correction-col">${correctionMarker(r.corrections)}</td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -322,6 +333,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
           <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
           <td class="r n dim">${e(repsText(r.reps))}</td>
           <td class="r n strong">${num(r.result_value)}</td>
+          <td class="c correction-col">${correctionMarker(r.corrections)}</td>
           <td class="c">${r.rank_achieved_code
             ? rankBadge(r.rank_achieved_code, r.rank_achieved) : '<span class="dim">—</span>'}</td>
         </tr>`;
@@ -335,7 +347,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
         ${showDiscipline ? sortableHead('series', 'Дисциплина') : ''}
         ${sortableHead('wc', 'Кат.', 'c')}${sortableHead('weight', 'Личный вес', 'r')}
         ${sortableHead('place', 'Место', 'c')}${sortableHead('reps', 'Подъёмы', 'r')}
-        ${sortableHead('value', 'Результат', 'r')}${sortableHead('rank', 'Разряд', 'c')}
+        ${sortableHead('value', 'Результат', 'r')}<th class="c correction-col" aria-label="Исправления"></th>${sortableHead('rank', 'Разряд', 'c')}
       </tr></thead>
       <tbody>${rows.map((r) => resultRow(r, showDiscipline)).join('')}</tbody>
     </table>
@@ -662,6 +674,7 @@ export function renderResults({ rows, L }) {
     ${th('date', 'Дата')}${th('name', 'Спортсмен')}${th('series', 'Дисциплина')}${th('wc', 'Кат.', 'c')}
     ${th('comp', 'Соревнование')}${th('place', 'Место', 'c')}
     <th class="r sort" data-key="value" role="button" tabindex="0" aria-disabled="true" id="sortcol">Результат</th>
+    <th class="c correction-col" aria-label="Исправления"></th>
   </tr></thead>
   <tbody>
   ${rows.map((r) => `
@@ -678,6 +691,7 @@ export function renderResults({ rows, L }) {
       <td><a href="${L.comp(r.competition_slug)}">${e(r.competition)}</a></td>
       <td class="c place">${r.place == null ? '<span class="dim">—</span>' : `<span class="p p${r.place <= 3 ? r.place : 0}">${r.place}</span>`}</td>
       <td class="r n strong">${num(r.result_value)}</td>
+      <td class="c correction-col">${correctionMarker(r.corrections)}</td>
     </tr>`).join('')}
   </tbody>
 </table>
