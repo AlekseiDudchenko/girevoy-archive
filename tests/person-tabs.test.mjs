@@ -68,6 +68,19 @@ test('athlete profile shows the proposed icon set', () => {
   assert.match(html, /data-profile-icon="kettlebell"[^>]*>[\s\S]*?<svg viewBox="0 0 24 24"/);
 });
 
+test('athlete profile keeps the club field when club data is missing', () => {
+  const html = personTabs(`<!doctype html><body>
+    <div class="page-head">
+      <h1>Марков Иван Эдуардович</h1>
+      <p class="meta-line">1995 г. р. · г. Санкт-Петербург</p>
+    </div>
+    <section class="person-role"><h2>Спортсмен</h2></section>
+  </body>`);
+
+  assert.ok(html.includes('data-profile-icon="club"'));
+  assert.ok(html.includes('<span class="profile-label">Клуб</span><span class="profile-value"></span>'));
+});
+
 test('empty roles do not create tabs', () => {
   const html = personTabs(renderPerson({
     person: { display_name: 'Только тренер' },
