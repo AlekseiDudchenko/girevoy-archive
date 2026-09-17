@@ -62,10 +62,11 @@ test('athlete profile shows the proposed icon set', () => {
     </section>
   </body>`);
 
-  for (const icon of ['calendar', 'pin', 'kettlebell', 'club', 'flag', 'bars', 'clock', 'discipline', 'coach']) {
+  for (const icon of ['calendar', 'pin', 'scale', 'club', 'flag', 'bars', 'clock', 'discipline', 'coach']) {
     assert.ok(html.includes(`data-profile-icon="${icon}"`), `missing profile icon: ${icon}`);
   }
-  assert.match(html, /data-profile-icon="kettlebell"[^>]*>[\s\S]*?<svg viewBox="0 0 24 24"/);
+  assert.match(html, /data-profile-icon="scale"[^>]*>[\s\S]*?<svg viewBox="0 0 24 24"/);
+  assert.ok(!html.includes('data-profile-icon="kettlebell"'));
 });
 
 test('athlete profile keeps the club field when club data is missing', () => {
