@@ -1,14 +1,9 @@
 name: Снимок на GitHub Pages
 
-# Собирает статический снимок сайта из сидов репозитория.
-# Это витрина интерфейса, а не рабочий архив: боевой сайт живёт на Cloudflare,
-# где страницы собираются из D1 (см. docs/roadmap.md).
+# GitHub Pages остаётся ручной резервной/preview-копией.
+# Production vsegiri.com деплоится отдельным workflow в Cloudflare Pages.
 
 on:
-  push:
-    branches:
-      - main
-      - claude/google-docs-link-review-uny4pe
   workflow_dispatch:
 
 permissions:
@@ -30,78 +25,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Собрать базу со схемой, справочниками и данными протоколов
-        run: |
-          mkdir -p .local
-          python3 scripts/gen_seed.py data/chempionat-rossii-2024.json > .local/chempionat-rossii-2024.sql
-          python3 scripts/gen_seed.py data/chempionat-rossii-2023.json > .local/chempionat-rossii-2023.sql
-          python3 scripts/gen_seed.py data/chempionat-pfo-2026.json > .local/chempionat-pfo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-pfo-2025.json > .local/chempionat-pfo-2025.sql
-          python3 scripts/gen_seed.py data/chempionat-pfo-2024.json > .local/chempionat-pfo-2024.sql
-          python3 scripts/gen_seed_override.py data/chempionat-pfo-2023.json 137000 > .local/chempionat-pfo-2023.sql
-          python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2026.json > .local/chempionat-dfo-sfo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-dfo-sfo-2023.json > .local/chempionat-dfo-sfo-2023.sql
-          python3 scripts/gen_seed.py data/chempionat-dfo-sfo-ufo-2024.json > .local/chempionat-dfo-sfo-ufo-2024.sql
-          python3 scripts/gen_seed.py data/chempionat-ufo-2026.json > .local/chempionat-ufo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-szfo-2026.json > .local/chempionat-szfo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-szfo-2025.json > .local/chempionat-szfo-2025.sql
-          python3 scripts/gen_seed.py data/chempionat-szfo-2024.json > .local/chempionat-szfo-2024.sql
-          python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2026.json > .local/chempionat-yufo-skfo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2025.json > .local/chempionat-yufo-skfo-2025.sql
-          python3 scripts/gen_seed.py data/chempionat-yufo-skfo-2024.json > .local/chempionat-yufo-skfo-2024.sql
-          python3 scripts/gen_seed.py data/chempionat-tsfo-2026.json > .local/chempionat-tsfo-2026.sql
-          python3 scripts/gen_seed.py data/chempionat-tsfo-2025.json > .local/chempionat-tsfo-2025.sql
-          python3 scripts/gen_seed.py data/chempionat-tsfo-2024.json > .local/chempionat-tsfo-2024.sql
-          python3 scripts/gen_seed.py data/kubok-rossii-2025.json > .local/kubok-rossii-2025.sql
-          python3 scripts/gen_people.py > .local/people.sql
-          cat migrations/*.sql \
-              seeds/0001_reference.sql \
-              seeds/0003_chempionat-rossii-2026.sql \
-              seeds/0004_chempionat-rossii-2025.sql \
-              .local/chempionat-rossii-2024.sql \
-              .local/chempionat-rossii-2023.sql \
-              .local/chempionat-pfo-2026.sql \
-              .local/chempionat-pfo-2025.sql \
-              .local/chempionat-pfo-2024.sql \
-              .local/chempionat-pfo-2023.sql \
-              .local/chempionat-dfo-sfo-2026.sql \
-              .local/chempionat-dfo-sfo-2023.sql \
-              .local/chempionat-dfo-sfo-ufo-2024.sql \
-              .local/chempionat-ufo-2026.sql \
-              .local/chempionat-szfo-2026.sql \
-              .local/chempionat-szfo-2025.sql \
-              .local/chempionat-szfo-2024.sql \
-              .local/chempionat-yufo-skfo-2026.sql \
-              .local/chempionat-yufo-skfo-2025.sql \
-              .local/chempionat-yufo-skfo-2024.sql \
-              .local/chempionat-tsfo-2026.sql \
-              .local/chempionat-tsfo-2025.sql \
-              .local/chempionat-tsfo-2024.sql \
-              .local/kubok-rossii-2025.sql \
-              seeds/0005_merges.sql \
-              .local/people.sql | sqlite3 .local/girevoy.db
-          sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM results;'
-          sqlite3 .local/girevoy.db 'SELECT COUNT(*) FROM person_coach_mentions;'
-
-      - name: Проверить персоны
-        run: node --test tests/*.test.mjs
-
-      - name: Отрендерить страницы
-        run: node scripts/snapshot.mjs .local/girevoy.db dist
-
-      - name: Оформить деятельность персон списком
-        run: node scripts/person-activities-list.mjs dist
-
-      - name: Проверить, что страницы собрались
-        run: |
-          test -s dist/index.html
-          test -s dist/results.html
-          test -s dist/coaches.html
-          test -s dist/style.css
-          test "$(ls dist/c-*.html | wc -l)" -ge 1
-          test "$(ls dist/a-*.html | wc -l)" -ge 1
-          test "$(ls dist/p-*.html | wc -l)" -ge 1
-          touch dist/.nojekyll
+      - name: Собрать и проверить статический сайт
+        run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
