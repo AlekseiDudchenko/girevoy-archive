@@ -23,7 +23,11 @@ roadmap и не должны становиться отдельным пара�
 
 - источником данных остаются `data/*.json`, миграции, генераторы и git-история;
 - SQLite используется во время сборки, но публичный сайт не зависит от постоянно работающей БД;
-- production-раздача HTML и assets выполняется через Cloudflare;
+- production-раздача HTML и assets выполняется через Cloudflare Pages;
+- production-деплой запускается GitHub Actions при push/merge в `main`: `npm run build` →
+  `dist` → Wrangler → Cloudflare Pages;
+- встроенная Git-интеграция Cloudflare Pages не используется как production CI/CD;
+- GitHub Pages остаётся ручной резервной/preview-копией;
 - Cloudflare Web Analytics включён для статистики посещений;
 - Worker, D1 и R2 не являются обязательными компонентами production runtime.
 
@@ -49,7 +53,9 @@ Worker/D1/R2 можно использовать как задел для так
 ### Выполнено
 
 - [x] Production-сайт опубликован на **Cloudflare Pages** под доменом `vsegiri.com`;
-  сборка выполняется командой `npm run build` из ветки `main`, автоматический deploy включён.
+  CI/CD выполняется через GitHub Actions: `main` → `npm run build` → `dist` → Wrangler →
+  Cloudflare Pages, workflow `.github/workflows/cloudflare-pages.yml`, проект `vsegiri`.
+- [x] GitHub Pages оставлен как ручной резервный/preview deployment через `workflow_dispatch`.
 - [x] Cloudflare Web Analytics включён для просмотров страниц и общей статистики посещений (FR-X8).
 - [x] Страница спортсмена: переключатель **«Все результаты / По дисциплинам»**.
 - [x] Отдельные сортируемые таблицы по дисциплинам.
@@ -140,8 +146,8 @@ FR-A5, сопоставление справочников и клубов (FR-A
 категории (`is_deferred`).
 
 Для MVP публикация означает полную статическую пересборку сайта после изменения данных и
-деплой готового build на Cloudflare. Отдельная постоянно работающая production-БД для этого
-не требуется.
+автоматический deploy готового `dist` через GitHub Actions и Wrangler в Cloudflare Pages.
+Отдельная постоянно работающая production-БД для этого не требуется.
 
 Остаётся довести административный workflow публикации: публикация только без открытых
 проблем (FR-A8), ручное редактирование (FR-A11), справочники списками (FR-A12).
@@ -165,8 +171,9 @@ FR-A5, сопоставление справочников и клубов (FR-A
   FR-C1);
 - [x] хранение фильтров расширенного режима в адресе страницы (#83);
 - [x] сортировка расширенной таблицы соревнований по столбцам (#92);
-- [x] production-деплой статического build на Cloudflare Pages: `main` → `npm run build` → `dist`,
-  основной домен `vsegiri.com`, автоматические deploy включены.
+- [x] production-деплой статического build на Cloudflare Pages: push/merge в `main` →
+  GitHub Actions → `npm run build` → `dist` → Wrangler → проект `vsegiri`;
+  основной домен `vsegiri.com`, первый deployment через новый workflow успешно выполнен.
 
 Остаётся проверить и/или завершить:
 
