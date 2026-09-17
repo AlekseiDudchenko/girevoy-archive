@@ -428,7 +428,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     <h2>Судья</h2>
     <div class="scroll"><table><thead><tr><th>Дата</th><th>Соревнование</th><th>Роль</th></tr></thead>
     <tbody>${judgeRoles.map((j) => `<tr><td class="n">${e(j.date_start || '—')}</td>
-      <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug)}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
+      <td>${j.competition_slug ? `<a href="${e(L.comp(j.competition_slug))}">${e(j.competition)}</a>` : e(j.competition || '—')}</td>
       <td>${j.source_url ? `<a href="${e(j.source_url)}">${e(j.role)}</a>` : e(j.role)}</td></tr>`).join('')}</tbody></table></div>
   </section>` : ''}
 </article>
