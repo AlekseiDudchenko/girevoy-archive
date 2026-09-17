@@ -1,12 +1,9 @@
 name: Снимок на GitHub Pages
 
-# GitHub Pages остаётся резервной/preview-копией.
-# Production для vsegiri.ru — тот же статический build на Cloudflare.
+# GitHub Pages остаётся ручной резервной/preview-копией.
+# Production vsegiri.com деплоится отдельным workflow в Cloudflare Pages.
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
