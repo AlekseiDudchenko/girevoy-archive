@@ -1,5 +1,6 @@
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { paginateResultsHtml } from './results-pagination.mjs';
 
 const out = process.argv[2] || 'dist';
 
@@ -39,4 +40,10 @@ for (const name of readdirSync(out)) {
   const html = readFileSync(path, 'utf8');
   const updated = activityTableToList(html);
   if (updated !== html) writeFileSync(path, updated, 'utf8');
+}
+
+const resultsPath = join(out, 'results.html');
+if (existsSync(resultsPath)) {
+  const html = readFileSync(resultsPath, 'utf8');
+  writeFileSync(resultsPath, paginateResultsHtml(html), 'utf8');
 }
