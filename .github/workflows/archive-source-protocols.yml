@@ -86,47 +86,11 @@ jobs:
           set -euo pipefail
           if git diff --quiet -- sources && [ -z "$(git ls-files --others --exclude-standard sources)" ]; then
             echo 'No source changes.'
-          else
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add sources
-            git commit -m 'Archive original competition protocols'
-            git push origin "HEAD:${{ github.ref_name }}"
-          fi
-
-      - name: Document PFO 2022 source correction
-        if: github.actor != 'github-actions[bot]'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path('ERRATA.md')
-          text = path.read_text(encoding='utf-8')
-          marker = '\n## 6. Исправленное\n'
-          entry = '''
-          - **ПФО-2022, женский рывок, категория 63+ кг, лист `Р 63 +`:** в исходном
-            Excel-протоколе указан вес гири `32 кг`. Архив исправляет его на `24 кг` как
-            очевидную ошибку протокола; изменение затрагивает 5 результатов.
-            **Статус подтверждения организатором: не подтверждено.** В JSON сохранены
-            `source_value = 32`, `corrected_value = 24`, `correction_applied = true` и
-            `organizer_confirmation.status = "unconfirmed"`.
-          '''
-          token = 'ПФО-2022, женский рывок, категория 63+ кг'
-          if token not in text:
-              if marker not in text:
-                  raise SystemExit('corrected section marker not found')
-              text = text.replace(marker, marker + '\n' + entry, 1)
-              path.write_text(text, encoding='utf-8')
-          PY
-
-          if git diff --quiet -- ERRATA.md; then
-            echo 'No errata changes.'
             exit 0
           fi
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ERRATA.md
-          git commit -m 'Document PFO 2022 snatch source correction'
+          git add sources
+          git commit -m 'Archive original competition protocols'
           git push origin "HEAD:${{ github.ref_name }}"
