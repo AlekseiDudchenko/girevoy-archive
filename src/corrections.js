@@ -5,31 +5,16 @@ const scopeName = (entity) => ({
   athletes: 'athlete', results: 'result',
 }[entity] || entity);
 
-const uniqueIds = (items, key) => [...new Set((items || []).map((item) => item?.[key])
-  .filter((id) => id != null))];
-
 export async function attachEffectiveCorrections(db, rows = [], categories = []) {
-  const ids = {
-    results: uniqueIds(rows, 'id'),
-    categories: [...new Set([...uniqueIds(rows, 'category_id'), ...uniqueIds(categories, 'id')])],
-    athletes: uniqueIds(rows, 'athlete_id'),
-    competitions: [...new Set([...uniqueIds(rows, 'competition_id'), ...uniqueIds(categories, 'competition_id')])],
-  };
-  const clauses = [];
-  const args = [];
-  for (const entity of ['results', 'categories', 'athletes', 'competitions']) {
-    if (!ids[entity].length) continue;
-    clauses.push(`(entity = ? AND entity_id IN (${ids[entity].map(() => '?').join(',')}))`);
-    args.push(entity, ...ids[entity]);
-  }
-  if (!clauses.length) return rows;
+  if (!rows.length && !categories.length) return rows;
 
+  // Public corrections are sparse. Loading this small audit set is safer than building
+  // an IN (...) with thousands of result/athlete IDs (D1 has a bound-parameter limit).
   const edits = await db.all(`
     SELECT entity, entity_id, field, old_value, new_value, changed_by
     FROM edits
     WHERE changed_by LIKE 'source_correction:%'
-      AND (${clauses.join(' OR ')})
-    ORDER BY changed_at, id`, ...args);
+    ORDER BY changed_at, id`);
 
   const maps = new Map();
   for (const entity of ['results', 'categories', 'athletes', 'competitions']) {
