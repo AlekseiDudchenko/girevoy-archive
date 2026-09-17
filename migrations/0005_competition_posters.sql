@@ -8,9 +8,6 @@ CREATE TABLE competition_posters (
   poster_path      TEXT NOT NULL
 );
 
-INSERT INTO competition_posters (competition_slug, poster_path) VALUES
-  ('chempionat-rossii-2026', '/competition-posters/chempionat-rossii-2026.jpg');
-
 UPDATE competitions
 SET poster_path = (
   SELECT poster_path FROM competition_posters
