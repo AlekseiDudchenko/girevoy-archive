@@ -38,6 +38,62 @@ for value in ['А.Е.Попова', 'АбдуллинР.Р.']:
   assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.']);
 });
 
+test('punctuation in coach spelling does not create a second person', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import normalize_coach_name
+
+for value in ['Барков А.П', 'Смирнов А', 'Танаев.Ю.М.', 'ДягилевА.В.', 'Бирюков С.Н..',
+              'Глинкин  Б.Н.', 'Нестеренко Д. В.', 'Барков А.П.', 'Салов Павел Сергеевич']:
+    print(normalize_coach_name(value))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Барков А.П.', 'Смирнов А.', 'Танаев Ю.М.', 'Дягилев А.В.',
+    'Бирюков С.Н.', 'Глинкин Б.Н.', 'Нестеренко Д.В.', 'Барков А.П.', 'Салов Павел Сергеевич']);
+});
+
+test('newline separates two coaches, comma between initials does not', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names
+
+print('|'.join(coach_names('Виноградов М.\\nМарков И.', {}, {})))
+print('|'.join(coach_names('Ковалевский А,А.', {}, {})))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Виноградов М.|Марков И.', 'Ковалевский А.А.']);
+});
+
+test('self-coaching marker survives normalization', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names
+
+for value in ['Самостоя.С.', 'самостоятельно', '-']:
+    print(len(coach_names(value, {}, {})))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['0', '0', '0']);
+});
+
+test('spelling with ё wins over the same name with е', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import canonical_spelling
+
+resolved = canonical_spelling({'Пономарев Д.В.', 'Пономарёв Д.В.', 'Петров В.М.'})
+print(resolved['Пономарев Д.В.'])
+print(resolved['Пономарёв Д.В.'])
+print(resolved['Петров В.М.'])
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Пономарёв Д.В.', 'Пономарёв Д.В.', 'Петров В.М.']);
+});
+
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
