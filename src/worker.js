@@ -25,16 +25,16 @@ const html = (body, status = 200) => new Response(
 const sortableCoaches = (body, coaches) => {
   let rowIndex = 0;
   const searchableBody = body
-    .replace('Поиск по имени или региону', 'Поиск по имени, региону или числу спортсменов')
-    .replace('Имя тренера или регион', 'Имя, регион или число спортсменов');
+    .replace('Поиск по имени, региону или году', 'Поиск по имени, региону, году или числу спортсменов')
+    .replace('Имя, регион или год', 'Имя, регион, год или число спортсменов');
   const withCounts = searchableBody.replace(/<tbody>([\s\S]*?)<\/tbody>/, (_, rows) =>
     `<tbody>${rows.replace(/<tr>([\s\S]*?)<\/tr>/g, (row) => {
       const count = coaches[rowIndex++]?.athletes?.length ?? 0;
       return row.replace('</tr>', `<td class="c n">${count}</td></tr>`);
     })}</tbody>`);
   return withCounts.replace(
-    '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>',
-    '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Спортсменов в базе</th></tr></thead>',
+    '<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th><th scope="col" class="c" title="От первого до последнего упоминания тренера в опубликованных протоколах">Период</th></tr></thead>',
+    '<thead><tr><th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th><th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th><th scope="col" class="c sort" data-sort="2" data-default="desc" role="button" tabindex="0" title="От первого до последнего упоминания тренера в опубликованных протоколах">Период</th><th scope="col" class="c sort" data-sort="3" data-default="desc" role="button" tabindex="0">Спортсменов в базе</th></tr></thead>',
   ).replace('</body>', `<script>(function () {
   var table = document.getElementById('coaches-table');
   if (!table) return;
@@ -42,23 +42,28 @@ const sortableCoaches = (body, coaches) => {
   var heads = Array.prototype.slice.call(table.querySelectorAll('th[data-sort]'));
   var current = -1, dir = 1;
   function value(row, index) {
-    var text = row.cells[index].textContent.trim();
-    if (index === 2) return Number(text);
+    var cell = row.cells[index];
+    var sortValue = cell.dataset.sortValue;
+    if (sortValue !== undefined) return sortValue === '' ? null : Number(sortValue);
+    var text = cell.textContent.trim();
+    if (index === 3) return Number(text);
     return text.toLocaleLowerCase('ru').replace(/ё/g, 'е');
   }
   function sortBy(head) {
     var index = Number(head.dataset.sort);
-    dir = current === index ? -dir : (index === 2 ? -1 : 1);
+    dir = current === index ? -dir : (head.dataset.default === 'desc' ? -1 : 1);
     current = index;
     var rows = Array.prototype.slice.call(body.rows);
     rows.sort(function (a, b) {
       var x = value(a, index), y = value(b, index);
       if (x === y) return 0;
-      if (index !== 2) {
+      if (x == null) return 1;
+      if (y == null) return -1;
+      if (typeof x !== 'number') {
         if (x === '—') return 1;
         if (y === '—') return -1;
       }
-      return (index === 2 ? x - y : x.localeCompare(y, 'ru')) * dir;
+      return (typeof x === 'number' ? x - y : x.localeCompare(y, 'ru')) * dir;
     });
     rows.forEach(function (row) { body.appendChild(row); });
     heads.forEach(function (h) {
