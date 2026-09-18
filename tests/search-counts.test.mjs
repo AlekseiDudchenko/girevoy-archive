@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderAthletes } from '../src/athletes.js';
+import { listCoaches } from '../src/queries.js';
 import { renderCoaches } from '../src/render.js';
 
 const L = {
@@ -23,6 +24,27 @@ test('athlete search shows and updates filtered row count', () => {
 
   assert.match(html, /id="athlete-count"[^>]*>Показано строк: 2\.<\/p>/);
   assert.match(html, /athlete-count'\)\.textContent = 'Показано строк: ' \+ visible \+ '\.'/);
+});
+
+test('coach list aggregates first and last mention years', async () => {
+  const db = {
+    all: async () => [
+      {
+        person_id: 1, slug: 'coach', name: 'Иванов И.И.',
+        athlete_id: 10, athlete_name: 'Спортсмен А', athlete_slug: 'athlete-a',
+        region: 'Москва', first_year: '2019', last_year: '2021',
+      },
+      {
+        person_id: 1, slug: 'coach', name: 'Иванов И.И.',
+        athlete_id: 11, athlete_name: 'Спортсмен Б', athlete_slug: 'athlete-b',
+        region: 'Москва', first_year: '2023', last_year: '2026',
+      },
+    ],
+  };
+
+  const [coach] = await listCoaches(db);
+  assert.equal(coach.first_year, '2019');
+  assert.equal(coach.last_year, '2026');
 });
 
 test('coach search shows and updates filtered row count', () => {
