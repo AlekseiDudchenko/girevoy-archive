@@ -118,6 +118,15 @@ try:
     conn.commit()
     results = conn.execute("SELECT COUNT(*) FROM results").fetchone()[0]
     coach_mentions = conn.execute("SELECT COUNT(*) FROM person_coach_mentions").fetchone()[0]
+    actual_regions = conn.execute("""
+        SELECT COUNT(DISTINCT COALESCE(canonical.region_id, a.region_id))
+        FROM results r
+        JOIN competitions c ON c.id = r.competition_id
+        JOIN athletes a ON a.id = r.athlete_id
+        LEFT JOIN athletes canonical ON canonical.id = a.merged_into_id
+        WHERE c.is_published = 1
+          AND COALESCE(canonical.region_id, a.region_id) IS NOT NULL
+    """).fetchone()[0]
     bad_snatch_hands = conn.execute("""
         SELECT
           (SELECT COUNT(*) FROM categories cat JOIN disciplines d ON d.id = cat.discipline_id
@@ -130,6 +139,7 @@ try:
         raise RuntimeError(f"snatch rows with hands != one: {bad_snatch_hands}")
     print(f"results: {results}")
     print(f"person_coach_mentions: {coach_mentions}")
+    print(f"actual_normalized_regions: {actual_regions}")
     print("snatch hands: one (verified)")
 finally:
     conn.close()
