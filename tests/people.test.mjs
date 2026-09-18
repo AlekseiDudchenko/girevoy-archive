@@ -108,14 +108,42 @@ test('person page renders only populated roles and activity comes first', () => 
   const html = renderPerson({
     person: { display_name: '<Персона>' },
     activities: [{ organization: 'Федерация', position: 'Председатель' }],
-    coachedAthletes: [{ name: 'A&B (2026)', slug: 'a', regions: ['Москва'] }],
+    coachedAthletes: [{
+      name: 'A&B', slug: 'a', region: 'Москва', birth_year: 1990,
+      sport_rank: 'МС', sport_rank_sort: 5,
+      last_weight_class: '95+', last_weight_class_kg: 95, last_weight_class_is_open: 1,
+      first_year: '2023', last_year: '2026', competitions_count: 3, results_count: 7,
+    }],
     judgeRoles: [], athleteData: null, L: links.worker,
   });
-  assert.ok(html.includes('&lt;Персона&gt;') && html.includes('A&amp;B (2026)'));
+  assert.ok(html.includes('&lt;Персона&gt;') && html.includes('A&amp;B'));
   assert.ok(html.indexOf('Спортивный деятель') < html.indexOf('<h2>Тренер</h2>'));
   assert.ok(!html.includes('<h2>Спортсмен</h2>'));
   assert.ok(!html.includes('<h2>Судья</h2>'));
   assert.ok(html.includes(`href="${links.worker.person('a')}"`));
+  assert.match(html, />Период выступлений<\/th>/);
+  assert.match(html, />Соревнований<\/th>/);
+  assert.match(html, />Результатов<\/th>/);
+  assert.match(html, /data-sort-value="2026">2023–2026<\/td>/);
+});
+
+test('coach athlete summaries include full athlete-list statistics', async () => {
+  const { sql, db } = realDb();
+  try {
+    const coach = sql.prepare('SELECT p.slug FROM persons p JOIN person_coach_mentions pcm ON pcm.person_id = p.id LIMIT 1').get();
+    assert.ok(coach);
+    const person = await getPerson(db, coach.slug);
+    assert.ok(person.coachedAthletes.length);
+    for (const athlete of person.coachedAthletes) {
+      assert.ok(athlete.results_count >= 1);
+      assert.ok(athlete.competitions_count >= 1);
+      assert.match(String(athlete.first_year), /^202[3-6]$/);
+      assert.match(String(athlete.last_year), /^202[3-6]$/);
+      assert.ok(athlete.last_year >= athlete.first_year);
+      assert.ok('sport_rank' in athlete);
+      assert.ok('last_weight_class' in athlete);
+    }
+  } finally { sql.close(); }
 });
 
 test('old athlete aliases resolve to the same person', async () => {

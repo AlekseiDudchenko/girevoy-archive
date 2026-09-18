@@ -59,6 +59,102 @@ function rankBadge(code, name) {
   return `<span class="rank rank-${tier}"${title ? ` title="${e(title)}"` : ''}>${e(label)}</span>`;
 }
 
+function sportRankLabel(rank) {
+  const value = String(rank ?? '').trim();
+  if (!value) return '—';
+
+  const youth = value.match(/^(I{1,3})\s+юношеский(?:\s+спортивный)?\s+разряд$/i);
+  if (youth) return `${youth[1].toUpperCase()} юн.`;
+
+  const adult = value.match(/^(I{1,3})\s+(?:спортивный\s+)?разряд$/i);
+  if (adult) return adult[1].toUpperCase();
+
+  return value;
+}
+
+function weightClassLabel(athlete) {
+  const raw = String(athlete.last_weight_class ?? '').trim();
+  if (!raw) return '—';
+  return /кг/i.test(raw) ? raw : `${raw} кг`;
+}
+
+function weightClassSortValue(athlete) {
+  if (athlete.last_weight_class_kg == null) return '';
+  return Number(athlete.last_weight_class_kg) + (Number(athlete.last_weight_class_is_open) ? 0.5 : 0);
+}
+
+function performancePeriodLabel(athlete) {
+  const first = athlete.first_year;
+  const last = athlete.last_year;
+  if (!first && !last) return '—';
+  if (!first || !last || first === last) return String(last || first);
+  return `${first}–${last}`;
+}
+
+export function athleteSummaryTable({ athletes, L, id = 'athletes-table', personLinks = false }) {
+  const tableId = e(id);
+  const idJs = JSON.stringify(id);
+  return `<div class="scroll"><table id="${tableId}">
+<thead><tr>
+<th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th>
+<th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th>
+<th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Год рождения</th>
+<th scope="col" class="c sort" data-sort="3" data-default="desc" role="button" tabindex="0">Разряд</th>
+<th scope="col" class="c sort" data-sort="4" data-default="desc" role="button" tabindex="0">Весовая</th>
+<th scope="col" class="c sort" data-sort="5" data-default="desc" role="button" tabindex="0">Период выступлений</th>
+<th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0">Соревнований</th>
+<th scope="col" class="c sort" data-sort="7" data-default="desc" role="button" tabindex="0">Результатов</th>
+</tr></thead>
+<tbody>${athletes.map((athlete) => `<tr>
+<td>${athlete.slug ? `<a href="${e(personLinks ? L.person(athlete.slug) : L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
+<td>${e(athlete.region || '—')}</td>
+<td class="c n" data-sort-value="${athlete.birth_year ?? ''}">${e(athlete.birth_year || '—')}</td>
+<td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(sportRankLabel(athlete.sport_rank))}</td>
+<td class="c n" data-sort-value="${weightClassSortValue(athlete)}">${e(weightClassLabel(athlete))}</td>
+<td class="c n" data-sort-value="${athlete.last_year ?? athlete.first_year ?? ''}">${e(performancePeriodLabel(athlete))}</td>
+<td class="c n" data-sort-value="${athlete.competitions_count ?? ''}">${e(athlete.competitions_count ?? 0)}</td>
+<td class="c n" data-sort-value="${athlete.results_count ?? ''}">${e(athlete.results_count ?? 0)}</td>
+</tr>`).join('')}</tbody></table></div>
+<script>(function () {
+  var table = document.getElementById(${idJs});
+  if (!table) return;
+  var tbody = table.tBodies[0];
+  var heads = Array.prototype.slice.call(table.querySelectorAll('th[data-sort]'));
+  var current = -1, dir = 1;
+  function normalize(text) { return text.toLocaleLowerCase('ru').replace(/ё/g, 'е').trim(); }
+  function value(row, index) {
+    var cell = row.cells[index];
+    var sortValue = cell.dataset.sortValue;
+    if (sortValue !== undefined) return sortValue === '' ? null : Number(sortValue);
+    return normalize(cell.textContent);
+  }
+  function sortBy(head) {
+    var index = Number(head.dataset.sort);
+    dir = current === index ? -dir : (head.dataset.default === 'desc' ? -1 : 1);
+    current = index;
+    var rows = Array.prototype.slice.call(tbody.rows);
+    rows.sort(function (a, b) {
+      var x = value(a, index), y = value(b, index);
+      if (x === y) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      return (typeof x === 'number' ? x - y : x.localeCompare(y, 'ru')) * dir;
+    });
+    rows.forEach(function (row) { tbody.appendChild(row); });
+    heads.forEach(function (h) {
+      if (h === head) h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending');
+      else h.removeAttribute('aria-sort');
+    });
+  }
+  heads.forEach(function (head) {
+    head.addEventListener('click', function () { sortBy(head); });
+    head.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); sortBy(head); }
+    });
+  });
+})();</script>`;
+}
+
 // ------------------------------------------------------------------ каркас
 
 // bare: без <html>/<head>/<body> — для площадок, которые оборачивают страницу сами.
@@ -419,9 +515,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   ${coachedAthletes.length ? `<section class="cat person-role">
     <h2>Тренер</h2>
     <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
-    <div class="scroll"><table><thead><tr><th>Спортсмен</th><th>Регион</th></tr></thead>
-    <tbody>${coachedAthletes.map((a) => `<tr><td>${a.slug ? `<a href="${e(L.person(a.slug))}">${e(a.name)}</a>` : e(a.name)}</td>
-      <td>${e(a.regions.join(', ') || '—')}</td></tr>`).join('')}</tbody></table></div>
+    ${athleteSummaryTable({ athletes: coachedAthletes, L, id: 'coach-athletes-table', personLinks: true })}
   </section>` : ''}
 
   ${judgeRoles.length ? `<section class="cat person-role">
