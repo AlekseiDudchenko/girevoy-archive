@@ -1,0 +1,66 @@
+{
+  "source": {
+    "filename": "chempionat-rossii-2019.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 9000000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол Чемпионата России 2019 в Казани. Подготовлены 14 индивидуальных категорий (166 строк результатов): длинный цикл мужчины и женщины, рывок женщины, двоеборье мужчины. Эстафеты, командный зачёт и список судей не импортируются как обычные результаты. Дворцов Владимир и Марков Иван сохранены без выдуманного числового результата со статусом «снят врачом». Значения «л» в командных очках сохранены буквально. Год рождения Маркова Ивана 1996 исправлен на 1995 через source_error_correction по независимым официальным протоколам."
+  },
+  "competition": {
+    "slug": "chempionat-rossii-2019",
+    "name": "Чемпионат России 2019",
+    "date_start": "2019-06-13",
+    "date_end": "2019-06-16",
+    "city": "Казань",
+    "country": "RU",
+    "competition_rank": "national_ch",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "33088",
+    "regions_total": 34,
+    "participants_total": 210,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2019/chempionat-rossii-2019.xlsx"
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": [],
+  "warnings": [
+    {
+      "id": "chr-2019-markov-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Марков Иван",
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_class": "85+",
+        "source_sheet": "дв. св.85"
+      },
+      "field": "birth_year",
+      "source_value": 1996,
+      "corrected_value": 1995,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "Кубок России 2019 и оба официальных протокола ЧР/КР 2020 указывают 1995 год; регион и тренеры совпадают."
+      },
+      "message": "В ЧР-2019 у Маркова Ивана в двоеборье 85+ напечатан 1996 год. В Кубке России 2019 и в Чемпионате/Кубке России 2020 тот же спортсмен из Санкт-Петербурга с тренером Семеновым А.Н. указан как 1995 г. р. В подготовленных данных используется 1995, исходное 1996 фиксируется как публичное исправление."
+    }
+  ]
+}
