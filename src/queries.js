@@ -213,31 +213,94 @@ export async function getPerson(db, slug) {
     WHERE pa.person_id = ? LIMIT 1`, person.id);
   const athleteData = athleteLink ? await getAthlete(db, athleteLink.slug) : null;
 
-  const coachedRows = await db.all(`
-    SELECT canonical.id, canonical.full_name AS name, reg.name AS region,
-      (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id AND is_current = 1) AS slug,
-      MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
-    FROM person_coach_mentions pcm
-    JOIN athletes a ON a.id = pcm.athlete_id
-    JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
-    JOIN competitions c ON c.id = pcm.competition_id
+  const coachedAthletes = await db.all(`
+    WITH coached_ids AS (
+      SELECT DISTINCT COALESCE(a.merged_into_id, a.id) AS canonical_id
+      FROM person_coach_mentions pcm
+      JOIN athletes a ON a.id = pcm.athlete_id
+      JOIN competitions c ON c.id = pcm.competition_id
+      WHERE pcm.person_id = ? AND c.is_published = 1
+    ),
+    published_results AS (
+      SELECT COALESCE(source.merged_into_id, source.id) AS canonical_id,
+             r.id,
+             r.competition_id,
+             COALESCE(r.event_date, c.date_start) AS result_date,
+             cat.weight_class_raw,
+             cat.weight_class_kg,
+             cat.weight_class_is_open,
+             achieved.name AS rank_name,
+             achieved.sort_order AS rank_sort
+      FROM results r
+      JOIN athletes source ON source.id = r.athlete_id
+      JOIN competitions c ON c.id = r.competition_id
+      JOIN categories cat ON cat.id = r.category_id
+      LEFT JOIN sport_ranks achieved ON achieved.id = r.rank_achieved_id
+      WHERE c.is_published = 1
+    )
+    SELECT canonical.id,
+           canonical.full_name AS name,
+           canonical.birth_year,
+           reg.name AS region,
+           s.slug,
+           COUNT(pr.id) AS results_count,
+           COUNT(DISTINCT pr.competition_id) AS competitions_count,
+           MIN(SUBSTR(pr.result_date, 1, 4)) AS first_year,
+           MAX(SUBSTR(pr.result_date, 1, 4)) AS last_year,
+           COALESCE((
+             SELECT latest_rank.rank_name
+             FROM published_results latest_rank
+             WHERE latest_rank.canonical_id = canonical.id
+               AND latest_rank.rank_name IS NOT NULL
+             ORDER BY latest_rank.result_date DESC, latest_rank.id DESC
+             LIMIT 1
+           ), current_rank.name) AS sport_rank,
+           COALESCE((
+             SELECT latest_rank.rank_sort
+             FROM published_results latest_rank
+             WHERE latest_rank.canonical_id = canonical.id
+               AND latest_rank.rank_name IS NOT NULL
+             ORDER BY latest_rank.result_date DESC, latest_rank.id DESC
+             LIMIT 1
+           ), current_rank.sort_order) AS sport_rank_sort,
+           (
+             SELECT latest_weight.weight_class_raw
+             FROM published_results latest_weight
+             WHERE latest_weight.canonical_id = canonical.id
+             ORDER BY latest_weight.result_date DESC, latest_weight.id DESC
+             LIMIT 1
+           ) AS last_weight_class,
+           (
+             SELECT latest_weight.weight_class_kg
+             FROM published_results latest_weight
+             WHERE latest_weight.canonical_id = canonical.id
+             ORDER BY latest_weight.result_date DESC, latest_weight.id DESC
+             LIMIT 1
+           ) AS last_weight_class_kg,
+           (
+             SELECT latest_weight.weight_class_is_open
+             FROM published_results latest_weight
+             WHERE latest_weight.canonical_id = canonical.id
+             ORDER BY latest_weight.result_date DESC, latest_weight.id DESC
+             LIMIT 1
+           ) AS last_weight_class_is_open,
+           (
+             SELECT SUBSTR(latest_weight.result_date, 1, 4)
+             FROM published_results latest_weight
+             WHERE latest_weight.canonical_id = canonical.id
+             ORDER BY latest_weight.result_date DESC, latest_weight.id DESC
+             LIMIT 1
+           ) AS last_weight_year
+    FROM coached_ids coached
+    JOIN athletes canonical ON canonical.id = coached.canonical_id
+    JOIN published_results pr ON pr.canonical_id = canonical.id
     LEFT JOIN regions reg ON reg.id = canonical.region_id
-    WHERE pcm.person_id = ? AND c.is_published = 1
-    GROUP BY canonical.id, canonical.full_name, reg.name`, person.id);
-  const coached = new Map();
-  for (const a of coachedRows) {
-    if (!coached.has(a.id)) coached.set(a.id, {
-      name: a.name, slug: a.slug, regions: new Set(), last_year: a.last_year,
-    });
-    const item = coached.get(a.id);
-    if (a.region) item.regions.add(a.region);
-    if (!item.last_year || a.last_year > item.last_year) item.last_year = a.last_year;
-  }
-  const coachedAthletes = [...coached.values()].map((a) => ({
-    ...a,
-    name: `${a.name}${a.last_year ? ` (${a.last_year})` : ''}`,
-    regions: [...a.regions],
-  })).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    LEFT JOIN athlete_slugs s ON s.athlete_id = canonical.id AND s.is_current = 1
+    LEFT JOIN sport_ranks current_rank ON current_rank.id = canonical.sport_rank_id
+    WHERE canonical.merged_into_id IS NULL
+    GROUP BY canonical.id, canonical.full_name, canonical.birth_year, reg.name, s.slug,
+             current_rank.name, current_rank.sort_order
+    ORDER BY canonical.full_name COLLATE NOCASE`, person.id);
   return { person, activities, judgeRoles, athleteData, coachedAthletes };
 }
 
