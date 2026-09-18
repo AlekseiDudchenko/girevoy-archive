@@ -36,5 +36,29 @@
   ],
   "categories": [],
   "deferred": [],
-  "warnings": []
+  "warnings": [
+    {
+      "id": "kr-2017-vaskina-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Васькина Алина",
+        "discipline": "snatch",
+        "sex": "f",
+        "weight_class": "63"
+      },
+      "field": "birth_year",
+      "source_value": 1995,
+      "corrected_value": 1999,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР-2017 тремя месяцами ранее, а также ЧР/КР 2018–2019 и все последующие протоколы до ЧР-2025 указывают 1999 год при той же Смоленской области и тренере Шваневе В.Б."
+      },
+      "message": "В Кубке России 2017 у Васькиной Алины в рывке 63 кг напечатан 1995 год рождения. В Чемпионате России 2017 того же сезона и в двух десятках последующих официальных протоколов она записана 1999 годом при совпадающих регионе и тренере. Архив использует 1999, исходное 1995 сохраняется как публичное исправление."
+    }
+  ]
 }
