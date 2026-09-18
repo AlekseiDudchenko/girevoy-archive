@@ -376,6 +376,20 @@ export async function getPerson(db, slug) {
       ORDER BY reg.name COLLATE NOCASE
     `, person.id);
     coachSummary.regions = regions.map((row) => row.name);
+    // Написания, напечатанные в протоколах. Карточка показывает одно, остальные
+    // иначе исчезли бы: нормализация сводит `Барков А.П` и `Барков А.П.` в одну
+    // персону, и без этого списка не видно, что именно было в протоколе.
+    coachSummary.aliases = await db.all(`
+      SELECT pca.raw_name,
+             COUNT(DISTINCT pca.competition_id) AS competitions_count,
+             MIN(SUBSTR(c.date_start, 1, 4)) AS first_year,
+             MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
+      FROM person_coach_aliases pca
+      JOIN competitions c ON c.id = pca.competition_id
+      WHERE pca.person_id = ? AND c.is_published = 1 AND pca.raw_name <> ?
+      GROUP BY pca.raw_name
+      ORDER BY competitions_count DESC, pca.raw_name COLLATE NOCASE
+    `, person.id, person.display_name);
   }
 
   return { person, activities, judgeRoles, athleteData, coachedAthletes, coachSummary };

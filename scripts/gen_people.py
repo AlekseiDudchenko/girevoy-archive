@@ -139,28 +139,51 @@ def split_coach_token(token: str, splits: dict[str, list[str]]) -> list[str]:
     return [token]
 
 
-def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[str]]) -> list[str]:
+def coach_mentions(raw: str | None, merges: dict[str, str],
+                   splits: dict[str, list[str]]) -> list[tuple[str, str]]:
+    """Пары «канонический тренер, написание из протокола».
+
+    Написание сохраняется до нормализации: именно оно напечатано в протоколе и
+    показывается в карточке тренера. Когда в одной ячейке склеены два тренера,
+    точное написание каждого из них восстановить нельзя — тогда написанием
+    считается разобранный фрагмент.
+    """
     if not raw: return []
 
     raw_value = raw.strip()
     parts = split_coach_value(raw_value, splits)
-    if parts is None:
-        parts = []
+    if parts is not None:
+        pairs = [(part, part) for part in parts]
+    else:
+        pairs = []
         # Перевод строки разделяет тренеров и снимается до нормализации: она схлопывает
         # его в пробел, и `Виноградов М.\nМарков И.` склеивается в одну персону.
         # А запятая — наоборот: между инициалами (`Ковалевский А,А.`) она часть имени
         # и превращается в точку именно нормализацией, поэтому строку сначала
         # нормализуем и только потом делим по запятой.
         for line in raw_value.split("\n"):
+            parsed = []
             for token in re.split(r"[,;]", normalize_coach_name(line)):
-                parts.extend(split_coach_token(token, splits))
+                parsed.extend(split_coach_token(token, splits))
+            # Один тренер на строку — написание известно точно, это сама строка.
+            # Несколько — восстановить, какой кусок строки чей, нельзя: запятая между
+            # инициалами (`Ковалевский А,А.`) не разделитель, и делить сырую строку
+            # ради написаний означало бы снова ломать разбор.
+            if len(parsed) == 1:
+                pairs.append((parsed[0], line.strip()))
+            else:
+                pairs.extend((part, part) for part in parsed)
 
-    names=[]
-    for part in parts:
+    mentions=[]
+    for part, printed in pairs:
         normalized=normalize_coach_name(part)
         if normalized and normalized not in SELF_MARKERS:
-            names.append(merges.get(part.strip(), merges.get(normalized, normalized)))
-    return names
+            mentions.append((merges.get(part.strip(), merges.get(normalized, normalized)), printed))
+    return mentions
+
+
+def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[str]]) -> list[str]:
+    return [coach for coach, _ in coach_mentions(raw, merges, splits)]
 
 
 def coach_slug(name: str) -> str: return "coach-" + name.encode("utf-8").hex()
@@ -196,7 +219,7 @@ def load_protocols():
 
 
 def main() -> None:
-    protocols=list(load_protocols()); merges,splits=load_person_rules(); role_links,profiles=load_role_data(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set()
+    protocols=list(load_protocols()); merges,splits=load_person_rules(); role_links,profiles=load_role_data(); coaches:set[str]=set(); links:set[tuple[str,str,str]]=set(); mentions:set[tuple[str,str,str,str]]=set(); aliases:set[tuple[str,str,str]]=set()
     for data in protocols:
         comp_slug=data["competition"]["slug"]
         names_without_middle=bool(data.get("source",{}).get("names_without_middle",False))
@@ -204,12 +227,14 @@ def main() -> None:
             for row in category.get("rows",[]):
                 full_name,born,raw_coach=row[1],row[2],row[10]
                 athlete=athlete_sql(full_name,born,names_without_middle)
-                for coach in coach_names(raw_coach, merges, splits):
+                for coach,printed in coach_mentions(raw_coach, merges, splits):
                     coaches.add(coach); links.add((coach,athlete,full_name)); mentions.add((coach,athlete,full_name,comp_slug))
+                    aliases.add((coach,printed,comp_slug))
     spelling=canonical_spelling(coaches)
     coaches={spelling[c] for c in coaches}
     links={(spelling[c],a,n) for c,a,n in links}
     mentions={(spelling[c],a,n,s) for c,a,n,s in mentions}
+    aliases={(spelling[c],printed,s) for c,printed,s in aliases}
     print("-- Сгенерировано scripts/gen_people.py из data/*.json и data/categories/. Не править руками.")
     print("-- История тренеров берётся из строк конкретных протоколов.\n")
     print("INSERT OR IGNORE INTO persons (slug, display_name, birth_year, region_id)")
@@ -251,6 +276,11 @@ def main() -> None:
         person=coach_person_sql(coach, role_links)
         print("INSERT OR IGNORE INTO person_coach_mentions (person_id, athlete_id, competition_id)")
         print(f"SELECT {person}, {athlete}, (SELECT id FROM competitions WHERE slug = {esc(comp_slug)}) WHERE {person} IS NOT NULL AND {athlete} IS NOT NULL;")
+    print()
+    for coach,printed,comp_slug in sorted(aliases):
+        person=coach_person_sql(coach, role_links)
+        print("INSERT OR IGNORE INTO person_coach_aliases (person_id, raw_name, competition_id)")
+        print(f"SELECT {person}, {esc(printed)}, (SELECT id FROM competitions WHERE slug = {esc(comp_slug)}) WHERE {person} IS NOT NULL;")
 
 
 if __name__ == "__main__": main()

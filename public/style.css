@@ -94,6 +94,8 @@ h2 { font-family: "Bitter", Georgia, serif; font-weight: 500; font-size: 1.3rem;
 .lead { font-size: 1.1rem; color: var(--ink-2); max-width: 36rem; margin: 0 0 1.6rem; }
 .meta-line { color: var(--ink-2); margin: 0 0 0.3rem; }
 .source { margin: 0.2rem 0 0; font-size: 0.92rem; }
+/* Написание тренера не переносится посреди кавычек: «Рассадин А.А» читается как одно. */
+.coach-aliases .alias { white-space: nowrap; }
 .note { color: var(--ink-3); font-size: 0.88rem; margin: 0 0 0.9rem; max-width: 44rem; }
 .dim { color: var(--ink-3); }
 .count-pair { white-space: nowrap; cursor: help; border-bottom: 1px dotted var(--rule); }

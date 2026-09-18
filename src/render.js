@@ -430,6 +430,11 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   const coachAthletes = coachSummary?.athletes_count ?? coachedAthletes.length;
   const coachResults = coachSummary?.results_count ?? '';
   const coachCompetitions = coachSummary?.competitions_count ?? '';
+  // Написание показывается с годами, а не со списком турниров: у одного тренера их
+  // бывает больше двадцати, и строка перестала бы читаться.
+  const coachAliases = coachSummary?.aliases || [];
+  const yearsLabel = (alias) => (alias.first_year === alias.last_year
+    ? alias.first_year : `${alias.first_year}–${alias.last_year}`);
   const name = person.display_name;
   const series = new Map();
   for (const r of results) {
@@ -558,6 +563,8 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       data-last-year="${e(coachLastYear)}"
       data-regions="${e(coachRegions.join(' · '))}"></div>
     <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
+    ${coachAliases.length ? `<p class="source coach-aliases">Написания в протоколах: ${coachAliases.map((alias) =>
+      `<span class="alias">«${e(alias.raw_name)}»</span> <span class="dim">${e(yearsLabel(alias))}</span>`).join(', ')}</p>` : ''}
     ${athleteSummaryTable({ athletes: coachedAthletes, L, id: 'coach-athletes-table', personLinks: true })}
   </section>` : ''}
 

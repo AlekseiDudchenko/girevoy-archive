@@ -1,12 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { listCoaches, getPerson } from '../src/queries.js';
 import { renderCoaches, renderPerson, links } from '../src/render.js';
 
-const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql', 'seeds/0002_regions.sql',
+// Миграции берутся списком каталога: захардкоженный перечень отставал от migrations/
+// и новая таблица роняла тесты, хотя схема была верна.
+const migrations = readdirSync('migrations').filter((f) => f.endsWith('.sql')).sort()
+  .map((f) => `migrations/${f}`);
+const before2024 = [...migrations, 'seeds/0001_reference.sql', 'seeds/0002_regions.sql',
   'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql'];
 const after2024 = ['seeds/0005_merges.sql'];
 const execOptions = { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 };
@@ -128,6 +132,50 @@ test('joint coach strings become separate person roles', async () => {
     assert.ok(coaches.every((c) => c.slug && c.athletes.length));
     assert.ok(coaches.every((c) => !c.name.includes(',')));
     assert.ok(coaches.flatMap((c) => c.athletes).every((a) => /^202[3-6]$/.test(a.last_year)));
+  } finally { sql.close(); }
+});
+
+test('coach spellings are kept with the competition they were printed in', () => {
+  const { sql } = realDb();
+  try {
+    const aliases = sql.prepare(`
+      SELECT COUNT(*) AS count,
+             SUM(CASE WHEN competition_id IS NULL THEN 1 ELSE 0 END) AS without_source
+      FROM person_coach_aliases`).get();
+    assert.ok(aliases.count > 0);
+    // Написание — факт конкретного протокола, без ссылки на него строка бессмысленна.
+    assert.equal(aliases.without_source, 0);
+    const orphan = sql.prepare(`
+      SELECT COUNT(*) AS count FROM person_coach_aliases a
+      LEFT JOIN persons p ON p.id = a.person_id WHERE p.id IS NULL`).get();
+    assert.equal(orphan.count, 0);
+    // Каждый тренер хранит хотя бы то написание, под которым показан.
+    const missing = sql.prepare(`
+      SELECT COUNT(*) AS count FROM persons p
+      JOIN person_coach_mentions m ON m.person_id = p.id
+      WHERE NOT EXISTS (SELECT 1 FROM person_coach_aliases a WHERE a.person_id = p.id)`).get();
+    assert.equal(missing.count, 0);
+  } finally { sql.close(); }
+});
+
+test('coach card shows the spellings printed in protocols', async () => {
+  const { sql, db } = realDb();
+  try {
+    const coaches = await listCoaches(db);
+    const withAlias = [];
+    for (const coach of coaches) {
+      const person = await getPerson(db, coach.slug);
+      const aliases = person.coachSummary?.aliases || [];
+      if (aliases.length) withAlias.push({ coach, person, aliases });
+    }
+    assert.ok(withAlias.length, 'ожидался хотя бы один тренер с другим написанием');
+    const { person, aliases } = withAlias[0];
+    // Показанное написание в список других не попадает — иначе строка повторяет заголовок.
+    assert.ok(aliases.every((a) => a.raw_name !== person.person.display_name));
+    assert.ok(aliases.every((a) => a.first_year && a.last_year));
+    const html = renderPerson({ ...person, L: links.static });
+    assert.match(html, /Написания в протоколах/);
+    assert.ok(html.includes(`«${aliases[0].raw_name}»`));
   } finally { sql.close(); }
 });
 
