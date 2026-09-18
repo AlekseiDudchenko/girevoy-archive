@@ -309,7 +309,76 @@ export async function getPerson(db, slug) {
     GROUP BY canonical.id, canonical.full_name, canonical.birth_year, reg.name, s.slug,
              current_rank.name, current_rank.sort_order
     ORDER BY canonical.full_name COLLATE NOCASE`, person.id);
-  return { person, activities, judgeRoles, athleteData, coachedAthletes };
+  if (coachedAthletes.length) {
+    // Счётчики по каждому спортсмену, ограниченные стартами, где эта персона названа
+    // его тренером: в самих строках таблицы лежит вся карьера спортсмена.
+    const withCoach = await db.all(`
+      WITH coach_mentions AS (
+        SELECT DISTINCT COALESCE(a.merged_into_id, a.id) AS canonical_id,
+               pcm.competition_id
+        FROM person_coach_mentions pcm
+        JOIN athletes a ON a.id = pcm.athlete_id
+        JOIN competitions c ON c.id = pcm.competition_id
+        WHERE pcm.person_id = ? AND c.is_published = 1
+      )
+      SELECT m.canonical_id,
+             COUNT(DISTINCT m.competition_id) AS coach_competitions_count,
+             COUNT(DISTINCT r.id) AS coach_results_count
+      FROM coach_mentions m
+      LEFT JOIN athletes source ON COALESCE(source.merged_into_id, source.id) = m.canonical_id
+      LEFT JOIN results r ON r.athlete_id = source.id AND r.competition_id = m.competition_id
+      GROUP BY m.canonical_id
+    `, person.id);
+    const byId = new Map(withCoach.map((row) => [row.canonical_id, row]));
+    for (const athlete of coachedAthletes) {
+      const row = byId.get(athlete.id);
+      athlete.coach_competitions_count = row?.coach_competitions_count ?? 0;
+      athlete.coach_results_count = row?.coach_results_count ?? 0;
+    }
+  }
+
+  const coachSummary = coachedAthletes.length ? await db.get(`
+    WITH coach_mentions AS (
+      SELECT DISTINCT COALESCE(a.merged_into_id, a.id) AS canonical_id,
+             pcm.competition_id,
+             SUBSTR(c.date_start, 1, 4) AS year
+      FROM person_coach_mentions pcm
+      JOIN athletes a ON a.id = pcm.athlete_id
+      JOIN competitions c ON c.id = pcm.competition_id
+      WHERE pcm.person_id = ? AND c.is_published = 1
+    ),
+    coached_results AS (
+      SELECT DISTINCT m.canonical_id, m.competition_id, r.id
+      FROM coach_mentions m
+      JOIN athletes source ON COALESCE(source.merged_into_id, source.id) = m.canonical_id
+      JOIN results r ON r.athlete_id = source.id AND r.competition_id = m.competition_id
+    )
+    SELECT COUNT(DISTINCT m.canonical_id) AS athletes_count,
+           COUNT(DISTINCT m.competition_id) AS competitions_count,
+           COUNT(DISTINCT cr.id) AS results_count,
+           COUNT(DISTINCT m.year) AS years_count,
+           MIN(m.year) AS first_year,
+           MAX(m.year) AS last_year
+    FROM coach_mentions m
+    LEFT JOIN coached_results cr
+      ON cr.canonical_id = m.canonical_id AND cr.competition_id = m.competition_id
+  `, person.id) : null;
+
+  if (coachSummary) {
+    const regions = await db.all(`
+      SELECT DISTINCT reg.name
+      FROM person_coach_mentions pcm
+      JOIN athletes a ON a.id = pcm.athlete_id
+      JOIN athletes canonical ON canonical.id = COALESCE(a.merged_into_id, a.id)
+      JOIN competitions c ON c.id = pcm.competition_id
+      JOIN regions reg ON reg.id = canonical.region_id
+      WHERE pcm.person_id = ? AND c.is_published = 1
+      ORDER BY reg.name COLLATE NOCASE
+    `, person.id);
+    coachSummary.regions = regions.map((row) => row.name);
+  }
+
+  return { person, activities, judgeRoles, athleteData, coachedAthletes, coachSummary };
 }
 
 export async function listAllResults(db) {
