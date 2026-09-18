@@ -91,7 +91,7 @@ function performancePeriodLabel(athlete) {
   return `${first}–${last}`;
 }
 
-export function athleteSummaryTable({ athletes, L, id = 'athletes-table' }) {
+export function athleteSummaryTable({ athletes, L, id = 'athletes-table', personLinks = false }) {
   const tableId = e(id);
   const idJs = JSON.stringify(id);
   return `<div class="scroll"><table id="${tableId}">
@@ -106,7 +106,7 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table' }) {
 <th scope="col" class="c sort" data-sort="7" data-default="desc" role="button" tabindex="0">Результатов</th>
 </tr></thead>
 <tbody>${athletes.map((athlete) => `<tr>
-<td>${athlete.slug ? `<a href="${e(L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
+<td>${athlete.slug ? `<a href="${e(personLinks ? L.person(athlete.slug) : L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
 <td>${e(athlete.region || '—')}</td>
 <td class="c n" data-sort-value="${athlete.birth_year ?? ''}">${e(athlete.birth_year || '—')}</td>
 <td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(sportRankLabel(athlete.sport_rank))}</td>
@@ -515,7 +515,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   ${coachedAthletes.length ? `<section class="cat person-role">
     <h2>Тренер</h2>
     <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
-    ${athleteSummaryTable({ athletes: coachedAthletes, L, id: 'coach-athletes-table' })}
+    ${athleteSummaryTable({ athletes: coachedAthletes, L, id: 'coach-athletes-table', personLinks: true })}
   </section>` : ''}
 
   ${judgeRoles.length ? `<section class="cat person-role">
