@@ -88,14 +88,15 @@ export function competitionCard(body, comp, categories = []) {
     fact('trophy', 'Уровень', esc(comp.rank_name || ''), rankHref),
   ].filter(Boolean).join('');
 
-  const sourceLinks = [
+  const sourceBlocks = [
     comp.source_url
-      ? `<a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">Скачать с сайта организатора${formatSuffix}</a>`
+      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">Оригинал${formatSuffix}</a></div></div>`
       : '',
     archived
-      ? `<a href="${esc(archived)}" download>Скачать копию с нашего сайта${formatSuffix}</a>`
+      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(archived)}" download>Копия${formatSuffix}</a></div></div>`
       : '',
-  ].filter(Boolean).join('');
+  ].filter(Boolean);
+  const sourceCount = sourceBlocks.length;
 
   const card = `<section class="competition-card" aria-label="Карточка турнира">
   <div class="competition-top">
@@ -106,11 +107,11 @@ export function competitionCard(body, comp, categories = []) {
     </div>
   </div>
   ${facts ? `<div class="competition-facts">${facts}</div>` : ''}
-  <div class="competition-stats">
+  <div class="competition-stats competition-stats-${2 + sourceCount}">
     ${stat('categories', live.length, 'категорий')}
     ${stat('results', results, 'результатов')}
+    ${sourceBlocks.join('')}
   </div>
-  ${sourceLinks ? `<div class="competition-source">${icon('source')}<div class="competition-source-links">${sourceLinks}</div></div>` : ''}
 </section>`;
 
   body = body.replace(headerMatch[0], card);
@@ -133,21 +134,26 @@ export function competitionCard(body, comp, categories = []) {
 .competition-fact-link, .competition-fact-link:hover, .competition-fact-link:focus-visible { color:var(--accent); text-decoration:none; }
 .competition-fact-link::after { content:''; position:absolute; inset:0; }
 .competition-fact-link:focus-visible::after { outline:2px solid var(--accent); outline-offset:-2px; }
-.competition-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
-.competition-stat { display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
+.competition-stats { display:grid; gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
+.competition-stats-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.competition-stats-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.competition-stats-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.competition-stat, .competition-source { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .competition-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.2rem; line-height:1.1; }
 .competition-stat span { display:block; margin-top:.08rem; color:var(--ink-3); font-size:.82rem; }
-.competition-source { display:flex; gap:.65rem; align-items:flex-start; padding:.8rem .9rem; border-top:1px solid var(--rule); font-size:.92rem; }
-.competition-source-links { display:flex; flex-wrap:wrap; gap:.35rem 1rem; }
-.competition-source-links a { white-space:nowrap; }
-@media (max-width:760px) { .competition-facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.competition-source-label { display:block; margin-bottom:.08rem; color:var(--ink-3); font-size:.72rem; }
+.competition-source a { display:block; color:var(--accent); font-size:.82rem; line-height:1.2; text-decoration:none; overflow-wrap:anywhere; }
+.competition-source a:hover, .competition-source a:focus-visible { text-decoration:underline; }
+@media (max-width:760px) {
+  .competition-facts { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .competition-stats-3, .competition-stats-4 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
 @media (max-width:520px) {
   .competition-top { grid-template-columns:5.2rem minmax(0,1fr); padding:1rem; gap:.9rem; align-items:start; }
   .competition-visual { width:5.2rem; height:6.5rem; }
   .competition-visual-placeholder span { font-size:1.05rem; }
   .competition-facts { grid-template-columns:1fr; }
   .competition-stats { grid-template-columns:1fr 1fr; }
-  .competition-source-links { flex-direction:column; }
 }
 </style></body>`);
 }
