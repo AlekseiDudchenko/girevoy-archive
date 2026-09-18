@@ -95,10 +95,16 @@ jobs:
           download 2025 'https://vfgs.ru/assets/files/protocoly/2025/chemp.-cfo-9-13.04.2025_compressed.pdf' 'chemp.-cfo-9-13.04.2025_compressed.pdf'
           download 2025 'https://vfgs.ru/assets/files/protocoly/2025/pfo_2025.pdf' 'pfo_2025.pdf'
           download 2025 'https://vfgs.ru/assets/files/protocoly/2025/chszfo-2025-s-pechatyami_250422_114952.pdf' 'chszfo-2025-s-pechatyami_250422_114952.pdf'
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/protokl-chempionat-rossii-2025.pdf' 'protokol-chempionat-rossii-2025.pdf'
+          download 2025 'https://vfgs.ru/assets/files/protocoly/2025/yufo-i-skfo.pdf' 'yufo-i-skfo.pdf'
 
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly-chempionata-yufo-i-skfo.pdf' 'protokoly-chempionata-yufo-i-skfo.pdf'
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokol-chempionata-szfo.pdf' 'protokol-chempionata-szfo.pdf'
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly-ufo.pdf' 'protokoly-ufo.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/Chempionat_Rossii_2026.pdf' 'Chempionat_Rossii_2026.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokol_chempionat_TsFO.pdf' 'protokol_chempionat_TsFO.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly_SFO_DFO_2026.pdf' 'protokoly_SFO_DFO_2026.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/Protokoly-PFO-2026.pdf' 'Protokoly-PFO-2026.pdf'
 
       - name: Build source manifest
         shell: python

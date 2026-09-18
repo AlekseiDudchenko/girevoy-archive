@@ -151,14 +151,39 @@
       "sha256": "c0ceed6a5b65796aa5963bbe5c8fa2066ade66a1ac5aac93290541f766318fb8"
     },
     {
+      "path": "sources/2025/protokol-chempionat-rossii-2025.pdf",
+      "size_bytes": 8477536,
+      "sha256": "7ddc4fd13b3e69348e22395599122057e899ec74b6bd49de9fe40b0c3e88f923"
+    },
+    {
       "path": "sources/2025/protokol-kubok-rossii-2025-g-sankt-peterburg.pdf",
       "size_bytes": 9011625,
       "sha256": "63f3138b5aa8c3cd3de66e2556f46e0bdc7da86e28b7250cb352099fe29640da"
     },
     {
+      "path": "sources/2025/yufo-i-skfo.pdf",
+      "size_bytes": 8458521,
+      "sha256": "53f8eedfb48a02565fb298c44161c9b2d8f2aee6347b6f42771176a0eae86e82"
+    },
+    {
+      "path": "sources/2026/Chempionat_Rossii_2026.pdf",
+      "size_bytes": 6998224,
+      "sha256": "2e9d6d82b7f0259eeee8cb2cc62ba98bd83bf80de1c6361fa99ab57a7ac3f003"
+    },
+    {
+      "path": "sources/2026/Protokoly-PFO-2026.pdf",
+      "size_bytes": 4675772,
+      "sha256": "fe267a129af6404ec3d7ced06a44353828c833949554c84f32bda41b5f428873"
+    },
+    {
       "path": "sources/2026/protokol-chempionata-szfo.pdf",
       "size_bytes": 4400853,
       "sha256": "445d3107af03ced9b7c0062addf3fdc780d593a6b4aa24e22b97190009f87622"
+    },
+    {
+      "path": "sources/2026/protokol_chempionat_TsFO.pdf",
+      "size_bytes": 5119611,
+      "sha256": "25e75f18f05b1fac0ce09db54e6176a443009da57b69e063584d56d3182e65e4"
     },
     {
       "path": "sources/2026/protokoly-chempionata-yufo-i-skfo.pdf",
@@ -169,6 +194,11 @@
       "path": "sources/2026/protokoly-ufo.pdf",
       "size_bytes": 6591230,
       "sha256": "cabe35a067cd170bc3ad61098db71413852a123104651e1db6fa5981db34dc91"
+    },
+    {
+      "path": "sources/2026/protokoly_SFO_DFO_2026.pdf",
+      "size_bytes": 5017782,
+      "sha256": "bf1f4fe6575b1da013cd67215ed307097683482b9600756eec60514484071e13"
     },
     {
       "path": "sources/README.md",

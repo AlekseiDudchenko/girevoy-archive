@@ -17,7 +17,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "2065160019030771",
     "regions_total": 51,
-    "participants_total": 1211
+    "participants_total": 1211,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2025/protokl-chempionat-rossii-2025.pdf"
   },
   "columns": [
     "place",
