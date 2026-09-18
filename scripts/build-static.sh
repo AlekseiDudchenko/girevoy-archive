@@ -45,6 +45,8 @@ python3 scripts/gen_seed.py data/chempionat-rossii-2022.json > "$BUILD_DIR/chemp
 python3 scripts/gen_seed_status.py data/chempionat-rossii-2021.json > "$BUILD_DIR/chempionat-rossii-2021.sql"
 python3 scripts/gen_seed_status.py data/kubok-rossii-2022.json > "$BUILD_DIR/kubok-rossii-2022.sql"
 python3 scripts/gen_seed_status.py data/kubok-rossii-2021.json > "$BUILD_DIR/kubok-rossii-2021.sql"
+python3 scripts/gen_seed.py data/chempionat-tsfo-yufo-szfo-pfo-skfo-2021.json > "$BUILD_DIR/chempionat-tsfo-yufo-szfo-pfo-skfo-2021.sql"
+python3 scripts/gen_seed_status.py data/chempionat-dfo-sfo-ufo-2021.json > "$BUILD_DIR/chempionat-dfo-sfo-ufo-2021.sql"
 python3 scripts/gen_people.py > "$BUILD_DIR/people.sql"
 python3 scripts/gen_corrections.py > "$BUILD_DIR/corrections.sql"
 
@@ -85,6 +87,8 @@ cat \
   "$BUILD_DIR/chempionat-rossii-2021.sql" \
   "$BUILD_DIR/kubok-rossii-2022.sql" \
   "$BUILD_DIR/kubok-rossii-2021.sql" \
+  "$BUILD_DIR/chempionat-tsfo-yufo-szfo-pfo-skfo-2021.sql" \
+  "$BUILD_DIR/chempionat-dfo-sfo-ufo-2021.sql" \
   seeds/0005_merges.sql \
   seeds/0006_normalize_snatch.sql \
   "$BUILD_DIR/corrections.sql" \
