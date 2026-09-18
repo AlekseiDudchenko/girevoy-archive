@@ -42,6 +42,35 @@ for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко 
   assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
 });
 
+test('2024 glued Khlebodarov and Anasenko coaches are split', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Коломин Д., Хлебодаров А. Анасенко А.В.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Коломин Д.|Хлебодаров А.|Анасенко А.В.');
+});
+
+test('debug glued Khlebodarov Anasenko source competition', () => {
+  const sql = new DatabaseSync('.local/girevoy.db');
+  try {
+    const rows = sql.prepare(`
+      SELECT c.slug, c.name, a.raw_name
+      FROM person_coach_aliases a
+      JOIN competitions c ON c.id = a.competition_id
+      WHERE a.raw_name = 'Хлебодаров А.Анасенко А.В.'
+      ORDER BY c.date_start
+    `).all();
+    console.log('DEBUG_GLUED=' + JSON.stringify(rows));
+  } finally {
+    sql.close();
+  }
+});
+
 test('punctuation in coach spelling does not create a second person', () => {
   const script = `
 import sys
