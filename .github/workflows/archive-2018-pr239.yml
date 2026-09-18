@@ -1,0 +1,74 @@
+name: Archive 2018 sources for PR 239
+
+on:
+  push:
+    branches: [import-russia-2018]
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: import-russia-2018
+          fetch-depth: 0
+
+      - name: Download and verify originals
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, urllib.request
+
+          files = [
+              {
+                  "url": "https://vfgs.ru/assets/files/protocoly/2018/chempionat-rossii-2018.xlsx",
+                  "path": "sources/2018/chempionat-rossii-2018.xlsx",
+                  "size_bytes": 211769,
+                  "sha256": "4b76b13ae357de4de50641d37f0b82a296fcade80534fc3f73060a0a2613058d",
+              },
+              {
+                  "url": "https://vfgs.ru/assets/files/protocoly/2018/kubok-rossii-2018-g.-alushta.xlsx",
+                  "path": "sources/2018/kubok-rossii-2018-g.-alushta.xlsx",
+                  "size_bytes": 194603,
+                  "sha256": "30cf224ac3897c21714be59a793f40b2c1098c24b800d34734332eab5d941bdc",
+              },
+          ]
+
+          for item in files:
+              data = urllib.request.urlopen(item["url"], timeout=60).read()
+              digest = hashlib.sha256(data).hexdigest()
+              if len(data) != item["size_bytes"] or digest != item["sha256"]:
+                  raise SystemExit(
+                      f"{item['url']}: expected {item['size_bytes']} bytes / {item['sha256']}, "
+                      f"got {len(data)} / {digest}"
+                  )
+              dest = pathlib.Path(item["path"])
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              dest.write_bytes(data)
+
+          manifest_path = pathlib.Path("sources/manifest.json")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          by_path = {entry["path"]: entry for entry in manifest["files"]}
+          for item in files:
+              by_path[item["path"]] = {
+                  "path": item["path"],
+                  "size_bytes": item["size_bytes"],
+                  "sha256": item["sha256"],
+              }
+          manifest["files"] = [by_path[p] for p in sorted(by_path)]
+          manifest_path.write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Commit sources and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sources/2018 sources/manifest.json
+          git rm .github/workflows/archive-2018-pr239.yml
+          git commit -m "Archive original 2018 protocol files"
+          git push origin HEAD:import-russia-2018
