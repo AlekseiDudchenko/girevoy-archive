@@ -149,7 +149,7 @@ INSERT INTO _athlete_merge_map (canonical, duplicate, birth_year) VALUES
   ('Пчелкин Тимур Андреевич', 'Пчелкин Тимур', 2005),
   ('Сарлаев Андрей Дмитриевич', 'Сарлаев Андрей', 2003),
   ('Лукьянов Даниэль', 'Лукьянов Даниель', 1999),
-  ('Мажаева Наталия', 'Мажаева Наталья', 1999);
+  ('Мажаева Наталия Евгеньевна', 'Мажаева Наталья', 1999);
 
 DROP TABLE IF EXISTS _resolved_athlete_merges;
 CREATE TEMP TABLE _resolved_athlete_merges AS
