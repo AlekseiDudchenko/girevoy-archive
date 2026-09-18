@@ -92,13 +92,14 @@ function performancePeriodLabel(athlete) {
 }
 
 const COACH_SCOPE_HINT = {
-  competitions: 'Слева — соревнования, где тренером назван этот человек; справа — все соревнования спортсмена в архиве',
-  results: 'Слева — результаты в соревнованиях, где тренером назван этот человек; справа — все результаты спортсмена в архиве',
+  competitions: 'Соревнования, где тренером назван этот человек. Если у спортсмена есть и другие старты, через дробь показано их общее число в архиве',
+  results: 'Результаты в соревнованиях, где тренером назван этот человек. Если у спортсмена есть и другие результаты, через дробь показано их общее число в архиве',
 };
 
 // Пара «с этим тренером / всего»: в строке таблицы лежит вся карьера спортсмена,
 // а карточка тренера считает только старты, где он назван тренером.
 const coachScopedCount = (scope, own, total) => {
+  if (own === total) return e(own);
   const title = e(`${COACH_SCOPE_HINT[scope]}. С этим тренером: ${own}, всего: ${total}`);
   return `<span class="count-pair" title="${title}">${e(own)}<span class="dim"> / ${e(total)}</span></span>`;
 };
@@ -417,20 +418,18 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   coachedAthletes = [], coachSummary = null, L }) {
   const athlete = athleteData?.athlete;
   const results = athleteData?.results || [];
+  // Метрики тренера считает только coachSummary: строки coachedAthletes хранят всю
+  // карьеру спортсмена, и подстановка их сумм дала бы правдоподобное, но другое число.
+  // Без сводки метрика не рисуется вовсе.
   const coachRegions = coachSummary?.regions?.length
     ? coachSummary.regions
     : [...new Set(coachedAthletes.map((row) => row.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ru'));
-  const coachFirstYear = coachSummary?.first_year
-    || coachedAthletes.map((row) => row.first_year).filter(Boolean).sort()[0] || '';
-  const coachLastYear = coachSummary?.last_year
-    || coachedAthletes.map((row) => row.last_year).filter(Boolean).sort().at(-1) || '';
-  const coachYears = coachSummary?.years_count
-    ?? (coachFirstYear && coachLastYear ? Number(coachLastYear) - Number(coachFirstYear) + 1 : 0);
+  const coachFirstYear = coachSummary?.first_year || '';
+  const coachLastYear = coachSummary?.last_year || '';
+  const coachYears = coachSummary?.years_count ?? '';
   const coachAthletes = coachSummary?.athletes_count ?? coachedAthletes.length;
-  const coachResults = coachSummary?.results_count
-    ?? coachedAthletes.reduce((sum, row) => sum + Number(row.results_count || 0), 0);
-  const coachCompetitions = coachSummary?.competitions_count
-    ?? coachedAthletes.reduce((sum, row) => sum + Number(row.competitions_count || 0), 0);
+  const coachResults = coachSummary?.results_count ?? '';
+  const coachCompetitions = coachSummary?.competitions_count ?? '';
   const name = person.display_name;
   const series = new Map();
   for (const r of results) {

@@ -98,7 +98,7 @@ test('empty roles do not create tabs', () => {
 });
 
 
-test('coach profile card shows four metrics with the year range and regions', () => {
+test('coach profile card shows four metrics, regions and the period cell', () => {
   const html = personTabs(renderPerson({
     person: { display_name: 'Попова А.Е.' },
     activities: [],
@@ -124,10 +124,35 @@ test('coach profile card shows four metrics with the year range and regions', ()
   assert.ok(html.includes('<strong>34</strong><span>спортсмена</span>'));
   assert.ok(html.includes('<strong>286</strong><span>результатов</span>'));
   assert.ok(html.includes('<strong>47</strong><span>соревнований</span>'));
-  assert.ok(html.includes(
-    '<strong>12 <span class="profile-stat-range">(2008–2026)</span></strong><span>лет</span>'));
+  assert.ok(html.includes('<strong>12</strong><span>лет</span>'));
   assert.ok(html.includes('<strong>Регионы:</strong> Москва · Московская область'));
-  assert.ok(html.includes('profile-stats-four'));
+  assert.ok(html.includes('<strong>Период:</strong> 2008–2026'));
+  assert.match(html, /<div class="coach-meta coach-meta-split">/);
+  assert.match(html, /<div class="profile-stats profile-stats-4">/);
+});
+
+test('coach card omits metrics when the summary is missing', () => {
+  const html = personTabs(renderPerson({
+    person: { display_name: 'Попова А.Е.' },
+    activities: [],
+    athleteData: null,
+    coachedAthletes: [
+      { name: 'Первый', slug: 'a1', region: 'Москва', results_count: 41, competitions_count: 9 },
+      { name: 'Второй', slug: 'a2', region: 'Москва', results_count: 7, competitions_count: 3 },
+    ],
+    judgeRoles: [],
+    L: links.worker,
+  }));
+
+  assert.ok(html.includes('aria-label="Карточка тренера"'));
+  // Спортсменов столько, сколько строк, — это не сумма чужих счётчиков.
+  assert.ok(html.includes('<strong>2</strong><span>спортсмена</span>'));
+  assert.match(html, /<div class="profile-stats profile-stats-1">/);
+  assert.ok(!/<strong>\d+<\/strong><span>результат/.test(html));
+  assert.ok(!/<strong>\d+<\/strong><span>соревновани/.test(html));
+  assert.ok(!/<strong>\d+<\/strong><span>(год|года|лет)/.test(html));
+  assert.ok(!html.includes('Период:'));
+  assert.ok(!html.includes('<div class="coach-meta coach-meta-split">'));
 });
 
 test('coach card never adds a second h1 and hides on other tabs', () => {
@@ -185,6 +210,25 @@ test('coach athlete table pairs coach-scoped counts with career totals', () => {
   assert.ok(html.includes('С этим тренером: 4, всего: 9'));
   assert.ok(html.includes('data-sort-value="4"'));
   assert.ok(html.includes('data-sort-value="29"'));
+});
+
+test('coach athlete table keeps a single number when the counts agree', () => {
+  const html = renderPerson({
+    person: { display_name: 'Попова А.Е.' },
+    activities: [],
+    athleteData: null,
+    coachedAthletes: [{
+      name: 'Спортсмен', slug: 'athlete', region: 'Москва',
+      competitions_count: 3, results_count: 6,
+      coach_competitions_count: 3, coach_results_count: 6,
+    }],
+    judgeRoles: [],
+    L: links.worker,
+  });
+
+  assert.ok(!html.includes('count-pair'));
+  assert.ok(html.includes('<td class="c n" data-sort-value="3">3</td>'));
+  assert.ok(html.includes('<td class="c n" data-sort-value="6">6</td>'));
 });
 
 test('role-specific page links open the requested person tab', () => {
