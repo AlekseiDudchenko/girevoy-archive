@@ -1,6 +1,26 @@
 {
   "files": [
     {
+      "path": "sources/2019/chempionat-rossii-2019.xlsx",
+      "size_bytes": 124735,
+      "sha256": "8e21e879e441ae86e9f6911c3d6ce025b16b7aeebcad5a213ddbb0c17d404cf8"
+    },
+    {
+      "path": "sources/2019/kubok-rossii-2019.xlsx",
+      "size_bytes": 294421,
+      "sha256": "9ebdb000fc0f1d7286143d3520f3782a427b889e8ac46aecdc439687d8c59fe7"
+    },
+    {
+      "path": "sources/2020/kr2020-SPb.xlsx",
+      "size_bytes": 463499,
+      "sha256": "bd89726c42d695e8fe42ad9f3cba2acc8668eb7debcbf4c81dfb59f97f562ddc"
+    },
+    {
+      "path": "sources/2020/rus-champ-2020.xlsx",
+      "size_bytes": 168933,
+      "sha256": "0113af5c1d8ec74f542d403e6194502ff05ddccf42362cbe3826fdd4d6fbaf76"
+    },
+    {
       "path": "sources/2021/protokol-chr-2021g.r-n-d-.xlsx",
       "size_bytes": 372555,
       "sha256": "dbb3bfbd418f2d3ba475ca0602b2ad7086ecc5c2d922262c93e21b8acc6778fd"
@@ -107,8 +127,8 @@
     },
     {
       "path": "sources/README.md",
-      "size_bytes": 2049,
-      "sha256": "3fa46564c0a57d0430e5f56bf5a3c3f930d31810984aa91654b25189bd3f8588"
+      "size_bytes": 2779,
+      "sha256": "76c078c68c83d7051e4d50e16255ce1410180990893b6c8508f9b054f9cbc4e9"
     }
   ]
 }
