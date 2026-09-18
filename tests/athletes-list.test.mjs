@@ -54,7 +54,7 @@ test('athlete list renders rank and latest weight class without duplicate year',
   });
 
   assert.match(html, />Разряд<\/th>/);
-  assert.match(html, />Последняя весовая<\/th>/);
+  assert.match(html, />Весовая<\/th>/);
   assert.match(html, /data-sort-value="5">МС<\/td>/);
   assert.match(html, /data-sort-value="95\.5">95\+ кг<\/td>/);
   assert.doesNotMatch(html, /95\+ кг \(2026\)/);
