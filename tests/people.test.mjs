@@ -55,6 +55,19 @@ print('|'.join(coach_names('Коломин Д., Хлебодаров А. Ана�
   assert.equal(actual, 'Коломин Д.|Хлебодаров А.|Анасенко А.В.');
 });
 
+test('known malformed Polyanskiy spelling uses canonical coach', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Полянский .Е.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Полянский В.С.');
+});
+
 test('punctuation in coach spelling does not create a second person', () => {
   const script = `
 import sys
