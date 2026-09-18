@@ -175,6 +175,14 @@
     {
       "slug": "kubok-rossii-2017",
       "generator": "gen_seed_status"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-ufo-2017",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "chempionat-tsfo-szfo-yufo-skfo-pfo-kfo-2017",
+      "generator": "gen_seed"
     }
   ]
 }

@@ -1,0 +1,79 @@
+{
+  "source": {
+    "filename": "zonalnye-sorevnovaniya-evropejskaya-chast.xls",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 7300000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — Excel-протокол зональных соревнований 2017 года (европейская часть: чемпионаты ЦФО, СЗФО, ЮФО, СКФО, ПФО и КФО) в Кирове, архивная копия sources/2017/zonalnye-sorevnovaniya-evropejskaya-chast.xls предоставлена администратором архива. Импортированы 18 индивидуальных категорий (249 строк результатов): длинный цикл мужчины, рывок женщины, двоеборье мужчины. Эстафеты длинного цикла и двоеборья, итоговый командный протокол и список судей не импортируются как обычные индивидуальные результаты; командные очки индивидуальных протоколов в схему не кладутся. Значение «л» (личный зачёт) в командных очках сохранено буквально. У Крячко Александра в длинном цикле свыше 95 кг собственный вес напечатан как «95 70» — исправлено публично на 95.7. Написание разрядов приведено к верхнему регистру («мс» → «МС»), остальные сырые значения — ФИО, регионы, клубы и тренеры — сохранены как напечатано."
+  },
+  "competition": {
+    "slug": "chempionat-tsfo-szfo-yufo-skfo-pfo-kfo-2017",
+    "name": "Чемпионат ЦФО, СЗФО, ЮФО, СКФО, ПФО и КФО 2017",
+    "date_start": "2017-04-13",
+    "date_end": "2017-04-16",
+    "city": "Киров",
+    "country": "RU",
+    "competition_rank": "federal_district",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "regions_total": 29,
+    "participants_total": 285,
+    "source_url": null
+  },
+  "warnings": [
+    {
+      "id": "zona-evro-2017-kryachko-body-weight",
+      "type": "source_error_correction",
+      "public": true,
+      "correction_applied": true,
+      "field": "body_weight_kg",
+      "source_value": "95 70",
+      "corrected_value": 95.7,
+      "scope": {
+        "athlete": "Крячко Александр",
+        "discipline": "long_cycle",
+        "sex": "m",
+        "weight_class": "95+"
+      },
+      "reason": "В листе «Д.ц. св.95» собственный вес Крячко Александра напечатан текстом «95 70» без десятичного разделителя. Значение читается как 95.70 кг: оно попадает в категорию свыше 95 кг и согласуется с остальными строками листа (95.1—111.3 кг), а числа «95» и «70» по отдельности смысла собственного веса не имеют.",
+      "organizer_confirmation": {
+        "status": "unconfirmed"
+      }
+    },
+    {
+      "id": "zona-evro-2017-aleksandrova-birth-year",
+      "type": "source_error_correction",
+      "public": true,
+      "correction_applied": true,
+      "field": "birth_year",
+      "source_value": 1996,
+      "corrected_value": 1995,
+      "scope": {
+        "athlete": "Александрова Анастасия",
+        "discipline": "snatch",
+        "sex": "f",
+        "weight_class": "68"
+      },
+      "reason": "В листе «р.68» год рождения напечатан 1996. Девять других официальных протоколов 2017—2022 годов (ЧР-2017, КР-2017, ЧР-2018, КР-2018, ЧР-2019, ЦФО/ЮФО/СЗФО/ПФО/СКФО-2021, ЧР-2021, КР-2021, ПФО-2022) указывают ту же спортсменку из Чувашской Республики с 1995 годом рождения и совпадающим собственным весом.",
+      "organizer_confirmation": {
+        "status": "unconfirmed"
+      }
+    }
+  ],
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": []
+}
