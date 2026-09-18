@@ -51,7 +51,7 @@ def normalize_coach_name(name: str) -> str:
     return re.sub(r"(?<=[\s.][А-ЯЁ])$", ".", name)
 
 
-def canonical_spelling(names: set[str]) -> dict[str, str]:
+def canonical_spelling(names: set[str], confirmed: set[str] | None = None) -> dict[str, str]:
     """Выбрать одно написание на группу, различающуюся только `ё`/`е`.
 
     `Пономарев Д.В.` и `Пономарёв Д.В.` — один тренер, но нормализация их не сводит:
@@ -59,16 +59,34 @@ def canonical_spelling(names: set[str]) -> dict[str, str]:
     группа собирается по ключу без `ё`, а показывается та форма, где `ё` есть — так
     же, как это выбиралось руками в data/person_merges.json (`Алфёрова В.Я.`,
     `Соловьёв А.В.`, `Семёнов А.Н.`).
+
+    Написание, подтверждённое правилом в data/person_role_links.json, сильнее печати:
+    про такого тренера известно полное имя из внешнего источника, а адрес его карточки
+    собран из имени. Одна печать `Ажермачёв А.Б.` в Кубке России 2017 иначе переименовала
+    бы `Ажермачев А.Б.`, чьё имя подтверждено профилем, и увела бы адрес карточки.
     """
+    confirmed = confirmed or set()
     groups: dict[str, set[str]] = {}
     for name in names:
         groups.setdefault(name.replace("ё", "е"), set()).add(name)
     resolved = {}
     for key, variants in groups.items():
-        preferred = sorted(variants, key=lambda n: ("ё" not in n, n))[0]
+        preferred = sorted(variants, key=lambda n: (n not in confirmed, "ё" not in n, n))[0]
         for variant in variants:
             resolved[variant] = preferred
     return resolved
+
+
+def apply_spelling(rules: dict, spelling: dict[str, str]) -> dict:
+    """Перевести ключи правил в написание, выбранное canonical_spelling().
+
+    Правило в data/person_role_links.json привязано к написанию, а `ё`/`е` выбирается
+    уже по всему списку тренеров: стоит новому протоколу напечатать `Ажермачёв А.Б.`,
+    и профиль, заведённый на `Ажермачев А.Б.`, перестаёт срабатывать молча. Ключ
+    сопоставляется без `ё`, как и сама группа написаний.
+    """
+    canonical = {name.replace("ё", "е"): preferred for name, preferred in spelling.items()}
+    return {canonical.get(key.replace("ё", "е"), key): value for key, value in rules.items()}
 
 
 def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
@@ -230,7 +248,8 @@ def main() -> None:
                 for coach,printed in coach_mentions(raw_coach, merges, splits):
                     coaches.add(coach); links.add((coach,athlete,full_name)); mentions.add((coach,athlete,full_name,comp_slug))
                     aliases.add((coach,printed,comp_slug))
-    spelling=canonical_spelling(coaches)
+    spelling=canonical_spelling(coaches,set(role_links)|set(profiles))
+    role_links=apply_spelling(role_links,spelling); profiles=apply_spelling(profiles,spelling)
     coaches={spelling[c] for c in coaches}
     links={(spelling[c],a,n) for c,a,n in links}
     mentions={(spelling[c],a,n,s) for c,a,n,s in mentions}

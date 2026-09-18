@@ -35,11 +35,50 @@ sys.path.insert(0, 'scripts')
 from gen_people import coach_names, load_person_rules
 
 merges, splits = load_person_rules()
-for value in ['А.Е.Попова', 'АбдуллинР.Р.']:
+for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко А.В.', 'Анасенко МС.В.']:
     print('|'.join(coach_names(value, merges, splits)))
 `;
   const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
-  assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.']);
+  assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
+});
+
+test('2024 glued Khlebodarov and Anasenko coaches are split', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Коломин Д., Хлебодаров А. Анасенко А.В.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Коломин Д.|Хлебодаров А.|Анасенко А.В.');
+});
+
+test('known malformed Polyanskiy spelling uses canonical coach', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Полянский .Е.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Полянский В.С.');
+});
+
+test('known malformed Lyubimskiy spelling uses canonical coach', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Любимскмй С.А.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Любимский С.А.');
 });
 
 test('punctuation in coach spelling does not create a second person', () => {

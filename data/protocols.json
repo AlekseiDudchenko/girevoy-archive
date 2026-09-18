@@ -167,6 +167,14 @@
     {
       "slug": "chempionat-dfo-sfo-ufo-2021",
       "generator": "gen_seed_status"
+    },
+    {
+      "slug": "chempionat-rossii-2017",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "kubok-rossii-2017",
+      "generator": "gen_seed_status"
     }
   ]
 }
