@@ -66,6 +66,19 @@ test('debug built person records for Khleb/Anasenko', () => {
   }
 });
 
+test('glued Khlebodarov and Anasenko coaches are split', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Коломин Д., Хлебодаров А. Анасенко А.В.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Коломин Д.|Хлебодаров А.|Анасенко А.В.');
+});
+
 test('punctuation in coach spelling does not create a second person', () => {
   const script = `
 import sys
