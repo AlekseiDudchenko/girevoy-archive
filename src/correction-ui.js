@@ -3,6 +3,8 @@ const FIELD_LABELS = {
   total_reps: 'Подъёмы', points: 'Результат', result_value: 'Результат', place: 'Место',
   time_limit_min: 'Регламент', hands: 'Руки', weight_class_raw: 'Весовая категория',
   discipline_id: 'Дисциплина', discipline: 'Дисциплина', event_date: 'Дата',
+  region_id: 'Регион', club_id: 'Клуб', coach: 'Тренер', sport_rank_id: 'Разряд',
+  last_name: 'Фамилия', first_name: 'Имя', middle_name: 'Отчество',
 };
 const UNITS = { bell_kg: ' кг', body_weight_kg: ' кг', time_limit_min: ' мин' };
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) =>

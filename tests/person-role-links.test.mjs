@@ -9,6 +9,7 @@ const seedFiles = [
   'migrations/0001_init.sql',
   'migrations/0002_people.sql',
   'seeds/0001_reference.sql',
+  'seeds/0002_regions.sql',
   'seeds/0003_chempionat-rossii-2026.sql',
   'seeds/0004_chempionat-rossii-2025.sql',
   'seeds/0005_merges.sql',

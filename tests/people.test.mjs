@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { listCoaches, getPerson } from '../src/queries.js';
 import { renderCoaches, renderPerson, links } from '../src/render.js';
 
-const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql',
+const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 'seeds/0001_reference.sql', 'seeds/0002_regions.sql',
   'seeds/0003_chempionat-rossii-2026.sql', 'seeds/0004_chempionat-rossii-2025.sql'];
 const after2024 = ['seeds/0005_merges.sql'];
 const execOptions = { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 };
