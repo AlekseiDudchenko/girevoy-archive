@@ -28,7 +28,8 @@ def athlete_sql(full_name: str, born: str, names_without_middle: bool = False) -
 
 
 def normalize_coach_name(name: str) -> str:
-    return name.strip().replace(". ", ".")
+    name = name.strip().replace(". ", ".")
+    return re.sub(r"(?<=[А-ЯЁ])\s*,\s*(?=[А-ЯЁ]\.)", ".", name)
 
 
 def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:
@@ -100,6 +101,7 @@ def coach_names(raw: str | None, merges: dict[str, str], splits: dict[str, list[
     raw_value = raw.strip()
     parts = split_coach_value(raw_value, splits)
     if parts is None:
+        raw_value = normalize_coach_name(raw_value)
         parts = []
         for token in re.split(r"[,;]", raw_value):
             parts.extend(split_coach_token(token, splits))
