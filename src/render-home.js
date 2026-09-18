@@ -46,7 +46,7 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.results)}">Результатов</a></dt><dd>${stats.results}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(athletesHref)}">Спортсменов</a></dt><dd>${stats.athletes}</dd></div>
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.coaches)}">Тренеров</a></dt><dd>${stats.coaches}</dd></div>
-    <div><dt>Регионов</dt><dd class="tally-pending" title="Будет заполнено после нормализации регионов">подсчитываем</dd></div>
+    <div><dt>Регионов</dt><dd>${stats.regions}</dd></div>
     <div><dt>Клубов и школ</dt><dd class="tally-pending" title="Будет заполнено после нормализации клубов и школ">подсчитываем</dd></div>
     <div><dt>Лет статистики</dt><dd>${statisticsYears}</dd></div>
     <div><dt>Категорий</dt><dd>${stats.unique_categories}</dd></div>
