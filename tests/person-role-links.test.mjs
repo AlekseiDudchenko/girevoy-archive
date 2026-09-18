@@ -1,13 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { getPerson } from '../src/queries.js';
 
 const seedFiles = [
-  'migrations/0001_init.sql',
-  'migrations/0002_people.sql',
+  ...readdirSync('migrations').filter((f) => f.endsWith('.sql')).sort().map((f) => `migrations/${f}`),
   'seeds/0001_reference.sql',
   'seeds/0002_regions.sql',
   'seeds/0003_chempionat-rossii-2026.sql',
