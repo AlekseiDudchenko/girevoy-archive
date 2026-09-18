@@ -261,6 +261,7 @@ export function renderCoaches({ coaches, L }) {
 <p class="lead">Тренеры и их спортсмены в истории соревнований по гиревому спорту.</p>
 ${coaches.length ? `<label for="coach-search">Поиск по имени или региону</label>
 <input id="coach-search" type="search" placeholder="Имя тренера или регион">
+<p class="note" id="coach-count" role="status">Показано строк: ${coaches.length}.</p>
 <div class="scroll"><table id="coaches-table">
 <thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>
 <tbody>${coaches.map((coach) => `<tr>
@@ -279,6 +280,7 @@ ${coaches.length ? `<label for="coach-search">Поиск по имени или 
       row.hidden = !terms.every(function (term) { return text.includes(term); });
       if (!row.hidden) visible++;
     });
+    document.getElementById('coach-count').textContent = 'Показано строк: ' + visible + '.';
     document.getElementById('coach-empty').hidden = visible !== 0;
   });
 })();</script>` : '<p>В опубликованных данных пока нет тренеров.</p>'}` });
