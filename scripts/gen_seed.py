@@ -136,7 +136,8 @@ def main(path):
             rid=BASE+len(results)+1; last,first,middle=split_name(r[1]); aid=index[(last,first,middle,int(r[2].split(".")[-1]))]
             if cat["discipline"] == "biathlon": total_reps=None; points=r[7]
             else: total_reps=r[7]; points=None
-            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],r[1],r[5],r[4],pid,cat_page[cat_id]))
+            raw_name = r[14] if len(r) > 14 and r[14] else r[1]
+            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,r[5],r[4],pid,cat_page[cat_id]))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))

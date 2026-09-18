@@ -1,0 +1,85 @@
+{
+  "source": {
+    "filename": "kr2020-SPb.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 2290000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол Кубка России 2020 в Санкт-Петербурге. Импортированы 14 индивидуальных категорий (152 строки результатов): длинный цикл мужчины и женщины, рывок женщины, двоеборье мужчины. Эстафеты, сводная таблица, гиревое жонглирование, судьи и служебные листы потоков не импортируются как обычные результаты."
+  },
+  "competition": {
+    "slug": "kubok-rossii-2020",
+    "name": "Кубок России 2020",
+    "date_start": "2020-12-10",
+    "date_end": "2020-12-13",
+    "city": "Санкт-Петербург",
+    "country": "RU",
+    "competition_rank": "national_cup",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "4879",
+    "regions_total": 30,
+    "participants_total": 172
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": [],
+  "warnings": [
+    {
+      "id": "kr-2020-samochernov-last-name",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Самачернов Иван",
+        "discipline": "long_cycle",
+        "weight_class": "85"
+      },
+      "field": "last_name",
+      "source_value": "Самачернов",
+      "corrected_value": "Самочернов",
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "message": "В Кубке России 2020 спортсмен напечатан как «Самачернов Иван». В ЧР-2020, ЧР-2021, Кубке России 2021 и чемпионате ДФО/СФО/УФО-2021 тот же спортсмен из Курганской области у тренера Стрекаловских С.К. записан «Самочернов Иван». Архив использует каноническую фамилию «Самочернов», сохраняя исходное написание как raw_name."
+    },
+    {
+      "id": "kr-2020-samochernov-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Самачернов Иван",
+        "discipline": "long_cycle",
+        "weight_class": "85"
+      },
+      "field": "birth_year",
+      "source_value": 1995,
+      "corrected_value": 1998,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "message": "В Кубке России 2020 у «Самачернов Иван» указан 1995 год рождения. В ЧР-2020, ЧР-2021, Кубке России 2021 и чемпионате ДФО/СФО/УФО-2021 тот же спортсмен указан 1998 года рождения. Архив использует 1998 год, сохраняя исходное значение в correction metadata."
+    }
+  ]
+}
