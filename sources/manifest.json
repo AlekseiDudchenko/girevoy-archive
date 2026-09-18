@@ -11,6 +11,16 @@
       "sha256": "59f512de2414c8bd916508d642694c805afd5b1bbaf5cafd3c1b4e169a8d1eb2"
     },
     {
+      "path": "sources/2017/zonalnye-sorevnovaniya-aziatskaya-chast.xls",
+      "size_bytes": 404992,
+      "sha256": "f3779841e48c9646bb12384875303a35380082c0bc90f767d827cde61290cbb3"
+    },
+    {
+      "path": "sources/2017/zonalnye-sorevnovaniya-evropejskaya-chast.xls",
+      "size_bytes": 302592,
+      "sha256": "59c370db57f8ed5e2ec606ac74fbed252d4e788cb71ec7e3b8a40e4f36f71974"
+    },
+    {
       "path": "sources/2018/chempionat-rossii-2018.xlsx",
       "size_bytes": 211769,
       "sha256": "4b76b13ae357de4de50641d37f0b82a296fcade80534fc3f73060a0a2613058d"
