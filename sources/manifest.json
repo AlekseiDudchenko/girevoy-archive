@@ -151,6 +151,11 @@
       "sha256": "c0ceed6a5b65796aa5963bbe5c8fa2066ade66a1ac5aac93290541f766318fb8"
     },
     {
+      "path": "sources/2025/protokol-chempionat-rossii-2025.pdf",
+      "size_bytes": 8477536,
+      "sha256": "7ddc4fd13b3e69348e22395599122057e899ec74b6bd49de9fe40b0c3e88f923"
+    },
+    {
       "path": "sources/2025/protokol-kubok-rossii-2025-g-sankt-peterburg.pdf",
       "size_bytes": 9011625,
       "sha256": "63f3138b5aa8c3cd3de66e2556f46e0bdc7da86e28b7250cb352099fe29640da"
