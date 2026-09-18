@@ -35,11 +35,11 @@ sys.path.insert(0, 'scripts')
 from gen_people import coach_names, load_person_rules
 
 merges, splits = load_person_rules()
-for value in ['А.Е.Попова', 'АбдуллинР.Р.']:
+for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко А.В.', 'Анасенко МС.В.']:
     print('|'.join(coach_names(value, merges, splits)))
 `;
   const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
-  assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.']);
+  assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
 });
 
 test('punctuation in coach spelling does not create a second person', () => {
