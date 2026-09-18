@@ -24,6 +24,20 @@ for value in ['Ковалевский А,А.', 'Трофимов М,А.', 'Ив�
   assert.deepEqual(actual, ['Ковалевский А.А.', 'Трофимов М.А.', 'Иванов А.А.|Петров Б.Б.']);
 });
 
+test('known malformed coach names use canonical spelling', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+for value in ['А.Е.Попова', 'АбдуллинР.Р.']:
+    print('|'.join(coach_names(value, merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.']);
+});
+
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
