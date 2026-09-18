@@ -29,19 +29,7 @@
     "participants_total": 272,
     "source_url": "https://vfgs.ru/assets/files/protocoly/2026/protokol_chempionat_TsFO.pdf"
   },
-  "columns": [
-    "place",
-    "name",
-    "born",
-    "rank",
-    "region",
-    "club",
-    "body_weight_kg",
-    "reps",
-    "rank_achieved",
-    "team_points",
-    "coach"
-  ],
+  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
   "categories": [],
   "deferred": []
 }
