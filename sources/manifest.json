@@ -1,6 +1,16 @@
 {
   "files": [
     {
+      "path": "sources/2018/chempionat-rossii-2018.xlsx",
+      "size_bytes": 211769,
+      "sha256": "4b76b13ae357de4de50641d37f0b82a296fcade80534fc3f73060a0a2613058d"
+    },
+    {
+      "path": "sources/2018/kubok-rossii-2018-g.-alushta.xlsx",
+      "size_bytes": 194603,
+      "sha256": "30cf224ac3897c21714be59a793f40b2c1098c24b800d34734332eab5d941bdc"
+    },
+    {
       "path": "sources/2019/chempionat-rossii-2019.xlsx",
       "size_bytes": 124735,
       "sha256": "8e21e879e441ae86e9f6911c3d6ce025b16b7aeebcad5a213ddbb0c17d404cf8"
