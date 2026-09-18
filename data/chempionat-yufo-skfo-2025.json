@@ -22,19 +22,7 @@
     "participants_total": 120,
     "source_url": "https://vfgs.ru/assets/files/protocoly/2025/yufo-i-skfo.pdf"
   },
-  "columns": [
-    "place",
-    "name",
-    "born",
-    "rank",
-    "region",
-    "club",
-    "body_weight_kg",
-    "reps",
-    "rank_achieved",
-    "team_points",
-    "coach"
-  ],
+  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
   "categories": [],
   "deferred": []
 }
