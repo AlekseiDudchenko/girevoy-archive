@@ -36,7 +36,7 @@ test('person roles render as populated tabs in profile order', () => {
   assert.ok(html.includes('href="/p/coach#coach"'));
   assert.ok(html.includes('href="/p/athlete#athlete"'));
 
-  assert.match(html, /<section class="profile-card" aria-label="Карточка спортсмена">/);
+  assert.match(html, /<section class="profile-card" data-profile-role="default" aria-label="Карточка спортсмена">/);
   assert.match(html, /<div class="profile-avatar" aria-hidden="true">ТП<\/div>/);
   assert.ok(html.includes('<p class="profile-roles">Спортивный деятель · Спортсмен · Тренер · Судья</p>'));
   assert.ok(html.includes('<span class="profile-label">Тренеры</span>'));
@@ -94,7 +94,38 @@ test('empty roles do not create tabs', () => {
   assert.ok(!html.includes('data-person-tab="official"'));
   assert.ok(!html.includes('data-person-tab="athlete"'));
   assert.ok(!html.includes('data-person-tab="judge"'));
-  assert.ok(!html.includes('class="profile-card"'));
+  assert.ok(html.includes('aria-label="Карточка тренера"'));
+});
+
+
+test('coach profile card shows period, four metrics and regions', () => {
+  const html = personTabs(renderPerson({
+    person: { display_name: 'Попова А.Е.' },
+    activities: [],
+    athleteData: null,
+    coachedAthletes: [{ name: 'Спортсмен', slug: 'athlete', region: 'Москва' }],
+    coachSummary: {
+      athletes_count: 34,
+      results_count: 286,
+      competitions_count: 47,
+      years_count: 12,
+      first_year: '2008',
+      last_year: '2026',
+      regions: ['Москва', 'Московская область'],
+    },
+    judgeRoles: [],
+    L: links.worker,
+  }));
+
+  assert.ok(html.includes('aria-label="Карточка тренера"'));
+  assert.ok(html.includes('<p class="profile-roles">Тренер</p>'));
+  assert.ok(html.includes('Период работы: <strong>2008–2026</strong>'));
+  assert.ok(html.includes('<strong>34</strong><span>спортсмена</span>'));
+  assert.ok(html.includes('<strong>286</strong><span>результатов</span>'));
+  assert.ok(html.includes('<strong>47</strong><span>соревнований</span>'));
+  assert.ok(html.includes('<strong>12</strong><span>лет</span>'));
+  assert.ok(html.includes('<strong>Регионы:</strong> Москва · Московская область'));
+  assert.ok(html.includes('profile-stats-four'));
 });
 
 test('role-specific page links open the requested person tab', () => {
