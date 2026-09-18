@@ -2,7 +2,11 @@
 """Сид с реальными данными протокола: JSON из data/ → SQL."""
 import glob
 import json
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gen_regions import alias_map, load_regions, norm_alias
 
 BASE = 0
 MATCH_WITHOUT_MIDDLE = False
@@ -34,8 +38,27 @@ def insert(table, cols, rows):
 
 class Raw(str): pass
 
-def region_name(raw): return raw.split(",")[0].strip()
-def region_id(name): return Raw(f"(SELECT id FROM regions WHERE name = {esc(region_name(name))} AND country = 'RU')")
+REGION_ALIASES = alias_map(load_regions())
+
+
+def region_name(raw):
+    """Канонический регион по написанию из протокола.
+
+    Новое написание не заводит регион молча: генерация падает, пока алиас не
+    добавлен в data/regions.json. Иначе одна опечатка OCR разводит спортсменов
+    одного субъекта по двум region_id, а клубы — по UNIQUE (name, region_id).
+    """
+    key = norm_alias(raw)
+    if key not in REGION_ALIASES:
+        raise ValueError(f"неизвестный регион {raw!r}: добавьте алиас в data/regions.json")
+    return REGION_ALIASES[key]
+
+
+def region_id(name):
+    region_name(name)  # проверка: алиас обязан быть известен
+    return Raw(f"(SELECT region_id FROM region_aliases WHERE alias = {esc(norm_alias(name))})")
+
+
 def club_id(name, region): return Raw(f"(SELECT id FROM clubs WHERE name = {esc(name)} AND region_id = {region_id(region)})")
 def ref(table, code, col="code"): return Raw(f"(SELECT id FROM {table} WHERE {col} = {esc(code)})")
 def rank_id(label):
@@ -79,13 +102,12 @@ def main(path):
     w("-- Данные извлечены из протокола моделью; сверка человеком не проводилась,")
     w("-- поэтому results.verified_by остаётся пустым (FR-A14)."); w("")
 
-    regions, clubs = [], []
+    clubs = []
     for cat in data["categories"]:
         for r in cat["rows"]:
             reg = region_name(r[4])
-            if reg not in regions: regions.append(reg)
             if (r[5], reg) not in clubs: clubs.append((r[5], reg))
-    w("INSERT OR IGNORE INTO regions (name, country) VALUES"); w(",\n".join(f"  ({esc(r)}, 'RU')" for r in regions) + ";"); w("")
+    # Регионы не заводятся из данных: справочник и алиасы — seeds/0002_regions.sql.
     w("INSERT OR IGNORE INTO clubs (name, region_id) VALUES"); w(",\n".join(f"  ({esc(c)}, {region_id(reg)})" for c, reg in clubs) + ";"); w("")
     w("INSERT OR IGNORE INTO federations (name, short_name, country) VALUES"); w(f"  ({esc(comp['federation'])}, 'ВФГС', 'RU');"); w("")
 

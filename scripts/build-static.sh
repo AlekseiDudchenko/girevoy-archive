@@ -55,6 +55,7 @@ python3 scripts/gen_corrections.py > "$BUILD_DIR/corrections.sql"
 cat \
   migrations/*.sql \
   seeds/0001_reference.sql \
+  seeds/0002_regions.sql \
   seeds/0003_chempionat-rossii-2026.sql \
   seeds/0004_chempionat-rossii-2025.sql \
   "$BUILD_DIR/chempionat-rossii-2024.sql" \
