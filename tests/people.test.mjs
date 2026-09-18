@@ -134,6 +134,14 @@ test('coach athlete summaries include full athlete-list statistics', async () =>
     assert.ok(coach);
     const person = await getPerson(db, coach.slug);
     assert.ok(person.coachedAthletes.length);
+    assert.ok(person.coachSummary);
+    assert.equal(person.coachSummary.athletes_count, person.coachedAthletes.length);
+    assert.ok(person.coachSummary.results_count >= 1);
+    assert.ok(person.coachSummary.competitions_count >= 1);
+    assert.ok(person.coachSummary.years_count >= 1);
+    assert.match(String(person.coachSummary.first_year), /^202[3-6]$/);
+    assert.match(String(person.coachSummary.last_year), /^202[3-6]$/);
+    assert.ok(Array.isArray(person.coachSummary.regions));
     for (const athlete of person.coachedAthletes) {
       assert.ok(athlete.results_count >= 1);
       assert.ok(athlete.competitions_count >= 1);
