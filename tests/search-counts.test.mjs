@@ -29,12 +29,15 @@ test('coach search shows and updates filtered row count', () => {
   const html = renderCoaches({
     L,
     coaches: [
-      { name: 'Иванов И.И.', slug: 'ivanov', regions: ['Москва'] },
-      { name: 'Петров П.П.', slug: 'petrov', regions: ['Томская область'] },
+      { name: 'Иванов И.И.', slug: 'ivanov', regions: ['Москва'], first_year: '2019', last_year: '2026' },
+      { name: 'Петров П.П.', slug: 'petrov', regions: ['Томская область'], first_year: '2024', last_year: '2024' },
       { name: 'Сидоров С.С.', slug: 'sidorov', regions: [] },
     ],
   });
 
   assert.match(html, /id="coach-count"[^>]*>Показано строк: 3\.<\/p>/);
+  assert.match(html, />Период<\/th>/);
+  assert.match(html, />2019–2026<\/td>/);
+  assert.match(html, />2024<\/td>/);
   assert.match(html, /coach-count'\)\.textContent = 'Показано строк: ' \+ visible \+ '\.'/);
 });
