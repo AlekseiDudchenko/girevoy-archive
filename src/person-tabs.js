@@ -162,11 +162,14 @@ function coachProfileCard(body, roles) {
     ? `${firstYear}${lastYear && lastYear !== firstYear ? `–${lastYear}` : ''}`
     : '';
 
+  const yearsLabel = `${countLabel(years, 'год', 'года', 'лет')}${period
+    ? ` <span class="profile-stat-range">(${esc(period)})</span>` : ''}`;
+
   const stats = [
     profileStat('coach', athletes, countLabel(athletes, 'спортсмен', 'спортсмена', 'спортсменов')),
     profileStat('bars', results, countLabel(results, 'результат', 'результата', 'результатов')),
     profileStat('flag', competitions, countLabel(competitions, 'соревнование', 'соревнования', 'соревнований')),
-    profileStat('clock', years, countLabel(years, 'год', 'года', 'лет')),
+    profileStat('clock', years, yearsLabel),
   ].join('');
 
   const card = `<section class="profile-card coach-profile-card" data-profile-role="coach" aria-label="Карточка тренера">
@@ -175,7 +178,6 @@ function coachProfileCard(body, roles) {
     <div class="profile-identity">
       ${h1}
       <p class="profile-roles">Тренер</p>
-      ${period ? `<p class="profile-period">Период работы: <strong>${esc(period)}</strong></p>` : ''}
     </div>
   </div>
   <div class="profile-stats profile-stats-four">${stats}</div>
@@ -241,8 +243,6 @@ export function personTabs(body) {
 .profile-identity h1 { margin:0 0 .3rem; }
 .profile-identity h1 .rank { font-size:1.05rem; vertical-align:.3em; margin-left:.5rem; }
 .profile-roles { margin:0; color:var(--ink-2); font-size:1rem; }
-.profile-period { margin:.32rem 0 0; color:var(--ink-3); font-size:.88rem; }
-.profile-period strong { color:var(--ink); font-weight:700; }
 .profile-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
 .profile-icon svg { display:block; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .profile-facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; border-top:1px solid var(--rule); background:var(--rule); }
@@ -255,6 +255,7 @@ export function personTabs(body) {
 .profile-stat { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .profile-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.45rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
 .profile-stat span:not(.profile-icon) { display:block; margin-top:.22rem; color:var(--ink-3); font-size:.82rem; }
+.profile-stat .profile-stat-range { display:inline; margin:0; font-size:inherit; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .profile-details { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); }
 .profile-detail { min-width:0; padding:.9rem; }
 .profile-detail + .profile-detail { border-left:1px solid var(--rule); }

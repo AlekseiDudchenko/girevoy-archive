@@ -98,7 +98,7 @@ test('empty roles do not create tabs', () => {
 });
 
 
-test('coach profile card shows period, four metrics and regions', () => {
+test('coach profile card shows four metrics with the year range and regions', () => {
   const html = personTabs(renderPerson({
     person: { display_name: 'Попова А.Е.' },
     activities: [],
@@ -119,11 +119,13 @@ test('coach profile card shows period, four metrics and regions', () => {
 
   assert.ok(html.includes('aria-label="Карточка тренера"'));
   assert.ok(html.includes('<p class="profile-roles">Тренер</p>'));
-  assert.ok(html.includes('Период работы: <strong>2008–2026</strong>'));
+  assert.ok(!html.includes('profile-period'));
+  assert.ok(!html.includes('Период работы'));
   assert.ok(html.includes('<strong>34</strong><span>спортсмена</span>'));
   assert.ok(html.includes('<strong>286</strong><span>результатов</span>'));
   assert.ok(html.includes('<strong>47</strong><span>соревнований</span>'));
-  assert.ok(html.includes('<strong>12</strong><span>лет</span>'));
+  assert.ok(html.includes(
+    '<strong>12</strong><span>лет <span class="profile-stat-range">(2008–2026)</span></span>'));
   assert.ok(html.includes('<strong>Регионы:</strong> Москва · Московская область'));
   assert.ok(html.includes('profile-stats-four'));
 });
