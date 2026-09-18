@@ -95,6 +95,60 @@
         "evidence": null
       },
       "message": "В исходном протоколе ЧР-2021 для женского рывка в категориях 63 и 63+ кг указан вес гири 32 кг. Архив исправляет это значение на 24 кг как очевидную ошибку протокола; это согласуется с Кубком России 2021 и ЧР-2022. Исправление пока не подтверждено организатором."
+    },
+    {
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "correction_applied": true,
+      "scope": {
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_class": "63",
+        "athlete": "Бутенко Евгений",
+        "source_sheets": [
+          "ДВ 63"
+        ]
+      },
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "id": "chr-2021-butenko-region-club-swap-region",
+      "field": "region_id",
+      "source_value": "Урожай",
+      "corrected_value": "Новосибирская область",
+      "message": "В протоколе ЧР-2021 (лист «ДВ 63», строка 19) у Бутенко Евгения переставлены графы: в «Команде» напечатано «Урожай», в «ДСО, ведомство» — «Новосибирская область». У остальных строк листа порядок обратный: регион в «Команде», общество в «ДСО». «Урожай» — спортивное общество, поэтому архив использует Новосибирскую область как регион и «Урожай» как клуб. Напечатанные значения сохранены в raw_region и raw_club. Исправление пока не подтверждено организатором.",
+      "entity": "result"
+    },
+    {
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "correction_applied": true,
+      "scope": {
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_class": "63",
+        "athlete": "Бутенко Евгений",
+        "source_sheets": [
+          "ДВ 63"
+        ]
+      },
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "id": "chr-2021-butenko-region-club-swap-club",
+      "field": "club_id",
+      "source_value": "Новосибирская область",
+      "corrected_value": "Урожай",
+      "message": "В протоколе ЧР-2021 (лист «ДВ 63», строка 19) у Бутенко Евгения переставлены графы: в «Команде» напечатано «Урожай», в «ДСО, ведомство» — «Новосибирская область». У остальных строк листа порядок обратный: регион в «Команде», общество в «ДСО». «Урожай» — спортивное общество, поэтому архив использует Новосибирскую область как регион и «Урожай» как клуб. Напечатанные значения сохранены в raw_region и raw_club. Исправление пока не подтверждено организатором.",
+      "entity": "result"
     }
   ]
 }

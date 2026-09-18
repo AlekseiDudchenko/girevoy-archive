@@ -159,7 +159,11 @@ def main(path):
             if cat["discipline"] == "biathlon": total_reps=None; points=r[7]
             else: total_reps=r[7]; points=None
             raw_name = r[14] if len(r) > 14 and r[14] else r[1]
-            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,r[5],r[4],pid,cat_page[cat_id]))
+            # Как и с ФИО: в r[4]/r[5] лежит значение, по которому идёт нормализация,
+            # а напечатанное в протоколе — в r[15]/r[16], если оно отличается.
+            raw_region = r[15] if len(r) > 15 and r[15] else r[4]
+            raw_club = r[16] if len(r) > 16 and r[16] else r[5]
+            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,raw_club,raw_region,pid,cat_page[cat_id]))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))
