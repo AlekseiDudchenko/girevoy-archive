@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { renderAthletes } from '../src/athletes.js';
+import { renderCoaches } from '../src/render.js';
+
+const L = {
+  home: '/',
+  results: '/results',
+  coaches: '/coaches',
+  css: '/style.css',
+  athlete: (slug) => `/a/${slug}`,
+  person: (slug) => `/p/${slug}`,
+};
+
+test('athlete search shows and updates filtered row count', () => {
+  const html = renderAthletes({
+    L,
+    athletes: [
+      { name: 'Иванов Иван', slug: 'ivanov', results_count: 1, competitions_count: 1 },
+      { name: 'Петров Петр', slug: 'petrov', results_count: 1, competitions_count: 1 },
+    ],
+  });
+
+  assert.match(html, /id="athlete-count"[^>]*>Показано строк: 2\.<\/p>/);
+  assert.match(html, /athlete-count'\)\.textContent = 'Показано строк: ' \+ visible \+ '\.'/);
+});
+
+test('coach search shows and updates filtered row count', () => {
+  const html = renderCoaches({
+    L,
+    coaches: [
+      { name: 'Иванов И.И.', slug: 'ivanov', regions: ['Москва'] },
+      { name: 'Петров П.П.', slug: 'petrov', regions: ['Томская область'] },
+      { name: 'Сидоров С.С.', slug: 'sidorov', regions: [] },
+    ],
+  });
+
+  assert.match(html, /id="coach-count"[^>]*>Показано строк: 3\.<\/p>/);
+  assert.match(html, /coach-count'\)\.textContent = 'Показано строк: ' \+ visible \+ '\.'/);
+});
