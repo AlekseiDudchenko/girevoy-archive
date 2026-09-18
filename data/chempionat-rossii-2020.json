@@ -35,5 +35,29 @@
     "coach"
   ],
   "categories": [],
-  "deferred": []
+  "deferred": [],
+  "warnings": [
+    {
+      "id": "chr-2020-ukurchiev-last-name",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Укуричев Григорий",
+        "discipline": "long_cycle",
+        "weight_class": "85"
+      },
+      "field": "last_name",
+      "source_value": "Укуричев",
+      "corrected_value": "Укурчиев",
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": null
+      },
+      "message": "В ЧР-2020 фамилия напечатана «Укуричев». В Кубке России 2020 и ЧР-2021 тот же спортсмен 1981 года рождения записан «Укурчиев Григорий». Архив использует вариант «Укурчиев», сохраняя исходное написание как raw_name."
+    }
+  ]
 }
