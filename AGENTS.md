@@ -1,5 +1,13 @@
 # Repository agent rules
 
+## Project roadmap — mandatory
+
+- `docs/roadmap.md` is the **single source of truth for project plans, backlog, priorities, and implementation status**.
+- Before starting any repository task, read the relevant parts of `docs/roadmap.md` so the work is consistent with current priorities and already-completed items.
+- Do not create a parallel backlog in `AGENTS.md`, `CLAUDE.md`, GitHub Issues, PR descriptions, or other files.
+- New product ideas, technical tasks, and priority changes must be reflected in `docs/roadmap.md`.
+- If a change completes, supersedes, or materially changes a roadmap item, update `docs/roadmap.md` in the same PR so it stays in sync.
+
 ## Git workflow — mandatory
 
 - **Never commit or push directly to `main` (or `master`).**
