@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "6421",
     "regions_total": 42,
-    "participants_total": 302
+    "participants_total": 302,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2022/protokol-chr-2022.xlsx"
   },
   "columns": [
     "place",
