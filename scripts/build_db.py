@@ -22,6 +22,9 @@ import sqlite3
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import check_people_rules
+
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "data" / "protocols.json"
 
@@ -65,6 +68,9 @@ def load_manifest():
 
 def generate(manifest, build_dir):
     """Сгенерировать SQL каждого протокола и вернуть список файлов в порядке вставки."""
+    # Правило идентификации тренера, не совпавшее ни с одной строкой, не срабатывает молча —
+    # тот же класс ошибки, что и неразрешённое слияние спортсменов ниже, в report().
+    check_people_rules.verify()
     parts = [ROOT / p for p in sorted((ROOT / "migrations").glob("*.sql"))]
     parts += [ROOT / p for p in BEFORE]
     parts += [ROOT / s for s in manifest["prebuilt_seeds"]]
@@ -136,6 +142,22 @@ def report(conn):
     if unresolved:
         sys.exit("Строки data/merges.json не разрешились в athletes:\n  " + "\n  ".join(unresolved))
 
+    # Связь роли тренера со спортсменом матчится по ФИО + году: промах тоже молчит.
+    role_links_path = ROOT / "data" / "person_role_links.json"
+    if role_links_path.exists():
+        role_links = json.loads(role_links_path.read_text(encoding="utf-8"))
+        unlinked = []
+        for link in role_links.get("coach_athlete_links", []):
+            found = conn.execute(
+                "SELECT COUNT(*) FROM athletes WHERE full_name = ? AND birth_year = ? "
+                "AND merged_into_id IS NULL",
+                (link["athlete"], link["birth_year"])).fetchone()[0]
+            if found != 1:
+                unlinked.append(f"{link['coach']} → {link['athlete']!r} {link['birth_year']}: совпадений {found}")
+        if unlinked:
+            sys.exit("Связи ролей из data/person_role_links.json не разрешились в athletes:\n  "
+                     + "\n  ".join(unlinked))
+
     chains = q("""SELECT COUNT(*) FROM athletes d JOIN athletes c ON c.id = d.merged_into_id
                    WHERE c.merged_into_id IS NOT NULL""")
     if chains:
@@ -146,6 +168,7 @@ def report(conn):
         "results": q("SELECT COUNT(*) FROM results"),
         "athletes": q("SELECT COUNT(*) FROM athletes WHERE merged_into_id IS NULL"),
         "merged": q("SELECT COUNT(*) FROM athletes WHERE merged_into_id IS NOT NULL"),
+        "coaches": q("SELECT COUNT(DISTINCT person_id) FROM person_coach_athletes"),
         "coach_mentions": q("SELECT COUNT(*) FROM person_coach_mentions"),
     }
 
@@ -162,6 +185,7 @@ def main():
     if args.check:
         print(f"манифест сходится с data/: {len(manifest['protocols'])} протоколов "
               f"+ {len(manifest['prebuilt_seeds'])} готовых сида")
+        check_people_rules.verify()
         return
 
     build_dir = ROOT / args.build_dir
@@ -172,7 +196,7 @@ def main():
     stats = build(ROOT / args.db, generate(manifest, build_dir))
     print(f"{args.db}: турниров {stats['competitions']}, результатов {stats['results']}, "
           f"спортсменов {stats['athletes']} (слито {stats['merged']}), "
-          f"упоминаний тренеров {stats['coach_mentions']}")
+          f"тренеров {stats['coaches']} ({stats['coach_mentions']} упоминаний)")
 
 
 if __name__ == "__main__":

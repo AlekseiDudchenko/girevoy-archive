@@ -32,6 +32,7 @@ data/regions.json                канонические регионы и на
 scripts/gen_seed.py              генератор сида протокола из data/*.json
 scripts/gen_regions.py           справочник регионов и алиасов из data/regions.json
 scripts/gen_people.py            производные персоны и история тренеров из data/*.json
+scripts/check_people_rules.py    правила тренеров: срабатывают ли, нет ли цепочек
 scripts/ocr_pdf.py               распознавание протоколов-сканов
 scripts/setup_env.sh             poppler, tesseract, sqlite3; висит на хуке SessionStart
 scripts/snapshot.mjs             статический снимок сайта через node:sqlite
@@ -101,6 +102,7 @@ npm run snapshot     # отрендерить сайт в dist/
 npm run preview      # то и другое + сервер на :8080
 npm run seed:gen     # пересобрать сиды протоколов из data/*.json
 npm run people:gen   # пересобрать .local/people.sql, включая историю тренеров
+npm run people:check # проверить правила тренеров, показать подозрительные имена
 npm run regions:gen  # пересобрать seeds/0002_regions.sql из data/regions.json
 ```
 
