@@ -127,7 +127,8 @@ test('coach profile card shows four metrics, regions and the period cell', () =>
   assert.ok(html.includes('<strong>12</strong><span>лет</span>'));
   assert.ok(html.includes('<strong>Регионы:</strong> Москва · Московская область'));
   assert.ok(html.includes('<strong>Период:</strong> 2008–2026'));
-  assert.match(html, /<div class="coach-meta coach-meta-split">/);
+  // Период стоит в колонке четвёртой метрики и совпадает с ней по ширине.
+  assert.match(html, /<div class="coach-meta coach-meta-split coach-meta-4">/);
   assert.match(html, /<div class="profile-stats profile-stats-4">/);
 });
 
@@ -207,7 +208,7 @@ test('coach athlete table pairs coach-scoped counts with career totals', () => {
 
   assert.ok(html.includes('>4<span class="dim"> / 9</span></span>'));
   assert.ok(html.includes('>29<span class="dim"> / 41</span></span>'));
-  assert.ok(html.includes('С этим тренером: 4, всего: 9'));
+  assert.ok(html.includes('title="С этим тренером: 4, всего: 9"'));
   assert.ok(html.includes('data-sort-value="4"'));
   assert.ok(html.includes('data-sort-value="29"'));
 });

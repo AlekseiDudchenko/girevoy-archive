@@ -188,7 +188,7 @@ function coachProfileCard(body, roles) {
     </div>
   </div>
   ${stats ? `<div class="profile-stats profile-stats-${statCells.length}">${stats}</div>` : ''}
-  <div class="coach-meta${period ? ' coach-meta-split' : ''}">
+  <div class="coach-meta${period ? ` coach-meta-split coach-meta-${statCells.length}` : ''}">
     <div class="coach-meta-cell">${profileIcon('pin')}<span><strong>Регионы:</strong> ${regions ? esc(regions) : '—'}</span></div>
     ${period ? `<div class="coach-meta-cell">${profileIcon('clock')}<span><strong>Период:</strong> ${esc(period)}</span></div>` : ''}
   </div>
@@ -290,7 +290,12 @@ export function personTabs(body) {
 .profile-coaches { color:var(--ink-2); font-size:.93rem; }
 .profile-note { border-top:1px solid var(--rule); padding:.65rem .9rem; color:var(--ink-3); font-size:.82rem; }
 .coach-meta { display:grid; grid-template-columns:minmax(0,1fr); border-top:1px solid var(--rule); background:var(--rule); gap:1px; }
+/* Ячейка периода стоит в колонке последней метрики и совпадает с ней по ширине. */
 .coach-meta-split { grid-template-columns:minmax(0,1fr) auto; }
+.coach-meta-split.coach-meta-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.coach-meta-split.coach-meta-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.coach-meta-split.coach-meta-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.coach-meta-split:not(.coach-meta-0):not(.coach-meta-1) .coach-meta-cell:first-child { grid-column:1 / -2; }
 .coach-meta-cell { display:flex; align-items:center; gap:.55rem; padding:.8rem .9rem; background:var(--surface); color:var(--ink-2); font-size:.9rem; }
 .coach-meta-cell .profile-icon { width:1.15rem; height:1.15rem; }
 .coach-meta-cell strong { color:var(--ink); }
@@ -311,7 +316,9 @@ export function personTabs(body) {
   .profile-facts { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .profile-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .profile-stats:not(.profile-stats-4):not(.profile-stats-2) .profile-stat:last-child { grid-column:1 / -1; }
-  .coach-meta-split { grid-template-columns:minmax(0,1fr); }
+  .coach-meta-split, .coach-meta-split.coach-meta-2, .coach-meta-split.coach-meta-3,
+  .coach-meta-split.coach-meta-4 { grid-template-columns:minmax(0,1fr); }
+  .coach-meta-split .coach-meta-cell:first-child { grid-column:1 / -1; }
   .profile-details { grid-template-columns:1fr; }
   .profile-detail + .profile-detail { border-left:0; border-top:1px solid var(--rule); }
   .person-tabs { margin-left:-.2rem; margin-right:-.2rem; }

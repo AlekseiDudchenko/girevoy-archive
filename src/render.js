@@ -98,9 +98,9 @@ const COACH_SCOPE_HINT = {
 
 // Пара «с этим тренером / всего»: в строке таблицы лежит вся карьера спортсмена,
 // а карточка тренера считает только старты, где он назван тренером.
-const coachScopedCount = (scope, own, total) => {
+const coachScopedCount = (own, total) => {
   if (own === total) return e(own);
-  const title = e(`${COACH_SCOPE_HINT[scope]}. С этим тренером: ${own}, всего: ${total}`);
+  const title = e(`С этим тренером: ${own}, всего: ${total}`);
   return `<span class="count-pair" title="${title}">${e(own)}<span class="dim"> / ${e(total)}</span></span>`;
 };
 
@@ -129,10 +129,10 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table', person
 <td class="c n" data-sort-value="${weightClassSortValue(athlete)}">${e(weightClassLabel(athlete))}</td>
 <td class="c n" data-sort-value="${athlete.last_year ?? athlete.first_year ?? ''}">${e(performancePeriodLabel(athlete))}</td>
 <td class="c n" data-sort-value="${(coachScope ? athlete.coach_competitions_count : athlete.competitions_count) ?? ''}">${coachScope
-  ? coachScopedCount('competitions', athlete.coach_competitions_count ?? 0, athlete.competitions_count ?? 0)
+  ? coachScopedCount(athlete.coach_competitions_count ?? 0, athlete.competitions_count ?? 0)
   : e(athlete.competitions_count ?? 0)}</td>
 <td class="c n" data-sort-value="${(coachScope ? athlete.coach_results_count : athlete.results_count) ?? ''}">${coachScope
-  ? coachScopedCount('results', athlete.coach_results_count ?? 0, athlete.results_count ?? 0)
+  ? coachScopedCount(athlete.coach_results_count ?? 0, athlete.results_count ?? 0)
   : e(athlete.results_count ?? 0)}</td>
 </tr>`).join('')}</tbody></table></div>
 <script>(function () {
