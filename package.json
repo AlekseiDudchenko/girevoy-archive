@@ -19,7 +19,8 @@
     "preview": "npm run build && python3 -m http.server 8080 --directory dist",
     "db:migrate:sources-2021-2023": "wrangler d1 execute girevoy-archive --file=migrations/0011_sources_2021_2023.sql",
     "db:migrate:sources-2025-2026": "wrangler d1 execute girevoy-archive --file=migrations/0012_sources_2025_2026.sql",
-    "db:check": "python3 scripts/build_db.py --check"
+    "db:check": "python3 scripts/build_db.py --check",
+    "people:check": "python3 scripts/check_people_rules.py --report"
   },
   "devDependencies": {
     "wrangler": "^3"
