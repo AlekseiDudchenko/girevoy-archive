@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "4879",
     "regions_total": 30,
-    "participants_total": 172
+    "participants_total": 172,
+    "source_url": "https://vfgs.ru/assets/files/sorevnovania/2021/kr2020-SPb.xlsx"
   },
   "columns": [
     "place",

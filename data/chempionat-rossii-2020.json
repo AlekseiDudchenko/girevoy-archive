@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "4878",
     "regions_total": 45,
-    "participants_total": 269
+    "participants_total": 269,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2020/rus-champ-2020.xlsx"
   },
   "columns": [
     "place",
