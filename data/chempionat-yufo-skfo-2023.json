@@ -1,6 +1,6 @@
 {
   "source": {
-    "filename": "chempionat-yufo-i-skfo (1).xlsx",
+    "filename": "chempionat-yufo-i-skfo.xlsx",
     "page_count": null,
     "is_scan": false,
     "id_base": 910000,
@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "30977",
     "regions_total": 6,
-    "participants_total": 86
+    "participants_total": 86,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2023/chempionat-yufo-i-skfo.xlsx"
   },
   "columns": [
     "place",
