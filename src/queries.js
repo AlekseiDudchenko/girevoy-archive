@@ -99,11 +99,13 @@ export async function getAthlete(db, slug) {
     WHERE s.slug = ?`, slug);
   if (!a) return null;
 
+  // TRIM: протоколы печатают «Васькина Алина» и «Васькина Алина » — висящий пробел
+  // не другое написание, и строка «В протоколах также» не должна повторять одно и то же.
   const spellings = await db.all(`
-    SELECT DISTINCT r.raw_name FROM results r
+    SELECT DISTINCT TRIM(r.raw_name) AS raw_name FROM results r
      WHERE r.athlete_id IN (SELECT id FROM athletes WHERE id = ? OR merged_into_id = ?)
-       AND r.raw_name IS NOT NULL AND r.raw_name <> ?
-     ORDER BY r.raw_name`, a.id, a.id, a.full_name);
+       AND r.raw_name IS NOT NULL AND TRIM(r.raw_name) <> ?
+     ORDER BY 1`, a.id, a.id, a.full_name);
   a.other_spellings = spellings.map((s) => s.raw_name);
 
   const coaches = await db.all(`

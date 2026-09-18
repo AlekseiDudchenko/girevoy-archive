@@ -1,6 +1,16 @@
 {
   "files": [
     {
+      "path": "sources/2017/chempionat-rossii-2017-g.-tomsk.xlsx",
+      "size_bytes": 1004504,
+      "sha256": "f0ea9b07bb681c4cab65a987b9068e4577e507d67d24f96fa1600ef485ae30ec"
+    },
+    {
+      "path": "sources/2017/kubok-rossii-g.-alushta.xls",
+      "size_bytes": 243712,
+      "sha256": "59f512de2414c8bd916508d642694c805afd5b1bbaf5cafd3c1b4e169a8d1eb2"
+    },
+    {
       "path": "sources/2018/chempionat-rossii-2018.xlsx",
       "size_bytes": 211769,
       "sha256": "4b76b13ae357de4de50641d37f0b82a296fcade80534fc3f73060a0a2613058d"

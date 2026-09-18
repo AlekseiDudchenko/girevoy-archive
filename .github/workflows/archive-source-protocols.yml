@@ -64,6 +64,9 @@ jobs:
           }
 
           # Files already used as source material for girevoy-archive.
+          download 2017 'https://vfgs.ru/assets/files/protocoly/2017/chempionat-rossii-2017-g.-tomsk.xlsx' 'chempionat-rossii-2017-g.-tomsk.xlsx'
+          download 2017 'https://vfgs.ru/assets/files/protocoly/2017/kubok-rossii-g.-alushta.xls' 'kubok-rossii-g.-alushta.xls'
+
           download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokol-chr-2021g.r-n-d-.xlsx' 'protokol-chr-2021g.r-n-d-.xlsx'
           download 2021 'https://vfgs.ru/assets/files/protocoly/2021/kubok-rossii2021.xlsx' 'kubok-rossii2021.xlsx' 'e89bd249d526050f532bd91dabfb73b276da03015e383d7ba3589530e907acd5'
           download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokol-chemfoevro-2021-.xlsx' 'protokol-chemfoevro-2021-.xlsx' '6add1ae7b7600b47ee0c2c8c78495c4b7470874b2e78007a096085463af02422'

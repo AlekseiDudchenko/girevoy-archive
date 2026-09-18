@@ -56,11 +56,14 @@ def category_filters(scope, alias="cat", discipline_alias="d"):
 
 def result_filters(scope, result_alias="r"):
     where = []
+    # raw_name хранится как напечатано, вместе с висящими пробелами («Васькина Алина »),
+    # а scope в data/*.json пишется человеком без них. Сравнение по TRIM — иначе правило
+    # молча не срабатывает и исправление не доезжает до edits.
     names = scope.get("athletes") or scope.get("athlete_names")
     if names:
-        where.append(f"{result_alias}.raw_name IN ({sql_list(names)})")
+        where.append(f"TRIM({result_alias}.raw_name) IN ({sql_list(name.strip() for name in names)})")
     if scope.get("athlete"):
-        where.append(f"{result_alias}.raw_name = {esc(scope['athlete'])}")
+        where.append(f"TRIM({result_alias}.raw_name) = {esc(scope['athlete'].strip())}")
     if scope.get("places"):
         where.append(f"{result_alias}.place IN ({', '.join(str(int(v)) for v in scope['places'])})")
     if scope.get("source_pages"):
