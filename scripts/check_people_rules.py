@@ -63,7 +63,13 @@ def rules_fired(raws: list[str], splits: dict[str, list[str]]) -> tuple[set[str]
                     fired.update((token, people.normalize_coach_name(token)))
         for coach in people.coach_names(raw, merges, splits):
             coaches[coach] += 1
-    return fired, coaches
+    # Тот же выбор написания, что делает генератор, — иначе число тренеров здесь
+    # и в собранной базе расходится, и сверка двух путей перестаёт что-либо значить.
+    spelling = people.canonical_spelling(set(coaches))
+    collapsed: Counter = Counter()
+    for name, count in coaches.items():
+        collapsed[spelling[name]] += count
+    return fired, collapsed
 
 
 def check_merges(data: dict, raws: list[str]) -> list[str]:
