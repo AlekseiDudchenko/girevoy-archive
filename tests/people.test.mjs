@@ -42,30 +42,6 @@ for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко 
   assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
 });
 
-test('debug built person records for Khleb/Anasenko', () => {
-  const sql = new DatabaseSync('.local/girevoy.db');
-  try {
-    const people = sql.prepare(`
-      SELECT id, slug, display_name
-      FROM persons
-      WHERE display_name LIKE '%Хлеб%' OR display_name LIKE '%Анасенко%'
-      ORDER BY display_name
-    `).all();
-    const aliases = sql.prepare(`
-      SELECT p.display_name, a.raw_name
-      FROM person_coach_aliases a
-      JOIN persons p ON p.id = a.person_id
-      WHERE a.raw_name LIKE '%Хлеб%' OR a.raw_name LIKE '%Анасенко%'
-         OR p.display_name LIKE '%Хлеб%' OR p.display_name LIKE '%Анасенко%'
-      ORDER BY p.display_name, a.raw_name
-    `).all();
-    console.log('DEBUG_PEOPLE=' + JSON.stringify(people));
-    console.log('DEBUG_ALIASES=' + JSON.stringify(aliases));
-  } finally {
-    sql.close();
-  }
-});
-
 test('glued Khlebodarov and Anasenko coaches are split', () => {
   const script = `
 import sys
