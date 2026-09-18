@@ -34,6 +34,8 @@ jobs:
           }
 
           # Files already used as source material for girevoy-archive.
+          download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokol-chr-2021g.r-n-d-.xlsx' 'protokol-chr-2021g.r-n-d-.xlsx'
+
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-aziatskaya-zona.xls' 'protokol-aziatskaya-zona.xls'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-chemfoszfo-2022.xlsx' 'protokol-chemfoszfo-2022.xlsx'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-pfo-15-17.04.2022.xlsx' 'protokol-pfo-15-17.04.2022.xlsx'
