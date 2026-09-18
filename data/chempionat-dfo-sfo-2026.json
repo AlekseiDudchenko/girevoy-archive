@@ -21,19 +21,7 @@
     "participants_total": 238,
     "source_url": "https://vfgs.ru/assets/files/protocoly/2026/protokoly_SFO_DFO_2026.pdf"
   },
-  "columns": [
-    "place",
-    "name",
-    "born",
-    "rank",
-    "region",
-    "club",
-    "body_weight_kg",
-    "reps",
-    "rank_achieved",
-    "team_points",
-    "coach"
-  ],
+  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
   "categories": [],
   "deferred": []
 }
