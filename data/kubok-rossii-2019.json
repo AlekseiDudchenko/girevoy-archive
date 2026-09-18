@@ -1,0 +1,65 @@
+{
+  "source": {
+    "filename": "kubok-rossii-2019.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 9100000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол Кубка России 2019 в Томске. Подготовлены 14 индивидуальных категорий (119 строк результатов): длинный цикл мужчины и женщины, рывок женщины, двоеборье мужчины. Эстафеты, командный зачёт и список судей не импортируются как обычные результаты. Во всех пяти листах мужского двоеборья исходник печатает вес гирь 24 кг; в подготовленных данных применяется публично фиксируемое исправление на 32 кг, согласующееся с ЧР-2019 и официальными протоколами 2020."
+  },
+  "competition": {
+    "slug": "kubok-rossii-2019",
+    "name": "Кубок России 2019",
+    "date_start": "2019-09-19",
+    "date_end": "2019-09-22",
+    "city": "Томск",
+    "country": "RU",
+    "competition_rank": "national_cup",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "ekp": "33089",
+    "regions_total": 23,
+    "participants_total": 152,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2019/kubok-rossii-2019.xlsx"
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": [],
+  "warnings": [
+    {
+      "id": "kr-2019-mens-biathlon-bell-weight",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_classes": ["63","68","73","85","85+"],
+        "source_sheets": ["ДВ63","ДВ68","ДВ73","ДВ85","ДВ+85"]
+      },
+      "field": "bell_kg",
+      "source_value": 24,
+      "corrected_value": 32,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "Все пять листов КР-2019 печатают 24 кг, но используют те же мужские нормативы/рекорды, что ЧР-2019 с 32 кг; официальные ЧР/КР 2020 также используют 32 кг."
+      },
+      "message": "В исходном Excel Кубка России 2019 во всех пяти мужских категориях двоеборья напечатано «Вес гирь 24 кг.». Это противоречит ЧР-2019 и официальным протоколам 2020 при тех же взрослых мужских категориях и нормативах. В подготовленных нормализованных данных используется 32 кг, а исходное 24 кг сохраняется как публичное исправление."
+    }
+  ]
+}
