@@ -1,0 +1,87 @@
+{
+  "source": {
+    "filename": "chempionat-rossii-2018.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 8000000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол Чемпионата России 2018 в Санкт-Петербурге. Подготовлены 14 индивидуальных категорий (179 строк результатов): длинный цикл мужчины и женщины, рывок женщины, двоеборье мужчины. Эстафеты, командный зачёт и список судей не импортируются как обычные результаты. У четырёх участников статус «снят врачом» сохранён без выдуманного числового результата. Значения «л» в командных очках сохранены буквально."
+  },
+  "competition": {
+    "slug": "chempionat-rossii-2018",
+    "name": "Чемпионат России 2018",
+    "date_start": "2018-05-24",
+    "date_end": "2018-05-27",
+    "city": "Санкт-Петербург",
+    "country": "RU",
+    "competition_rank": "national_ch",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "regions_total": 34,
+    "participants_total": 229,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2018/chempionat-rossii-2018.xlsx"
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": [],
+  "warnings": [
+    {
+      "id": "chr-2018-yurastov-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Юрастов Станислав",
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_class": "85"
+      },
+      "field": "birth_year",
+      "source_value": 1983,
+      "corrected_value": 1973,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР-2019, ЧР-2020, ЧР-2021 и чемпионат федеральных округов 2021 указывают 1973 год для Юрастова из Самарской области у тренера Щербина О.В.; отдельный Юрастов 1983 выступает за Ростовскую область."
+      },
+      "message": "В ЧР-2018 у Юрастова Станислава из Самарской области с тренером Щербиным О.В. указан 1983 год. Последующая последовательная история той же записи указывает 1973; спортсмен 1983 года существует отдельно в Ростовской области. Архив использует 1973."
+    },
+    {
+      "id": "chr-2018-chuev-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Чуев Павел",
+        "discipline": "long_cycle",
+        "sex": "m",
+        "weight_class": "85"
+      },
+      "field": "birth_year",
+      "source_value": 1996,
+      "corrected_value": 1997,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР/КР 2019–2022 и последующие протоколы стабильно указывают 1997; СЗФО-2026 приводит полную дату рождения 07.04.1997. Регион, клуб и тренер Кириллов С.А. совпадают."
+      },
+      "message": "В ЧР-2018 у Чуева Павла указан 1996 год рождения. Многочисленные последующие официальные протоколы, включая полную дату 07.04.1997 в СЗФО-2026, подтверждают 1997. Архив использует 1997."
+    }
+  ]
+}
