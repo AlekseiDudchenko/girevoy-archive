@@ -259,14 +259,15 @@ export function renderCoaches({ coaches, L }) {
     description: 'Тренеры и связанные с ними спортсмены из опубликованных соревнований.',
     body: `<h1>Тренеры</h1>
 <p class="lead">Тренеры и их спортсмены в истории соревнований по гиревому спорту.</p>
-${coaches.length ? `<label for="coach-search">Поиск по имени или региону</label>
-<input id="coach-search" type="search" placeholder="Имя тренера или регион">
+${coaches.length ? `<label for="coach-search">Поиск по имени, региону или году</label>
+<input id="coach-search" type="search" placeholder="Имя, регион или год">
 <p class="note" id="coach-count" role="status">Показано строк: ${coaches.length}.</p>
 <div class="scroll"><table id="coaches-table">
-<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th></tr></thead>
+<thead><tr><th scope="col">Имя</th><th scope="col">Регион</th><th scope="col" class="c" title="От первого до последнего упоминания тренера в опубликованных протоколах">Период</th></tr></thead>
 <tbody>${coaches.map((coach) => `<tr>
 <td><a href="${e(L.person(coach.slug))}">${e(coach.name)}</a></td>
-<td>${e((coach.regions || []).join(', ') || '—')}</td></tr>`).join('')}</tbody></table></div>
+<td>${e((coach.regions || []).join(', ') || '—')}</td>
+<td class="c n" data-sort-value="${coach.last_year ?? coach.first_year ?? ''}">${e(performancePeriodLabel(coach))}</td></tr>`).join('')}</tbody></table></div>
 <p id="coach-empty" role="status" hidden>Ничего не найдено.</p>
 <script>(function () {
   var input = document.getElementById('coach-search');
