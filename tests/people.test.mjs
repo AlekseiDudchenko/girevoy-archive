@@ -68,6 +68,19 @@ print('|'.join(coach_names('Полянский .Е.', merges, splits)))
   assert.equal(actual, 'Полянский В.С.');
 });
 
+test('known malformed Lyubimskiy spelling uses canonical coach', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names, load_person_rules
+
+merges, splits = load_person_rules()
+print('|'.join(coach_names('Любимскмй С.А.', merges, splits)))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
+  assert.equal(actual, 'Любимский С.А.');
+});
+
 test('punctuation in coach spelling does not create a second person', () => {
   const script = `
 import sys
