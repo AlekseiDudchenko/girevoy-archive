@@ -42,19 +42,28 @@ for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко 
   assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
 });
 
-test('debug suspicious coach names for Khleb/Anasenko', () => {
-  const script = `
-import sys
-sys.path.insert(0, 'scripts')
-import check_people_rules as c
-raws = c.raw_coach_values()
-_, coaches = c.rules_fired(raws, c.people.load_person_rules()[1])
-for name, count, flags in c.suspicious(coaches):
-    if 'Хлеб' in name or 'Анасенко' in name:
-        print(repr(name), count, ','.join(flags))
-`;
-  const actual = execFileSync('python3', ['-c', script], execOptions).trim();
-  console.log('DEBUG_COACHES=' + actual);
+test('debug built person records for Khleb/Anasenko', () => {
+  const sql = new DatabaseSync('.local/girevoy.db');
+  try {
+    const people = sql.prepare(`
+      SELECT id, slug, display_name
+      FROM persons
+      WHERE display_name LIKE '%Хлеб%' OR display_name LIKE '%Анасенко%'
+      ORDER BY display_name
+    `).all();
+    const aliases = sql.prepare(`
+      SELECT p.display_name, a.raw_name
+      FROM person_coach_aliases a
+      JOIN persons p ON p.id = a.person_id
+      WHERE a.raw_name LIKE '%Хлеб%' OR a.raw_name LIKE '%Анасенко%'
+         OR p.display_name LIKE '%Хлеб%' OR p.display_name LIKE '%Анасенко%'
+      ORDER BY p.display_name, a.raw_name
+    `).all();
+    console.log('DEBUG_PEOPLE=' + JSON.stringify(people));
+    console.log('DEBUG_ALIASES=' + JSON.stringify(aliases));
+  } finally {
+    sql.close();
+  }
 });
 
 test('punctuation in coach spelling does not create a second person', () => {
