@@ -120,7 +120,7 @@ test('person page renders only populated roles and activity comes first', () => 
   assert.ok(html.indexOf('Спортивный деятель') < html.indexOf('<h2>Тренер</h2>'));
   assert.ok(!html.includes('<h2>Спортсмен</h2>'));
   assert.ok(!html.includes('<h2>Судья</h2>'));
-  assert.ok(html.includes(`href="${links.worker.athlete('a')}"`));
+  assert.ok(html.includes(`href="${links.worker.person('a')}"`));
   assert.match(html, />Период выступлений<\/th>/);
   assert.match(html, />Соревнований<\/th>/);
   assert.match(html, />Результатов<\/th>/);
