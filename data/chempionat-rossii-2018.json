@@ -1,0 +1,40 @@
+{
+  "source": {
+    "filename": "chempionat-rossii-2018.xlsx",
+    "page_count": null,
+    "is_scan": false,
+    "id_base": 8000000,
+    "names_without_middle": true,
+    "birth_precision": "year",
+    "note": "Источник — официальный Excel-протокол Чемпионата России 2018 в Санкт-Петербурге. Подготовлены 14 индивидуальных категорий (179 строк результатов): длинный цикл мужчины и женщины, рывок женщины, двоеборье мужчины. Эстафеты, командный зачёт и список судей не импортируются как обычные результаты. У четырёх участников статус «снят врачом» сохранён без выдуманного числового результата. Значения «л» в командных очках сохранены буквально."
+  },
+  "competition": {
+    "slug": "chempionat-rossii-2018",
+    "name": "Чемпионат России 2018",
+    "date_start": "2018-05-24",
+    "date_end": "2018-05-27",
+    "city": "Санкт-Петербург",
+    "country": "RU",
+    "competition_rank": "national_ch",
+    "federation": "Всероссийская федерация гиревого спорта",
+    "regions_total": 34,
+    "participants_total": 229,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2018/chempionat-rossii-2018.xlsx"
+  },
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
+  "categories": [],
+  "deferred": [],
+  "warnings": []
+}
