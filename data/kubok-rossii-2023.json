@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "29120",
     "regions_total": 27,
-    "participants_total": 175
+    "participants_total": 175,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2023/protokol-kr-2023.xls"
   },
   "columns": [
     "place",

@@ -1,6 +1,6 @@
 {
   "source": {
-    "filename": "protokol-chemfoszfo-2023(1).xlsx",
+    "filename": "protokol-chemfoszfo-2023.xlsx",
     "page_count": null,
     "is_scan": false,
     "id_base": 900000,
@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "30975",
     "regions_total": 8,
-    "participants_total": 83
+    "participants_total": 83,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2023/protokol-chemfoszfo-2023.xlsx"
   },
   "columns": [
     "place",

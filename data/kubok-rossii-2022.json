@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "6422",
     "regions_total": 24,
-    "participants_total": 183
+    "participants_total": 183,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2022/kubok-rossii2022-1.xlsx"
   },
   "columns": [
     "place",

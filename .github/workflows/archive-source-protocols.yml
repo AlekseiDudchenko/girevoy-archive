@@ -26,24 +26,63 @@ jobs:
             local year="$1"
             local url="$2"
             local filename="$3"
+            local expected_sha="${4:-}"
+            local target="sources/$year/$filename"
+            local tmp
+            tmp="$(mktemp)"
+
             mkdir -p "sources/$year"
-            echo "Downloading $url -> sources/$year/$filename"
+            echo "Downloading $url -> $target"
             curl --fail --location --retry 3 --retry-delay 2 \
               --user-agent 'vsegiri.ru protocol archive' \
-              "$url" -o "sources/$year/$filename"
+              "$url" -o "$tmp"
+
+            local downloaded_sha
+            downloaded_sha="$(sha256sum "$tmp" | awk '{print $1}')"
+            if [ -n "$expected_sha" ] && [ "$downloaded_sha" != "$expected_sha" ]; then
+              echo "SHA-256 mismatch for $url" >&2
+              echo "expected: $expected_sha" >&2
+              echo "actual:   $downloaded_sha" >&2
+              rm -f "$tmp"
+              exit 1
+            fi
+
+            if [ -f "$target" ]; then
+              if cmp -s "$tmp" "$target"; then
+                echo "Already archived unchanged: $target"
+                rm -f "$tmp"
+                return
+              fi
+              echo "Refusing to overwrite archived source: $target" >&2
+              echo "existing: $(sha256sum "$target" | awk '{print $1}')" >&2
+              echo "remote:   $downloaded_sha" >&2
+              rm -f "$tmp"
+              exit 1
+            fi
+
+            mv "$tmp" "$target"
           }
 
           # Files already used as source material for girevoy-archive.
           download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokol-chr-2021g.r-n-d-.xlsx' 'protokol-chr-2021g.r-n-d-.xlsx'
+          download 2021 'https://vfgs.ru/assets/files/protocoly/2021/kubok-rossii2021.xlsx' 'kubok-rossii2021.xlsx' 'e89bd249d526050f532bd91dabfb73b276da03015e383d7ba3589530e907acd5'
+          download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokol-chemfoevro-2021-.xlsx' 'protokol-chemfoevro-2021-.xlsx' '6add1ae7b7600b47ee0c2c8c78495c4b7470874b2e78007a096085463af02422'
+          download 2021 'https://vfgs.ru/assets/files/protocoly/2021/protokoly-dfo-sfo-ufo-itogovyj.xls' 'protokoly-dfo-sfo-ufo-itogovyj.xls' '45d5e9643c5de144e18cce0b8f387aa1bf92ce58f7eee7d9193e813c3d8f9462'
 
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-aziatskaya-zona.xls' 'protokol-aziatskaya-zona.xls'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-chemfoszfo-2022.xlsx' 'protokol-chemfoszfo-2022.xlsx'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/protokol-pfo-15-17.04.2022.xlsx' 'protokol-pfo-15-17.04.2022.xlsx'
           download 2022 'https://vfgs.ru/assets/files/sorevnovania/2022/chempionat-yufo-i-skfo.xlsx' 'chempionat-yufo-i-skfo.xlsx'
+          download 2022 'https://vfgs.ru/assets/files/protocoly/2022/protokol-chr-2022.xlsx' 'protokol-chr-2022.xlsx' 'fb2a5d3c10f3c85196a81d492995bab9ff9ec29ece9388a1d2a4f2a429029bb5'
+          download 2022 'https://vfgs.ru/assets/files/protocoly/2022/kubok-rossii2022-1.xlsx' 'kubok-rossii2022-1.xlsx' 'd2fc8636de75b3410be9b1b4117fc1a9f1de30d11b51f5b0cf4f9537a2227d78'
 
           download 2023 'https://vfgs.ru/assets/files/protocoly/2023/chempionat-rossii-2023.xlsx' 'chempionat-rossii-2023.xlsx'
           download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-dfo-sfo-2023.xls' 'protokol-dfo-sfo-2023.xls'
           download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-pfo-7-9.04.2023.xlsx' 'protokol-pfo-7-9.04.2023.xlsx'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-kr-2023.xls' 'protokol-kr-2023.xls' '512d48a804e627b40bfa17bd074dc194bdaa32b5cdb2cc5b4db83247e335232d'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/chempionat-yufo-i-skfo.xlsx' 'chempionat-yufo-i-skfo.xlsx' 'c5d481defb1d8852ea39e32ee1a0f7f9cc0a28efd51ad8050ce2fc20cba549da'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/protokol-chemfoszfo-2023.xlsx' 'protokol-chemfoszfo-2023.xlsx' '3cfc8d1d136059e921be48279769e54b69346589b55d678eb617ece615a7beef'
+          download 2023 'https://vfgs.ru/assets/files/protocoly/2023/cfo-2023-kaluga.-xlsx.xlsx' 'cfo-2023-kaluga.-xlsx.xlsx' 'b86181683a38ef5743371360f66ee7c6b5d84aa23301a9e0843449aa64384904'
 
           download 2024 'https://vfgs.ru/assets/files/protocoly/2024/protokol-chr-2024.xlsx' 'protokol-chr-2024.xlsx'
           download 2024 'https://vfgs.ru/assets/files/protocoly/2024/Protokoly_PFO_12-14_04_24.xlsx' 'Protokoly_PFO_12-14_04_24.xlsx'

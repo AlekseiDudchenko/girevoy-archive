@@ -1,6 +1,6 @@
 {
   "source": {
-    "filename": "cfo-2023-kaluga.-xlsx(1).xlsx",
+    "filename": "cfo-2023-kaluga.-xlsx.xlsx",
     "page_count": null,
     "is_scan": false,
     "id_base": 34000,
@@ -19,7 +19,8 @@
     "federation": "Всероссийская федерация гиревого спорта",
     "ekp": "30974",
     "regions_total": 12,
-    "participants_total": 164
+    "participants_total": 164,
+    "source_url": "https://vfgs.ru/assets/files/protocoly/2023/cfo-2023-kaluga.-xlsx.xlsx"
   },
   "columns": [
     "place",
