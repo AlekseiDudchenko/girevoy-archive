@@ -42,7 +42,7 @@ for value in ['А.Е.Попова', 'АбдуллинР.Р.', 'Ананенко 
   assert.deepEqual(actual, ['Попова А.Е.', 'Абдуллин Р.Р.', 'Анасенко А.В.', 'Анасенко А.В.']);
 });
 
-test('glued Khlebodarov and Anasenko coaches are split', () => {
+test('2024 glued Khlebodarov and Anasenko coaches are split', () => {
   const script = `
 import sys
 sys.path.insert(0, 'scripts')
