@@ -152,6 +152,7 @@ export async function listCoaches(db) {
            reg.name AS region,
            (SELECT slug FROM athlete_slugs WHERE athlete_id = canonical.id
             AND is_current = 1) AS athlete_slug,
+           MIN(SUBSTR(c.date_start, 1, 4)) AS first_year,
            MAX(SUBSTR(c.date_start, 1, 4)) AS last_year
     FROM persons p
     JOIN person_coach_mentions pcm ON pcm.person_id = p.id
@@ -164,9 +165,16 @@ export async function listCoaches(db) {
   const groups = new Map();
   for (const row of rows) {
     if (!groups.has(row.person_id)) groups.set(row.person_id, {
-      name: row.name, slug: row.slug, regions: new Set(), athletes: new Map() });
+      name: row.name, slug: row.slug, regions: new Set(), athletes: new Map(),
+      first_year: null, last_year: null });
     const group = groups.get(row.person_id);
     if (row.region) group.regions.add(row.region);
+    if (row.first_year && (!group.first_year || row.first_year < group.first_year)) {
+      group.first_year = row.first_year;
+    }
+    if (row.last_year && (!group.last_year || row.last_year > group.last_year)) {
+      group.last_year = row.last_year;
+    }
     const old = group.athletes.get(row.athlete_id);
     if (!old || !old.last_year || row.last_year > old.last_year) {
       group.athletes.set(row.athlete_id, {
