@@ -21,14 +21,34 @@
       "sha256": "0113af5c1d8ec74f542d403e6194502ff05ddccf42362cbe3826fdd4d6fbaf76"
     },
     {
+      "path": "sources/2021/kubok-rossii2021.xlsx",
+      "size_bytes": 698548,
+      "sha256": "e89bd249d526050f532bd91dabfb73b276da03015e383d7ba3589530e907acd5"
+    },
+    {
+      "path": "sources/2021/protokol-chemfoevro-2021-.xlsx",
+      "size_bytes": 503139,
+      "sha256": "6add1ae7b7600b47ee0c2c8c78495c4b7470874b2e78007a096085463af02422"
+    },
+    {
       "path": "sources/2021/protokol-chr-2021g.r-n-d-.xlsx",
       "size_bytes": 372555,
       "sha256": "dbb3bfbd418f2d3ba475ca0602b2ad7086ecc5c2d922262c93e21b8acc6778fd"
     },
     {
+      "path": "sources/2021/protokoly-dfo-sfo-ufo-itogovyj.xls",
+      "size_bytes": 412672,
+      "sha256": "45d5e9643c5de144e18cce0b8f387aa1bf92ce58f7eee7d9193e813c3d8f9462"
+    },
+    {
       "path": "sources/2022/chempionat-yufo-i-skfo.xlsx",
       "size_bytes": 745704,
       "sha256": "7a6350be6e5d9518a412ae8bc1c11b8632d08d91b11140121218d9b3b7ba9702"
+    },
+    {
+      "path": "sources/2022/kubok-rossii2022-1.xlsx",
+      "size_bytes": 1543038,
+      "sha256": "d2fc8636de75b3410be9b1b4117fc1a9f1de30d11b51f5b0cf4f9537a2227d78"
     },
     {
       "path": "sources/2022/protokol-aziatskaya-zona.xls",
@@ -41,9 +61,19 @@
       "sha256": "7037d4397cd59e6d6d2774730d68ffc22b0579b6cbeef25376af688c859da0a9"
     },
     {
+      "path": "sources/2022/protokol-chr-2022.xlsx",
+      "size_bytes": 839671,
+      "sha256": "fb2a5d3c10f3c85196a81d492995bab9ff9ec29ece9388a1d2a4f2a429029bb5"
+    },
+    {
       "path": "sources/2022/protokol-pfo-15-17.04.2022.xlsx",
       "size_bytes": 327839,
       "sha256": "32a05932efee38a726b65250a4a8bd9bdde2f7781ce6952c5ed9783f0caae5d4"
+    },
+    {
+      "path": "sources/2023/cfo-2023-kaluga.-xlsx.xlsx",
+      "size_bytes": 540338,
+      "sha256": "b86181683a38ef5743371360f66ee7c6b5d84aa23301a9e0843449aa64384904"
     },
     {
       "path": "sources/2023/chempionat-rossii-2023.xlsx",
@@ -51,9 +81,24 @@
       "sha256": "3d8b74409ab24b7da3b4d2ae637dbe45452befc2a9d4e2a5ae1ca97c48500489"
     },
     {
+      "path": "sources/2023/chempionat-yufo-i-skfo.xlsx",
+      "size_bytes": 850511,
+      "sha256": "c5d481defb1d8852ea39e32ee1a0f7f9cc0a28efd51ad8050ce2fc20cba549da"
+    },
+    {
+      "path": "sources/2023/protokol-chemfoszfo-2023.xlsx",
+      "size_bytes": 1290197,
+      "sha256": "3cfc8d1d136059e921be48279769e54b69346589b55d678eb617ece615a7beef"
+    },
+    {
       "path": "sources/2023/protokol-dfo-sfo-2023.xls",
       "size_bytes": 342016,
       "sha256": "33f55ea7aed95fec040e625d1bb49a87c2749d786fc6554e23a1717887d85d17"
+    },
+    {
+      "path": "sources/2023/protokol-kr-2023.xls",
+      "size_bytes": 369152,
+      "sha256": "512d48a804e627b40bfa17bd074dc194bdaa32b5cdb2cc5b4db83247e335232d"
     },
     {
       "path": "sources/2023/protokol-pfo-7-9.04.2023.xlsx",
