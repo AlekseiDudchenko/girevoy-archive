@@ -100,7 +100,7 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table', person
 <th scope="col" class="sort" data-sort="1" role="button" tabindex="0">Регион</th>
 <th scope="col" class="c sort" data-sort="2" role="button" tabindex="0">Год рождения</th>
 <th scope="col" class="c sort" data-sort="3" data-default="desc" role="button" tabindex="0">Разряд</th>
-<th scope="col" class="c sort" data-sort="4" data-default="desc" role="button" tabindex="0">Последняя весовая</th>
+<th scope="col" class="c sort" data-sort="4" data-default="desc" role="button" tabindex="0">Весовая</th>
 <th scope="col" class="c sort" data-sort="5" data-default="desc" role="button" tabindex="0">Период выступлений</th>
 <th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0">Соревнований</th>
 <th scope="col" class="c sort" data-sort="7" data-default="desc" role="button" tabindex="0">Результатов</th>
