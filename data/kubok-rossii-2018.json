@@ -36,5 +36,75 @@
   ],
   "categories": [],
   "deferred": [],
-  "warnings": []
+  "warnings": [
+    {
+      "id": "kr-2018-yurastov-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Юрастов Станислав",
+        "discipline": "biathlon",
+        "sex": "m",
+        "weight_class": "85"
+      },
+      "field": "birth_year",
+      "source_value": 1983,
+      "corrected_value": 1973,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР-2019, ЧР-2020, ЧР-2021 и чемпионат федеральных округов 2021 указывают 1973 год для Юрастова из Самарской области у тренера Щербина О.В.; отдельный Юрастов 1983 выступает за Ростовскую область."
+      },
+      "message": "В КР-2018 у Юрастова Станислава из Самарской области с тренером Щербиным О.В. указан 1983 год. Последующая история этой же записи указывает 1973; спортсмен 1983 года существует отдельно в Ростовской области. Архив использует 1973."
+    },
+    {
+      "id": "kr-2018-chuev-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Чуев Павел",
+        "discipline": "long_cycle",
+        "sex": "m",
+        "weight_class": "85"
+      },
+      "field": "birth_year",
+      "source_value": 1996,
+      "corrected_value": 1997,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР/КР 2019–2022 и последующие протоколы стабильно указывают 1997; СЗФО-2026 приводит полную дату рождения 07.04.1997. Регион, клуб и тренер Кириллов С.А. совпадают."
+      },
+      "message": "В КР-2018 у Чуева Павла указан 1996 год рождения. Последующие официальные протоколы, включая полную дату 07.04.1997 в СЗФО-2026, подтверждают 1997. Архив использует 1997."
+    },
+    {
+      "id": "kr-2018-uzyukin-birth-year",
+      "type": "source_error_correction",
+      "severity": "warning",
+      "public": true,
+      "scope": {
+        "athlete": "Узюкин Анатолий",
+        "discipline": "long_cycle",
+        "sex": "m",
+        "weight_class": "63"
+      },
+      "field": "birth_year",
+      "source_value": 2001,
+      "corrected_value": 2000,
+      "correction_applied": true,
+      "organizer_confirmation": {
+        "status": "unconfirmed",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "evidence": "ЧР-2019, ЧР-2021, ПФО-2024 и ПФО-2025 указывают 2000 год; Чувашская Республика и тренеры Белков С.Д./Глинкин Б.Н. связывают записи с каноническим Узюкиным Анатолием 2000 г. р."
+      },
+      "message": "В КР-2018 у Узюкина Анатолия указан 2001 год рождения. Последующие официальные протоколы устойчиво указывают 2000 при совпадающей спортивной истории. Архив использует 2000."
+    }
+  ]
 }
