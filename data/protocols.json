@@ -1,0 +1,172 @@
+{
+  "note": "Состав базы: порядок протоколов и генератор для каждого. Единственный источник — scripts/build_db.py собирает по нему и .local/girevoy.db, и статический снимок. Протокол в data/, не перечисленный здесь, роняет сборку: иначе он молча не попадёт ни в базу, ни в аудит персон.",
+  "prebuilt_seeds": [
+    "seeds/0003_chempionat-rossii-2026.sql",
+    "seeds/0004_chempionat-rossii-2025.sql"
+  ],
+  "protocols": [
+    {
+      "slug": "chempionat-rossii-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-rossii-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-pfo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-pfo-2025",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-pfo-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-pfo-2023",
+      "generator": "gen_seed_override",
+      "args": [
+        137000
+      ]
+    },
+    {
+      "slug": "chempionat-pfo-2022",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-ufo-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-ufo-2022",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-ufo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-szfo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-szfo-2025",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-szfo-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-szfo-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-szfo-2022",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-yufo-skfo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-yufo-skfo-2025",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-yufo-skfo-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-yufo-skfo-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-yufo-skfo-2022",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-tsfo-2026",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-tsfo-2025",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-tsfo-2024",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-tsfo-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "kubok-rossii-2025",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "kubok-rossii-2023",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-rossii-2022",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-rossii-2021",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "chempionat-rossii-2020",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "kubok-rossii-2022",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "kubok-rossii-2021",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "kubok-rossii-2020",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-rossii-2018",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "kubok-rossii-2018",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "chempionat-rossii-2019",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "kubok-rossii-2019",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-tsfo-yufo-szfo-pfo-skfo-2021",
+      "generator": "gen_seed"
+    },
+    {
+      "slug": "chempionat-dfo-sfo-ufo-2021",
+      "generator": "gen_seed_status"
+    }
+  ]
+}
