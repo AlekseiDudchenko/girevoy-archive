@@ -91,9 +91,22 @@ function performancePeriodLabel(athlete) {
   return `${first}–${last}`;
 }
 
+const COACH_SCOPE_HINT = {
+  competitions: 'Слева — соревнования, где тренером назван этот человек; справа — все соревнования спортсмена в архиве',
+  results: 'Слева — результаты в соревнованиях, где тренером назван этот человек; справа — все результаты спортсмена в архиве',
+};
+
+// Пара «с этим тренером / всего»: в строке таблицы лежит вся карьера спортсмена,
+// а карточка тренера считает только старты, где он назван тренером.
+const coachScopedCount = (scope, own, total) => {
+  const title = e(`${COACH_SCOPE_HINT[scope]}. С этим тренером: ${own}, всего: ${total}`);
+  return `<span class="count-pair" title="${title}">${e(own)}<span class="dim"> / ${e(total)}</span></span>`;
+};
+
 export function athleteSummaryTable({ athletes, L, id = 'athletes-table', personLinks = false }) {
   const tableId = e(id);
   const idJs = JSON.stringify(id);
+  const coachScope = athletes.some((athlete) => athlete.coach_results_count != null);
   return `<div class="scroll"><table id="${tableId}">
 <thead><tr>
 <th scope="col" class="sort" data-sort="0" role="button" tabindex="0">Имя</th>
@@ -102,8 +115,10 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table', person
 <th scope="col" class="c sort" data-sort="3" data-default="desc" role="button" tabindex="0">Разряд</th>
 <th scope="col" class="c sort" data-sort="4" data-default="desc" role="button" tabindex="0">Весовая</th>
 <th scope="col" class="c sort" data-sort="5" data-default="desc" role="button" tabindex="0">Период выступлений</th>
-<th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0">Соревнований</th>
-<th scope="col" class="c sort" data-sort="7" data-default="desc" role="button" tabindex="0">Результатов</th>
+<th scope="col" class="c sort" data-sort="6" data-default="desc" role="button" tabindex="0"${coachScope
+  ? ` title="${e(COACH_SCOPE_HINT.competitions)}"` : ''}>Соревнований</th>
+<th scope="col" class="c sort" data-sort="7" data-default="desc" role="button" tabindex="0"${coachScope
+  ? ` title="${e(COACH_SCOPE_HINT.results)}"` : ''}>Результатов</th>
 </tr></thead>
 <tbody>${athletes.map((athlete) => `<tr>
 <td>${athlete.slug ? `<a href="${e(personLinks ? L.person(athlete.slug) : L.athlete(athlete.slug))}">${e(athlete.name)}</a>` : e(athlete.name)}</td>
@@ -112,8 +127,12 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table', person
 <td class="c" data-sort-value="${athlete.sport_rank_sort ?? ''}">${e(sportRankLabel(athlete.sport_rank))}</td>
 <td class="c n" data-sort-value="${weightClassSortValue(athlete)}">${e(weightClassLabel(athlete))}</td>
 <td class="c n" data-sort-value="${athlete.last_year ?? athlete.first_year ?? ''}">${e(performancePeriodLabel(athlete))}</td>
-<td class="c n" data-sort-value="${athlete.competitions_count ?? ''}">${e(athlete.competitions_count ?? 0)}</td>
-<td class="c n" data-sort-value="${athlete.results_count ?? ''}">${e(athlete.results_count ?? 0)}</td>
+<td class="c n" data-sort-value="${(coachScope ? athlete.coach_competitions_count : athlete.competitions_count) ?? ''}">${coachScope
+  ? coachScopedCount('competitions', athlete.coach_competitions_count ?? 0, athlete.competitions_count ?? 0)
+  : e(athlete.competitions_count ?? 0)}</td>
+<td class="c n" data-sort-value="${(coachScope ? athlete.coach_results_count : athlete.results_count) ?? ''}">${coachScope
+  ? coachScopedCount('results', athlete.coach_results_count ?? 0, athlete.results_count ?? 0)
+  : e(athlete.results_count ?? 0)}</td>
 </tr>`).join('')}</tbody></table></div>
 <script>(function () {
   var table = document.getElementById(${idJs});

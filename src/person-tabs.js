@@ -162,21 +162,25 @@ function coachProfileCard(body, roles) {
     ? `${firstYear}${lastYear && lastYear !== firstYear ? `–${lastYear}` : ''}`
     : '';
 
-  const yearsLabel = `${countLabel(years, 'год', 'года', 'лет')}${period
-    ? ` <span class="profile-stat-range">(${esc(period)})</span>` : ''}`;
+  const yearsValue = `${years}${period ? ` <span class="profile-stat-range">(${esc(period)})</span>` : ''}`;
 
   const stats = [
     profileStat('coach', athletes, countLabel(athletes, 'спортсмен', 'спортсмена', 'спортсменов')),
     profileStat('bars', results, countLabel(results, 'результат', 'результата', 'результатов')),
     profileStat('flag', competitions, countLabel(competitions, 'соревнование', 'соревнования', 'соревнований')),
-    profileStat('clock', years, yearsLabel),
+    profileStat('clock', yearsValue, countLabel(years, 'год', 'года', 'лет')),
   ].join('');
+
+  const onlyRole = roles.length === 1;
+  // Единственный <h1> страницы живёт в карточке по умолчанию; когда карточка тренера
+  // не единственная, заголовок в ней повторяется абзацем, а не вторым <h1>.
+  const heading = onlyRole ? h1 : h1.replace(/^<h1>/, '<p class="profile-name">').replace(/<\/h1>$/, '</p>');
 
   const card = `<section class="profile-card coach-profile-card" data-profile-role="coach" aria-label="Карточка тренера">
   <div class="profile-top">
     <div class="profile-avatar" aria-hidden="true">${esc(initials || 'ГС')}</div>
     <div class="profile-identity">
-      ${h1}
+      ${heading}
       <p class="profile-roles">Тренер</p>
     </div>
   </div>
@@ -184,13 +188,23 @@ function coachProfileCard(body, roles) {
   <div class="coach-regions">${profileIcon('pin')}<span><strong>Регионы:</strong> ${regions ? esc(regions) : '—'}</span></div>
 </section>`;
 
-  const defaultCard = body.match(/<section class="profile-card" data-profile-role="default"[\s\S]*?<\/section>/)?.[0];
-  if (defaultCard) {
-    return body.replace(defaultCard, `${defaultCard}\n${card.replace(' data-profile-role="coach"', ' data-profile-role="coach" hidden')}`);
+  // Тренер — единственная роль: карточка заменяет шапку и видна всегда.
+  if (onlyRole) {
+    const headerMatch = body.match(/<div class="page-head">[\s\S]*?<\/div>/);
+    return headerMatch ? body.replace(headerMatch[0], card) : body;
   }
 
+  const hiddenCard = card.replace(' data-profile-role="coach"', ' data-profile-role="coach" hidden');
+
+  // Есть карточка спортсмена — вставляем карточку тренера следом за ней.
+  const defaultCard = body.match(/<section class="profile-card" data-profile-role="default"[\s\S]*?<\/section>/)?.[0];
+  if (defaultCard) return body.replace(defaultCard, `${defaultCard}\n${hiddenCard}`);
+
+  // Ролей несколько, карточки спортсмена нет: шапка остаётся заголовком остальных вкладок.
   const headerMatch = body.match(/<div class="page-head">[\s\S]*?<\/div>/);
-  return headerMatch ? body.replace(headerMatch[0], card) : body;
+  if (!headerMatch) return body;
+  const head = headerMatch[0].replace('<div class="page-head">', '<div class="page-head" data-profile-role="default">');
+  return body.replace(headerMatch[0], `${head}\n${hiddenCard}`);
 }
 
 export function personRoleLinks(body, role) {
@@ -240,8 +254,9 @@ export function personTabs(body) {
 .profile-card { margin:0 0 1.35rem; border:1px solid var(--rule); background:var(--surface); }
 .profile-top { display:grid; grid-template-columns:5.4rem minmax(0,1fr); gap:1.2rem; align-items:center; padding:1.35rem; }
 .profile-avatar { width:5.4rem; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--rule); border-radius:50%; background:var(--accent-soft); color:var(--accent); font-family:"Bitter",Georgia,serif; font-size:1.65rem; font-weight:600; letter-spacing:-.03em; }
-.profile-identity h1 { margin:0 0 .3rem; }
-.profile-identity h1 .rank { font-size:1.05rem; vertical-align:.3em; margin-left:.5rem; }
+.profile-identity h1, .profile-identity .profile-name { margin:0 0 .3rem; }
+.profile-identity .profile-name { font-family:"Bitter",Georgia,serif; font-weight:600; font-size:clamp(1.7rem,1.2rem + 2.2vw,2.5rem); line-height:1.12; letter-spacing:-.015em; text-wrap:balance; color:var(--ink); }
+.profile-identity h1 .rank, .profile-identity .profile-name .rank { font-size:1.05rem; vertical-align:.3em; margin-left:.5rem; }
 .profile-roles { margin:0; color:var(--ink-2); font-size:1rem; }
 .profile-icon { width:1.45rem; height:1.45rem; display:inline-grid; place-items:center; color:var(--accent); flex:0 0 auto; }
 .profile-icon svg { display:block; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -255,7 +270,7 @@ export function personTabs(body) {
 .profile-stat { min-width:0; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.65rem; align-items:center; padding:.85rem .9rem; background:var(--surface); }
 .profile-stat strong { display:block; font-family:"Bitter",Georgia,serif; font-size:1.45rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
 .profile-stat span:not(.profile-icon) { display:block; margin-top:.22rem; color:var(--ink-3); font-size:.82rem; }
-.profile-stat .profile-stat-range { display:inline; margin:0; font-size:inherit; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.profile-stat strong .profile-stat-range { font-size:inherit; font-weight:inherit; white-space:nowrap; }
 .profile-details { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rule); }
 .profile-detail { min-width:0; padding:.9rem; }
 .profile-detail + .profile-detail { border-left:1px solid var(--rule); }
