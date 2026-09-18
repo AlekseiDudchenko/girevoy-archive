@@ -395,9 +395,23 @@ export function renderCompetition({ comp, categories, L }) {
 const SERIES_COLORS = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];
 
 export function renderPerson({ person, activities = [], judgeRoles = [], athleteData,
-  coachedAthletes = [], L }) {
+  coachedAthletes = [], coachSummary = null, L }) {
   const athlete = athleteData?.athlete;
   const results = athleteData?.results || [];
+  const coachRegions = coachSummary?.regions?.length
+    ? coachSummary.regions
+    : [...new Set(coachedAthletes.map((row) => row.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ru'));
+  const coachFirstYear = coachSummary?.first_year
+    || coachedAthletes.map((row) => row.first_year).filter(Boolean).sort()[0] || '';
+  const coachLastYear = coachSummary?.last_year
+    || coachedAthletes.map((row) => row.last_year).filter(Boolean).sort().at(-1) || '';
+  const coachYears = coachSummary?.years_count
+    ?? (coachFirstYear && coachLastYear ? Number(coachLastYear) - Number(coachFirstYear) + 1 : 0);
+  const coachAthletes = coachSummary?.athletes_count ?? coachedAthletes.length;
+  const coachResults = coachSummary?.results_count
+    ?? coachedAthletes.reduce((sum, row) => sum + Number(row.results_count || 0), 0);
+  const coachCompetitions = coachSummary?.competitions_count
+    ?? coachedAthletes.reduce((sum, row) => sum + Number(row.competitions_count || 0), 0);
   const name = person.display_name;
   const series = new Map();
   for (const r of results) {
@@ -517,6 +531,14 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
 
   ${coachedAthletes.length ? `<section class="cat person-role">
     <h2>Тренер</h2>
+    <div class="coach-profile-data" hidden
+      data-athletes="${e(coachAthletes)}"
+      data-results="${e(coachResults)}"
+      data-competitions="${e(coachCompetitions)}"
+      data-years="${e(coachYears)}"
+      data-first-year="${e(coachFirstYear)}"
+      data-last-year="${e(coachLastYear)}"
+      data-regions="${e(coachRegions.join(' · '))}"></div>
     <p class="source">Связи взяты из опубликованных протоколов и не обязательно актуальны сегодня.</p>
     ${athleteSummaryTable({ athletes: coachedAthletes, L, id: 'coach-athletes-table', personLinks: true })}
   </section>` : ''}
