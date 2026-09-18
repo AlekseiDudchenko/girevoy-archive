@@ -90,10 +90,10 @@ export function competitionCard(body, comp, categories = []) {
 
   const sourceBlocks = [
     comp.source_url
-      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer">Оригинал${formatSuffix}</a></div></div>`
+      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer" title="Скачать файл с сайта ВФГС">Оригинал${formatSuffix}</a></div></div>`
       : '',
     archived
-      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(archived)}" download>Копия${formatSuffix}</a></div></div>`
+      ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(archived)}" download title="Скачать копию файла с нашего сайта">Копия${formatSuffix}</a></div></div>`
       : '',
   ].filter(Boolean);
   const sourceCount = sourceBlocks.length;

@@ -48,6 +48,8 @@ test('competition card keeps protocol links in the same compact row as stats', (
   assert.equal((html.match(/class="competition-source"/g) || []).length, 2);
   assert.match(html, />Оригинал \(PDF\)<\/a>/);
   assert.match(html, />Копия \(PDF\)<\/a>/);
+  assert.match(html, /title="Скачать файл с сайта ВФГС">Оригинал \(PDF\)<\/a>/);
+  assert.match(html, /title="Скачать копию файла с нашего сайта">Копия \(PDF\)<\/a>/);
   assert.match(html, /\.competition-stats-4 \{ grid-template-columns:repeat\(4,minmax\(0,1fr\)\); \}/);
   assert.doesNotMatch(html, /competition-source-links/);
 });
