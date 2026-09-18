@@ -7,7 +7,7 @@
   "protocols": [
     {
       "slug": "chempionat-rossii-2024",
-      "generator": "gen_seed"
+      "generator": "gen_seed_status"
     },
     {
       "slug": "chempionat-rossii-2023",
