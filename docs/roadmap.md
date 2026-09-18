@@ -52,6 +52,9 @@ Worker/D1/R2 можно использовать как задел для так
 
 ### Выполнено
 
+- [x] Общие инструкции для агентов в `AGENTS.md` требуют перед началом работы читать
+  `docs/roadmap.md`, не создавать параллельный backlog и поддерживать roadmap в актуальном
+  состоянии вместе с изменениями, которые меняют его пункты.
 - [x] Production-сайт опубликован на **Cloudflare Pages** под доменом `vsegiri.com`;
   CI/CD выполняется через GitHub Actions: `main` → `npm run build` → `dist` → Wrangler →
   Cloudflare Pages, workflow `.github/workflows/cloudflare-pages.yml`, проект `vsegiri`.
