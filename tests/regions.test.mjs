@@ -56,7 +56,8 @@ test('варианты написания одного субъекта веду
 test('регион канонизируется, но сырое написание остаётся в результате', () => {
   const conn = db();
   const names = conn.prepare('SELECT name FROM regions ORDER BY name').all().map((r) => r.name);
-  assert.ok(!names.some((n) => /\bобл\.?$/.test(n)), 'в справочнике осталось сокращение «обл.»');
+  // \b в JS работает только по ASCII, для кириллицы граница задаётся явно.
+  assert.ok(!names.some((n) => /(^|\s)обл\.?$/.test(n)), 'в справочнике осталось сокращение «обл.»');
   assert.ok(names.includes('Кировская область') && !names.includes('Кировская обл.'));
   // raw_region по-прежнему хранит написание протокола — это проверяет схема, не справочник.
   assert.ok(readFileSync('migrations/0001_init.sql', 'utf8').includes('raw_region'));

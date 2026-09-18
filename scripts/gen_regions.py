@@ -44,7 +44,15 @@ def esc(value):
 
 def main():
     regions = sorted(load_regions(), key=lambda r: r["name"])
-    ids = {region["name"]: i for i, region in enumerate(regions, start=1)}
+    ids = {}
+    for i, region in enumerate(regions, start=1):
+        # Ключ regions — UNIQUE (name, country), но алиас ведёт на одно имя: пока
+        # одноимённых субъектов в разных странах нет, требуем уникальности имени.
+        if region["name"] in ids:
+            raise ValueError(
+                f"регион {region['name']!r} объявлен дважды: алиасы и id станут неоднозначны"
+            )
+        ids[region["name"]] = i
     aliases = alias_map(regions)
 
     out = [
