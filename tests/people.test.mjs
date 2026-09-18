@@ -11,6 +11,19 @@ const before2024 = ['migrations/0001_init.sql', 'migrations/0002_people.sql', 's
 const after2024 = ['seeds/0005_merges.sql'];
 const execOptions = { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 };
 
+test('comma inside coach initials is normalized before splitting', () => {
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import coach_names
+
+for value in ['Ковалевский А,А.', 'Трофимов М,А.', 'Иванов А.А., Петров Б.Б.']:
+    print('|'.join(coach_names(value, {}, {})))
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Ковалевский А.А.', 'Трофимов М.А.', 'Иванов А.А.|Петров Б.Б.']);
+});
+
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
