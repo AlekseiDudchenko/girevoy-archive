@@ -92,6 +92,7 @@ export function renderAthletes({ athletes, L }) {
 <p class="lead">Спортсмены и история их выступлений в гиревом спорте. Найдите спортсмена, чтобы посмотреть его результаты, соревнования и динамику выступлений.</p>
 ${athletes.length ? `<label for="athlete-search">Поиск по имени, региону, разряду, весу или году</label>
 <input id="athlete-search" type="search" placeholder="Имя, регион, разряд, весовая категория или год">
+<p class="note" id="athlete-count" role="status">Показано строк: ${athletes.length}.</p>
 ${athleteSummaryTable({ athletes, L, id: 'athletes-table' })}
 <p id="athlete-empty" role="status" hidden>Ничего не найдено.</p>
 <script>(function () {
@@ -105,6 +106,7 @@ ${athleteSummaryTable({ athletes, L, id: 'athletes-table' })}
       row.hidden = !terms.every(function (term) { return normalize(row.textContent).includes(term); });
       if (!row.hidden) visible++;
     });
+    document.getElementById('athlete-count').textContent = 'Показано строк: ' + visible + '.';
     document.getElementById('athlete-empty').hidden = visible !== 0;
   }
   input.addEventListener('input', filter);
