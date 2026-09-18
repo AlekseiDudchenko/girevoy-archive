@@ -18,7 +18,13 @@ export async function getStats(db) {
               FROM person_coach_mentions pcm
               JOIN competitions c ON c.id = pcm.competition_id
              WHERE c.is_published = 1) AS coaches,
-           (SELECT COUNT(*) FROM regions) AS regions,
+           (SELECT COUNT(DISTINCT COALESCE(canonical.region_id, a.region_id))
+              FROM results r
+              JOIN competitions c ON c.id = r.competition_id
+              JOIN athletes a ON a.id = r.athlete_id
+              LEFT JOIN athletes canonical ON canonical.id = a.merged_into_id
+             WHERE c.is_published = 1
+               AND COALESCE(canonical.region_id, a.region_id) IS NOT NULL) AS regions,
            (SELECT COUNT(*) FROM (
               SELECT DISTINCT d.name AS discipline_name,
                      r.bell_kg,
