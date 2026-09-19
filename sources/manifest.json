@@ -246,6 +246,11 @@
       "sha256": "2e9d6d82b7f0259eeee8cb2cc62ba98bd83bf80de1c6361fa99ab57a7ac3f003"
     },
     {
+      "path": "sources/2026/KR_2026_Rostov-na-Donu.pdf",
+      "size_bytes": 8685634,
+      "sha256": "c7d82b0fba9ebbc41a845bb850633be58266ff6cab1d9392a17925386d235b7a"
+    },
+    {
       "path": "sources/2026/Protokoly-PFO-2026.pdf",
       "size_bytes": 4675772,
       "sha256": "fe267a129af6404ec3d7ced06a44353828c833949554c84f32bda41b5f428873"

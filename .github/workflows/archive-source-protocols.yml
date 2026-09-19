@@ -108,6 +108,7 @@ jobs:
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokol_chempionat_TsFO.pdf' 'protokol_chempionat_TsFO.pdf'
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/protokoly_SFO_DFO_2026.pdf' 'protokoly_SFO_DFO_2026.pdf'
           download 2026 'https://vfgs.ru/assets/files/protocoly/2026/Protokoly-PFO-2026.pdf' 'Protokoly-PFO-2026.pdf'
+          download 2026 'https://vfgs.ru/assets/files/protocoly/2026/KR_2026_Rostov-na-Donu.pdf' 'KR_2026_Rostov-na-Donu.pdf' 'c7d82b0fba9ebbc41a845bb850633be58266ff6cab1d9392a17925386d235b7a'
 
       - name: Build source manifest
         shell: python
