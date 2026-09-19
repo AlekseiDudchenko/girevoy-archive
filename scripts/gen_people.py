@@ -157,6 +157,18 @@ def load_role_data() -> tuple[dict[str, dict[str, object]], dict[str, dict[str, 
 SELF_MARKERS |= {normalize_coach_name(marker) for marker in SELF_MARKERS}
 
 
+def has_surname(name: str) -> bool:
+    """Есть ли в токене фамилия, а не одни заглавные буквы.
+
+    Остаток неудачного разбора выглядит как тренер и заводит персону: ячейка
+    `Эмирасанов Э.К.,ШВ.` из КР-2021 давала карточку тренера «ШВ.» с живым
+    спортсменом. Восстановить, что там было напечатано, нечем, а фамилии в
+    огрызке нет — значит, это и не имя. Признак: две строчные буквы подряд;
+    по всем протоколам под правило попадает ровно `ШВ.`, записано в ERRATA.md.
+    """
+    return re.search(r"[а-яё]{2}", name) is not None
+
+
 def split_coach_value(value: str, splits: dict[str, list[str]]) -> list[str] | None:
     value = value.strip()
     return splits.get(value, splits.get(normalize_coach_name(value)))
@@ -211,7 +223,7 @@ def coach_mentions(raw: str | None, merges: dict[str, str],
     mentions=[]
     for part, printed in pairs:
         normalized=normalize_coach_name(part)
-        if normalized and normalized not in SELF_MARKERS:
+        if normalized and normalized not in SELF_MARKERS and has_surname(normalized):
             mentions.append((merges.get(part.strip(), merges.get(normalized, normalized)), printed))
     return mentions
 
