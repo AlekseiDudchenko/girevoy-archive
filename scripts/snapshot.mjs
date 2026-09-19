@@ -242,7 +242,7 @@ const kubokTeaser = !hasKubokRossii2026 ? {
 } : null;
 write('index.html', renderIndex({
   stats, competitions, L, bare: process.env.BARE_INDEX === '1',
-  kubokTeaser, kubokHubHref: 'kubok-rossii.html',
+  kubokTeaser,
 }));
 write('kubok-rossii.html', renderKubokRossiiHub(kubokRossiiItems, L));
 write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
