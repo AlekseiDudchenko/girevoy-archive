@@ -145,11 +145,33 @@ for (const { slug } of slugs) {
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
 
+writeFileSync(join(OUT, '404.html'), `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Страница не найдена — Гиревой архив</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="inner"><a class="brand" href="/">Гиревой архив</a></div></header>
+<main class="inner">
+  <div class="page-head">
+    <p class="eyebrow">Ошибка 404</p>
+    <h1>Страница не найдена</h1>
+    <p class="lead">Такой страницы нет. Вернитесь к соревнованиям или результатам.</p>
+    <p><a href="/">Соревнования</a> · <a href="/results.html">Все результаты</a></p>
+  </div>
+</main>
+</body>
+</html>`, 'utf8');
+
 const htmlFiles = readdirSync(OUT)
   .filter((name) => name.endsWith('.html'))
   .sort();
 const sitemapUrls = htmlFiles
-  .filter((name) => !name.startsWith('a-'))
+  .filter((name) => !name.startsWith('a-') && name !== '404.html')
   .map((name) => `  <url><loc>${SITE_ORIGIN}${canonicalPath(name)}</loc></url>`);
 writeFileSync(join(OUT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join('\n')}\n</urlset>\n`,
