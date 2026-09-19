@@ -16,8 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+      - run: npm install --no-package-lock
       - name: Validate source and extracted rows
         run: |
           echo "5b31243f2148462faef795948bf1992d0ea0339c77171c7d8bb3e23f664d27fd  sources/2025/pr-yuniory-2025.pdf" | sha256sum -c -
