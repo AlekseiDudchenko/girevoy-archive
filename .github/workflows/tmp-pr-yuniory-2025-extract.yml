@@ -1,4 +1,4 @@
-name: Temporary protocol extraction
+name: Temporary junior import checks
 
 on:
   push:
@@ -9,24 +9,24 @@ permissions:
   contents: read
 
 jobs:
-  extract:
+  inspect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install PDF tools
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils ocrmypdf tesseract-ocr-rus
-      - name: Extract protocol
+      - name: Inspect repository data ranges
         run: |
-          mkdir -p /tmp/protocol/pages
-          pdfinfo sources/2025/pr-yuniory-2025.pdf > /tmp/protocol/pdfinfo.txt
-          pdftoppm -jpeg -r 160 sources/2025/pr-yuniory-2025.pdf /tmp/protocol/pages/page
-          ocrmypdf --language rus+eng --deskew --rotate-pages --optimize 0 --output-type pdf sources/2025/pr-yuniory-2025.pdf /tmp/protocol/ocr.pdf
-          pdftotext -layout /tmp/protocol/ocr.pdf /tmp/protocol/ocr.txt
-          wc -l /tmp/protocol/ocr.txt
-          sed -n '1,160p' /tmp/protocol/ocr.txt
-      - name: Upload extraction
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr-yuniory-2025-extraction
-          path: /tmp/protocol
-          retention-days: 1
+          python3 - <<'PY'
+          import glob, json
+          rows=[]
+          for p in glob.glob("data/*.json"):
+              try:
+                  d=json.load(open(p, encoding="utf-8"))
+              except Exception:
+                  continue
+              b=d.get("source",{}).get("id_base")
+              if isinstance(b,int):
+                  rows.append((b,p,d.get("competition",{}).get("slug")))
+          for row in sorted(rows):
+              print(*row, sep="\t")
+          print("MAX_ID_BASE", max((r[0] for r in rows), default=0))
+          PY
