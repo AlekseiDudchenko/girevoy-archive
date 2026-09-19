@@ -44,6 +44,40 @@ jobs:
           PY
       - name: Build complete database
         run: python3 scripts/build_db.py --db /tmp/junior.db
+      - name: Build baseline main database for delta
+        run: |
+          git fetch origin main:refs/remotes/origin/main --depth=1
+          git worktree add /tmp/mainrepo origin/main
+          (cd /tmp/mainrepo && python3 scripts/build_db.py --db /tmp/main.db)
+      - name: Report entity delta
+        run: |
+          python3 - <<'PY'
+          import sqlite3
+          cur=sqlite3.connect("/tmp/junior.db")
+          base=sqlite3.connect("/tmp/main.db")
+          cur.execute("ATTACH DATABASE '/tmp/main.db' AS base")
+          checks={
+            "new athletes": """SELECT COUNT(*) FROM athletes a
+              WHERE NOT EXISTS (SELECT 1 FROM base.athletes b
+                WHERE b.full_name=a.full_name AND b.birth_year IS a.birth_year)""",
+            "new people": """SELECT COUNT(*) FROM persons p
+              WHERE NOT EXISTS (SELECT 1 FROM base.persons b WHERE b.slug=p.slug)""",
+            "new coaches": """SELECT COUNT(DISTINCT p.slug)
+              FROM persons p JOIN person_coach_athletes ca ON ca.person_id=p.id
+              WHERE NOT EXISTS (
+                SELECT 1 FROM base.persons bp
+                JOIN base.person_coach_athletes bca ON bca.person_id=bp.id
+                WHERE bp.slug=p.slug)""",
+            "new regions": """SELECT COUNT(*) FROM regions r
+              WHERE NOT EXISTS (SELECT 1 FROM base.regions b WHERE b.code=r.code)""",
+            "new clubs": """SELECT COUNT(*) FROM clubs c JOIN regions r ON r.id=c.region_id
+              WHERE NOT EXISTS (
+                SELECT 1 FROM base.clubs bc JOIN base.regions br ON br.id=bc.region_id
+                WHERE bc.name=c.name AND br.code=r.code)""",
+          }
+          for label,sql in checks.items():
+              print(f"{label}: {cur.execute(sql).fetchone()[0]}")
+          PY
       - name: Verify imported competition semantics
         run: |
           python3 - <<'PY'
