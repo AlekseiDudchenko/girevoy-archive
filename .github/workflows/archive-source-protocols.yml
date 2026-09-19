@@ -118,7 +118,7 @@ jobs:
 
           root = Path('sources')
           files = []
-          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name != 'manifest.json'):
+          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name not in {'manifest.json', 'catalog.json'}):
               digest = hashlib.sha256(path.read_bytes()).hexdigest()
               files.append({
                   'path': path.as_posix(),

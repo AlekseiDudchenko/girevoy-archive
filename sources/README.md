@@ -22,6 +22,36 @@
 
 `manifest.json` позволяет проверить, что сохранённый первоисточник не изменился.
 
+## Каталог опубликованного: `sources/catalog.json`
+
+`manifest.json` отвечает на вопрос «что у нас есть», `catalog.json` — «что вообще
+опубликовано у федерации»: год, название турнира, ссылка на файл, размер, sha256 и
+признак `in_sources`. По нему видно, какой протокол брать следующим и не пытаться
+искать тот, которого на сайте нет.
+
+Собирается `scripts/fetch_vfgs_catalog.py`. Сайт федерации недоступен из среды агента,
+поэтому скрипт запускается в GitHub Actions — workflow **VFGS protocol catalog**
+(`.github/workflows/vfgs-catalog.yml`), вручную через workflow_dispatch:
+
+- `years` — годы (`2026`, `2017-2026`, `2017,2021`);
+- `download` — выключено: только каталог; включено: файлы кладутся в `sources/<год>/`
+  и пересобирается `manifest.json`;
+- `max_file_mb` — предел размера файла;
+- `branch` — служебная ветка результата, по умолчанию `bot/vfgs-catalog`. В `main`
+  workflow не пишет никогда.
+
+Результат забирается локально:
+
+```sh
+git fetch origin bot/vfgs-catalog
+git checkout bot/vfgs-catalog -- sources
+```
+
+Скачивание не перезаписывает уже архивированный файл: совпадение sha256 отмечается как
+`already_archived`, расхождение — как `differs_from_archived` и разбирается руками
+по правилу 5. Разбор страницы можно проверить без сети:
+`python3 scripts/fetch_vfgs_catalog.py --parse-file страница.html --page-year 2017`.
+
 Для первоначального наполнения используется workflow
 `.github/workflows/archive-source-protocols.yml`, который скачивает доступные официальные
 протоколы и пересобирает manifest.

@@ -1,0 +1,135 @@
+name: VFGS protocol catalog
+
+# Мост до сайта федерации: из среды агента vfgs.ru недоступен, раннеру он виден.
+# Запуск руками (workflow_dispatch) или при правке самого механизма (push).
+# Результат — sources/catalog.json и, если включено скачивание, файлы в sources/;
+# всё это уезжает в отдельную ветку, откуда забирается локально git fetch.
+# В main workflow не пишет никогда: наполнение архива идёт через PR.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: 'Годы: 2026, 2017-2026 или 2017,2021'
+        default: '2015-2026'
+      download:
+        description: 'Скачивать файлы в sources/, а не только составить каталог'
+        type: boolean
+        default: false
+      max_file_mb:
+        description: 'Не сохранять файлы крупнее, МБ (0 — без ограничения)'
+        default: '60'
+      branch:
+        description: 'Ветка, в которую лягут каталог и файлы'
+        default: 'bot/vfgs-catalog'
+  push:
+    paths:
+      - '.github/workflows/vfgs-catalog.yml'
+      - 'scripts/fetch_vfgs_catalog.py'
+
+permissions:
+  contents: write
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Собрать каталог протоколов
+        env:
+          YEARS: ${{ inputs.years || '2015-2026' }}
+          DOWNLOAD: ${{ inputs.download || 'false' }}
+          MAX_FILE_MB: ${{ inputs.max_file_mb || '60' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--years "$YEARS" -o sources/catalog.json --max-file-mb "$MAX_FILE_MB")
+          if [ "$DOWNLOAD" = 'true' ]; then
+            args+=(--download sources)
+          fi
+          python3 scripts/fetch_vfgs_catalog.py "${args[@]}"
+
+      - name: Показать итог в summary
+        if: always()
+        shell: python
+        run: |
+          import json, os
+          from pathlib import Path
+
+          path = Path('sources/catalog.json')
+          if not path.exists():
+              raise SystemExit('Каталог не собран')
+          catalog = json.loads(path.read_text(encoding='utf-8'))
+          lines = ['| Год | Файлов | Уже в sources/ | Новых | Объём новых, МБ |', '| :- | -: | -: | -: | -: |']
+          total_new = 0
+          for year in catalog['years']:
+              files = year['files']
+              known = sum(1 for f in files if f.get('in_sources'))
+              new = [f for f in files if not f.get('in_sources')]
+              size = sum(f.get('size_bytes') or 0 for f in new) / 1024 / 1024
+              total_new += len(new)
+              lines.append(f"| {year['year']} | {len(files)} | {known} | {len(new)} | {size:.1f} |")
+          lines.append('')
+          lines.append(f'Новых файлов всего: {total_new}')
+          if catalog.get('log'):
+              lines.append('')
+              lines.append('<details><summary>Лог</summary>')
+              lines.append('')
+              lines.extend(f'- {line}' for line in catalog['log'])
+              lines.append('')
+              lines.append('</details>')
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text('\n'.join(lines) + '\n', encoding='utf-8')
+
+      - name: Пересобрать манифест первоисточников
+        if: ${{ inputs.download == true }}
+        shell: python
+        run: |
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('sources')
+          files = []
+          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name not in {'manifest.json', 'catalog.json'}):
+              files.append({
+                  'path': path.as_posix(),
+                  'size_bytes': path.stat().st_size,
+                  'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+              })
+
+          (root / 'manifest.json').write_text(
+              json.dumps({'files': files}, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+
+      - name: Отправить результат в ветку
+        env:
+          BRANCH: ${{ inputs.branch || 'bot/vfgs-catalog' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- sources && [ -z "$(git ls-files --others --exclude-standard sources)" ]; then
+            echo 'Каталог и первоисточники не изменились.'
+            exit 0
+          fi
+          if [ "$BRANCH" = 'main' ]; then
+            echo 'В main этот workflow не пишет.' >&2
+            exit 1
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$BRANCH"
+          git add sources
+          git commit -m 'Обновить каталог протоколов ВФГС'
+          # Служебная ветка, которую пишет только этот workflow: перезаписывается целиком.
+          git push --force origin "HEAD:refs/heads/$BRANCH"
+
+      - name: Приложить каталог к запуску
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vfgs-catalog
+          path: sources/catalog.json
+          if-no-files-found: warn
