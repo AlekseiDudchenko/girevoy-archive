@@ -291,6 +291,7 @@ def main():
     ap.add_argument("-o", "--output", default="-", help="файл каталога JSON, по умолчанию stdout")
     ap.add_argument("--download", metavar="DIR", help="сохранять файлы в DIR/<год>/ (обычно sources)")
     ap.add_argument("--max-file-mb", type=float, default=60.0, help="файлы крупнее не сохранять, 0 — без ограничения")
+    ap.add_argument("--match", help="скачивать только файлы, чьё название подходит под это регулярное выражение")
     ap.add_argument("--no-measure", action="store_true", help="только ссылки: без скачивания, размера и sha256")
     ap.add_argument("--dump-links", metavar="URL", help="разведка: показать все ссылки страницы и выйти")
     ap.add_argument("--parse-file", help="разобрать сохранённую страницу вместо запроса к сайту")
@@ -308,6 +309,7 @@ def main():
 
     repo_root = Path(__file__).resolve().parent.parent
     archived_by_name, archived_shas = archived_index(repo_root)
+    match = re.compile(args.match, re.IGNORECASE) if args.match else None
     max_bytes = int(args.max_file_mb * 1024 * 1024) if args.max_file_mb else 0
     log, years_out = [], []
 
@@ -328,7 +330,9 @@ def main():
     for year, url, links in pairs:
         for entry in links:
             if not args.no_measure and not args.parse_file:
-                measure(entry, max_bytes, args.download, year, log)
+                # --match сужает скачивание, но не каталог: каталог всегда полный.
+                wanted = args.download if (match is None or match.search(entry["title"])) else None
+                measure(entry, max_bytes, wanted, year, log)
             archived = archived_by_name.get(entry["filename"])
             entry["in_sources"] = bool(archived) or entry.get("sha256") in archived_shas
             if archived:
