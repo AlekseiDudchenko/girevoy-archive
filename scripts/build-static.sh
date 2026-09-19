@@ -33,24 +33,15 @@ grep -q 'class="comp-list"' "$OUT_DIR/kubok-rossii.html"
 grep -q '"@type":"WebSite"' "$OUT_DIR/index.html"
 grep -Eq "^/a-.+\\.html /p-.+\\.html 301$" "$OUT_DIR/_redirects"
 
-# c-kubok-rossii-2026.html — временная заглушка, пока протокол не импортирован
-# (see scripts/snapshot.mjs, renderKubokRossii2026Placeholder). Она перестанет
-# генерироваться сама, как только data/kubok-rossii-2026.json появится и
-# обычный конвейер соберёт настоящую страницу — проверять её текст тогда
-# незачем, поэтому блок целиком под условием.
-if [ -f "$OUT_DIR/c-kubok-rossii-2026.html" ]; then
-  test -s "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'Кубок России по гиревому спорту 2026' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'подсчитываем' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'c-kubok-rossii-2026.html' "$OUT_DIR/index.html"
-  grep -q 'Кубок России по годам' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q '10 сентября 2026 — 14 сентября 2026' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'Ростов-на-Дону' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'Всероссийская Федерация Гиревого Спорта' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'class="competition-facts"' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'Оригинал · обрабатывается' "$OUT_DIR/c-kubok-rossii-2026.html"
-  grep -q 'Копия · обрабатывается' "$OUT_DIR/c-kubok-rossii-2026.html"
-fi
+# Кубок России 2026 уже импортирован: проверяем настоящую страницу,
+# её данные и назначенный баннер, а не текст прежнего placeholder.
+test -s "$OUT_DIR/c-kubok-rossii-2026.html"
+grep -q 'Кубок России 2026' "$OUT_DIR/c-kubok-rossii-2026.html"
+grep -q 'c-kubok-rossii-2026.html' "$OUT_DIR/index.html"
+grep -q 'Ростов-на-Дону' "$OUT_DIR/c-kubok-rossii-2026.html"
+grep -q '318' "$OUT_DIR/c-kubok-rossii-2026.html"
+grep -q '/competition-posters/kubok-rossii-2026.jpg' "$OUT_DIR/c-kubok-rossii-2026.html"
+! grep -q 'подсчитываем' "$OUT_DIR/c-kubok-rossii-2026.html"
 
 grep -q '<meta name="robots" content="noindex, nofollow">' "$OUT_DIR/404.html"
 ! grep -q '/404.html' "$OUT_DIR/sitemap.xml"
