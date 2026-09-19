@@ -140,7 +140,7 @@ INSERT OR IGNORE INTO federations (name, short_name, country) VALUES
   ('Всероссийская федерация гиревого спорта', 'ВФГС', 'RU');
 
 INSERT INTO competitions (id, slug, name, date_start, date_end, city, country, competition_rank_id, federation_id, source_url, is_published) VALUES
-  (1, 'chempionat-rossii-2026', 'Чемпионат России 2026', '2026-06-02', '2026-06-06', 'Новосибирск', 'RU', (SELECT id FROM competition_ranks WHERE code = 'national_ch'), (SELECT id FROM federations WHERE name = 'Всероссийская федерация гиревого спорта'), NULL, 1);
+  (1, 'chempionat-rossii-2026', 'Чемпионат России 2026', '2026-06-02', '2026-06-06', 'Новосибирск', 'RU', (SELECT id FROM competition_ranks WHERE code = 'national_ch'), (SELECT id FROM federations WHERE name = 'Всероссийская федерация гиревого спорта'), 'https://vfgs.ru/assets/files/protocoly/2026/Chempionat_Rossii_2026.pdf', 1);
 
 INSERT INTO protocols (id, competition_id, r2_key, filename, page_count, is_scan, status, published_at) VALUES
   (1, 1, 'protocols/chempionat-rossii-2026.pdf', 'Chempionat_Rossii_2026.pdf', 41, 1, 'published', '2026-06-02');

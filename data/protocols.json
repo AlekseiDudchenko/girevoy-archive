@@ -183,6 +183,10 @@
     {
       "slug": "chempionat-tsfo-szfo-yufo-skfo-pfo-kfo-2017",
       "generator": "gen_seed"
+    },
+    {
+      "slug": "kubok-rossii-2026",
+      "generator": "gen_seed"
     }
   ]
 }
