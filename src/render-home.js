@@ -3,6 +3,22 @@ import { page, dateRu } from './render.js';
 const e = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const SITE_ORIGIN = 'https://vsegiri.com';
+
+// Общая карточка турнира для главной и для хабов вроде «Кубок России по годам»
+// (see scripts/snapshot.mjs). c.pending — заглушка соревнования, для которого
+// ещё нет категорий и результатов.
+export const competitionListItem = (c, L) => `
+    <li>
+      <a class="comp" href="${L.comp(c.slug)}">
+        <span class="date">${dateRu(c.date_start)}</span>
+        <span class="name">${e(c.name)}</span>
+        <span class="meta">${e(c.city || '')}${c.country && c.country !== 'RU' ? ' · ' + e(c.country) : ''}${c.federation ? ' · ' + e(c.federation) : ''}${c.pending ? ' · данные обрабатываются' : ''}</span>
+        <span class="badge">${e(c.rank_name || '')}</span>
+        <span class="counts">${c.pending ? 'подсчитываем' : `${c.categories} кат. · ${c.results} результатов`}</span>
+      </a>
+    </li>`;
+
 const yearOf = (iso) => String(iso || '').slice(0, 4) || '—';
 const uniq = (values) => [...new Set(values.filter(Boolean))].sort((a, b) =>
   String(a).localeCompare(String(b), 'ru', { numeric: true }));
@@ -28,7 +44,7 @@ const competitionType = (name) => {
     .trim() || clean;
 };
 
-export function renderIndex({ stats, competitions, L, bare }) {
+export function renderIndex({ stats, competitions, L, bare, kubokTeaser, kubokHubHref }) {
   const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
   const statisticsYears = uniq(competitions.map((c) => yearOf(c.date_start)).filter((year) => year !== '—')).length;
   return page({
@@ -38,8 +54,8 @@ export function renderIndex({ stats, competitions, L, bare }) {
     L, active: 'home',
     body: `
 <section class="hero">
-  <h1>Протоколы и результаты соревнований по гиревому спорту</h1>
-  <p class="lead">Протоколы соревнований, результаты, спортсмены и тренеры — в одном месте.
+  <h1>Протоколы соревнований по гиревому спорту</h1>
+  <p class="lead">Результаты, спортсмены и тренеры — в одном месте.
   Полные данные по всем категориям и участникам с привязкой к оригинальным протоколам.</p>
   <dl class="tally">
     <div class="tally-link tally-card-link-wrap"><dt><a class="tally-card-link" href="${e(L.home)}">Турниров</a></dt><dd>${stats.competitions}</dd></div>
@@ -53,6 +69,8 @@ export function renderIndex({ stats, competitions, L, bare }) {
   </dl>
 </section>
 
+${kubokTeaser ? `<section class="cat"><p class="eyebrow">Свежие соревнования</p><h2><a href="${e(kubokTeaser.href)}">${e(kubokTeaser.name)}</a></h2><p class="lead">${e(kubokTeaser.note)}</p></section>` : ''}
+
 <div class="home-list-head">
   <h2 class="sec">Соревнования</h2>
   <div class="view-toggle home-view-toggle" role="group" aria-label="Вид списка соревнований">
@@ -60,19 +78,11 @@ export function renderIndex({ stats, competitions, L, bare }) {
     <button type="button" data-home-view="expanded" aria-pressed="false">Расширенный</button>
   </div>
 </div>
+${kubokHubHref ? `<p class="source"><a href="${e(kubokHubHref)}">Кубок России по годам →</a></p>` : ''}
 
 <div id="home-compact">
   <ul class="comp-list">
-  ${competitions.map((c) => `
-    <li>
-      <a class="comp" href="${L.comp(c.slug)}">
-        <span class="date">${dateRu(c.date_start)}</span>
-        <span class="name">${e(c.name)}</span>
-        <span class="meta">${e(c.city || '')}${c.country !== 'RU' ? ' · ' + e(c.country) : ''}${c.federation ? ' · ' + e(c.federation) : ''}</span>
-        <span class="badge">${e(c.rank_name || '')}</span>
-        <span class="counts">${c.categories} кат. · ${c.results} результатов</span>
-      </a>
-    </li>`).join('')}
+  ${competitions.map((c) => competitionListItem(c, L)).join('')}
   </ul>
 </div>
 
@@ -348,6 +358,10 @@ th[aria-sort="descending"] .home-sort-indicator::after { content:'↓'; opacity:
   setView(initial, false);
   applyFilters(false);
 })();
-</script>`,
+</script>
+<script type="application/ld+json">${JSON.stringify({
+  '@context': 'https://schema.org', '@type': 'WebSite',
+  name: 'Все гири', alternateName: 'Гиревой архив', url: `${SITE_ORIGIN}/`,
+})}</script>`,
   });
 }
