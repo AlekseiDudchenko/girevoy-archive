@@ -150,6 +150,58 @@ const renderKubokRossii2026Placeholder = () => `<!doctype html>
 </body>
 </html>`;
 
+
+const isKubokRossii = (competition) => /^Кубок России(?: по гиревому спорту)?\b/i.test(String(competition.name || ''))
+  || String(competition.slug || '').startsWith('kubok-rossii-');
+
+const competitionYear = (competition) => String(competition.date_start || '').slice(0, 4)
+  || String(competition.slug || '').match(/(19|20)\d{2}/)?.[0]
+  || '';
+
+const renderKubokRossiiHub = (items) => {
+  const rows = items.map((item) => `
+    <li><a href="c-${item.slug}.html">Кубок России ${item.year}</a>${item.pending ? ' <span class="dim">· данные обрабатываются</span>' : ''}</li>`).join('');
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кубок России по гиревому спорту — протоколы и результаты | Все гири</title>
+<meta name="description" content="Кубок России по гиревому спорту: протоколы и результаты по годам. Полные данные соревнований, спортсмены, категории и места.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Все гири">
+<meta property="og:title" content="Кубок России по гиревому спорту — протоколы и результаты">
+<meta property="og:description" content="Архив Кубков России по гиревому спорту с протоколами и результатами по годам.">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="inner">
+<a class="brand" href="index.html">Гиревой архив</a>
+<nav><a href="index.html" class="on">Соревнования</a><a href="results.html">Все результаты</a><a href="athletes.html">Спортсмены</a><a href="coaches.html">Тренеры</a></nav>
+</div></header>
+<main class="inner">
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="index.html">Соревнования</a><span aria-hidden="true"> › </span><span>Кубок России</span></nav>
+<div class="page-head">
+<p class="eyebrow">Серия соревнований</p>
+<h1>Кубок России по гиревому спорту — протоколы и результаты</h1>
+<p class="lead">Архив Кубков России по гиревому спорту. Выберите год, чтобы открыть полный протокол и результаты соревнования.</p>
+</div>
+<section class="cat"><h2>Кубок России по годам</h2><ul>${rows}</ul></section>
+</main>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Соревнования","item":"https://vsegiri.com/"},{"@type":"ListItem","position":2,"name":"Кубок России","item":"https://vsegiri.com/kubok-rossii.html"}]}</script>
+</body>
+</html>`;
+};
+
+const withKubokRossiiYears = (html, items, currentSlug) => {
+  if (!currentSlug?.startsWith('kubok-rossii-')) return html;
+  const links = items.map((item) => item.slug === currentSlug
+    ? `<strong>${item.year}</strong>`
+    : `<a href="c-${item.slug}.html">${item.year}</a>`).join(' · ');
+  return html.replace('</article>', `<section class="cat"><h2>Кубок России по годам</h2><p>${links}</p><p><a href="kubok-rossii.html">Все Кубки России</a></p></section></article>`);
+};
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
@@ -177,6 +229,12 @@ const write = (name, body) => writeFileSync(join(OUT, name),
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 const hasKubokRossii2026 = competitions.some((c) => c.slug === 'kubok-rossii-2026');
+const kubokRossiiItems = competitions
+  .filter(isKubokRossii)
+  .map((c) => ({ slug: c.slug, year: competitionYear(c), pending: false }))
+  .filter((c) => c.year);
+if (!hasKubokRossii2026) kubokRossiiItems.push({ slug: 'kubok-rossii-2026', year: '2026', pending: true });
+kubokRossiiItems.sort((a, b) => b.year.localeCompare(a.year));
 let indexHtml = renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' });
 if (!hasKubokRossii2026) {
   indexHtml = indexHtml.replace(
@@ -184,7 +242,13 @@ if (!hasKubokRossii2026) {
     '<section class="cat"><p class="eyebrow">Свежие соревнования</p><h2><a href="c-kubok-rossii-2026.html">Кубок России по гиревому спорту 2026</a></h2><p class="lead">Данные обрабатываются. Статистика подсчитывается, результаты и протокол будут опубликованы после проверки.</p></section><div class="home-list-head">',
   );
 }
+indexHtml = indexHtml.replace(
+  '<div class="home-list-head">',
+  '<p class="source"><a href="kubok-rossii.html">Кубок России по годам →</a></p><div class="home-list-head">',
+);
+indexHtml = indexHtml.replace('</body>', '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Все гири","alternateName":"Гиревой архив","url":"https://vsegiri.com/"}</script></body>');
 write('index.html', indexHtml);
+write('kubok-rossii.html', renderKubokRossiiHub(kubokRossiiItems));
 write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
 write('athletes.html', renderAthletes({ athletes: await listAthletes(db), L }));
 const coaches = await q.listCoaches(db);
@@ -195,12 +259,16 @@ for (const { slug } of await q.listPersonSlugs(db)) {
 }
 
 if (!hasKubokRossii2026) {
-  write('c-kubok-rossii-2026.html', renderKubokRossii2026Placeholder());
+  write('c-kubok-rossii-2026.html', withKubokRossiiYears(
+    renderKubokRossii2026Placeholder(), kubokRossiiItems, 'kubok-rossii-2026',
+  ));
 }
 
 for (const c of competitions) {
   const data = await q.getCompetition(db, c.slug);
-  write(`c-${c.slug}.html`, personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete'));
+  let competitionHtml = personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete');
+  competitionHtml = withKubokRossiiYears(competitionHtml, kubokRossiiItems, c.slug);
+  write(`c-${c.slug}.html`, competitionHtml);
 }
 
 const slugs = await q.listAthleteSlugs(db);
@@ -213,6 +281,11 @@ for (const { slug } of slugs) {
 }
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
+
+const athleteRedirects = slugs
+  .map(({ slug }) => `/a-${slug}.html /p-${slug}.html 301`)
+  .join('\n');
+writeFileSync(join(OUT, '_redirects'), athleteRedirects + '\n', 'utf8');
 
 writeFileSync(join(OUT, '404.html'), `<!doctype html>
 <html lang="ru">
