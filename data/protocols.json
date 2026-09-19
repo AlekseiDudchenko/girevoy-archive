@@ -7,7 +7,7 @@
   "protocols": [
     {
       "slug": "pervenstvo-rossii-yuniory-2026",
-      "generator": "gen_seed"
+      "generator": "gen_seed_status"
     },
     {
       "slug": "chempionat-rossii-2024",
