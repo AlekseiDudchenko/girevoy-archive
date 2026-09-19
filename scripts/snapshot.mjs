@@ -143,6 +143,10 @@ const renderKubokRossii2026Placeholder = () => {
     slug: 'kubok-rossii-2026',
     name: 'Кубок России по гиревому спорту 2026',
     year: '2026',
+    date_start: '2026-09-10',
+    date_end: '2026-09-14',
+    city: 'Ростов-на-Дону',
+    federation_name: 'Всероссийская федерация гиревого спорта',
     rank_name: 'Кубок России',
     pending: true,
   }, []);
