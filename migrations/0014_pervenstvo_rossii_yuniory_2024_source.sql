@@ -13,4 +13,4 @@ SET source_url = COALESCE(source_url, (
       SELECT archive_path FROM competition_source_urls
       WHERE competition_slug = competitions.slug
     )
-WHERE competition_slug = 'pervenstvo-rossii-yuniory-2024';
+WHERE slug = 'pervenstvo-rossii-yuniory-2024';
