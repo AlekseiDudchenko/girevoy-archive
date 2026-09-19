@@ -51,10 +51,17 @@ class LinkCollector(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.links = []
+        self.base_href = None
         self._href = None
         self._text = []
 
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+
     def handle_starttag(self, tag, attrs):
+        if tag == "base":
+            self.base_href = dict(attrs).get("href") or self.base_href
+            return
         if tag != "a":
             return
         href = dict(attrs).get("href")
@@ -105,23 +112,35 @@ def decode(body):
 
 
 def file_links(html, page_url):
-    """Ссылки на файлы протоколов: абсолютный URL, имя файла, подпись ссылки."""
+    """Ссылки на файлы протоколов: абсолютный URL, имя файла, подпись ссылки.
+
+    На страницах ВФГС ссылки относительные («assets/files/protocoly/...»), а адрес
+    страницы — без завершающего слэша, поэтому наивная склейка даёт несуществующий
+    /docs/protokoly/assets/... Отсюда два кандидата: от <base href> или страницы и
+    от корня сайта. Какой из них живой, выясняет measure().
+    """
     collector = LinkCollector()
     collector.feed(html)
+    base = urllib.parse.urljoin(page_url, collector.base_href) if collector.base_href else page_url
     out, seen = [], set()
     for href, title in collector.links:
-        url = urllib.parse.urljoin(page_url, href)
-        path = urllib.parse.urlparse(url).path
+        candidates = []
+        for candidate in (urllib.parse.urljoin(base, href), urllib.parse.urljoin(BASE + "/", href)):
+            if candidate not in candidates:
+                candidates.append(candidate)
+        path = urllib.parse.urlparse(candidates[0]).path
         if not path.lower().endswith(FILE_EXTENSIONS):
             continue
-        if url in seen:
+        filename = urllib.parse.unquote(path.rsplit("/", 1)[-1])
+        if filename in seen:
             continue
-        seen.add(url)
+        seen.add(filename)
         out.append(
             {
                 "title": title,
-                "url": url,
-                "filename": urllib.parse.unquote(path.rsplit("/", 1)[-1]),
+                "url": candidates[0],
+                "url_candidates": candidates,
+                "filename": filename,
                 "ext": path.lower().rsplit(".", 1)[-1],
             }
         )
@@ -195,13 +214,21 @@ def archived_index(repo_root):
 
 def measure(entry, max_bytes, download_dir, year, log):
     """Скачать (или только измерить) файл: размер и sha256 — это и есть проверка."""
-    try:
-        body, headers = fetch(entry["url"])
-    except Exception as exc:  # noqa: BLE001
+    body = headers = None
+    errors = []
+    for url in entry.get("url_candidates") or [entry["url"]]:
+        try:
+            body, headers = fetch(url)
+            entry["url"] = url
+            break
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"{url} — {exc}")
+    if body is None:
         entry["status"] = "error"
-        entry["error"] = str(exc)
-        log.append(f"{year}: {entry['url']} — {exc}")
+        entry["error"] = "; ".join(errors)
+        log.append(f"{year}: {entry['error']}")
         return
+    entry.pop("url_candidates", None)
     entry["size_bytes"] = len(body)
     entry["sha256"] = hashlib.sha256(body).hexdigest()
     entry["content_type"] = headers.get("Content-Type")
@@ -236,9 +263,19 @@ def main():
     ap.add_argument("--download", metavar="DIR", help="сохранять файлы в DIR/<год>/ (обычно sources)")
     ap.add_argument("--max-file-mb", type=float, default=60.0, help="файлы крупнее не сохранять, 0 — без ограничения")
     ap.add_argument("--no-measure", action="store_true", help="только ссылки: без скачивания, размера и sha256")
+    ap.add_argument("--dump-links", metavar="URL", help="разведка: показать все ссылки страницы и выйти")
     ap.add_argument("--parse-file", help="разобрать сохранённую страницу вместо запроса к сайту")
     ap.add_argument("--page-year", type=int, help="год для --parse-file")
     args = ap.parse_args()
+
+    if args.dump_links:
+        body, _ = fetch(args.dump_links)
+        collector = LinkCollector()
+        collector.feed(decode(body))
+        print(f"base href: {collector.base_href}")
+        for href, title in collector.links:
+            print(f"{href}\t{title[:80]}")
+        return 0
 
     repo_root = Path(__file__).resolve().parent.parent
     archived_by_name, archived_shas = archived_index(repo_root)
@@ -268,6 +305,28 @@ def main():
                 entry["archived_path"] = archived["path"]
         years_out.append({"year": year, "page_url": url, "files": links})
 
+    index_links = []
+    if not args.parse_file and any(y["page_url"] is None for y in years_out):
+        # Год не нашёлся ни по одному шаблону адреса: сохраняем ссылки индекса,
+        # чтобы по ним увидеть реальную схему, а не гадать вторым прогоном.
+        for template in INDEX_URL_TEMPLATES:
+            url = template.format(base=BASE)
+            try:
+                body, _ = fetch(url)
+            except Exception as exc:  # noqa: BLE001
+                log.append(f"индекс {url} — {exc}")
+                continue
+            collector = LinkCollector()
+            collector.feed(decode(body))
+            index_links.append(
+                {
+                    "page_url": url,
+                    "base_href": collector.base_href,
+                    "links": [{"href": href, "title": title} for href, title in collector.links[:300]],
+                }
+            )
+            break
+
     catalog = {
         "note": (
             "Каталог опубликованных ВФГС протоколов, собирается scripts/fetch_vfgs_catalog.py "
@@ -277,6 +336,7 @@ def main():
         "source_site": BASE,
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "years": years_out,
+        "index_links": index_links,
         "log": log,
     }
     text = json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
