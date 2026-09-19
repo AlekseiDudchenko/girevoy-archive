@@ -30,7 +30,7 @@ test -s "$OUT_DIR/kubok-rossii.html"
 test -s "$OUT_DIR/_redirects"
 test -s "$OUT_DIR/yandex_ca97219e25229ffc.html"
 
-grep -q 'kubok-rossii.html' "$OUT_DIR/index.html"
+! grep -q 'Кубок России по годам' "$OUT_DIR/index.html"
 grep -q 'class="comp-list"' "$OUT_DIR/kubok-rossii.html"
 grep -q '"@type":"WebSite"' "$OUT_DIR/index.html"
 grep -Eq "^/a-.+\\.html /p-.+\\.html 301$" "$OUT_DIR/_redirects"

@@ -44,7 +44,7 @@ const competitionType = (name) => {
     .trim() || clean;
 };
 
-export function renderIndex({ stats, competitions, L, bare, kubokTeaser, kubokHubHref }) {
+export function renderIndex({ stats, competitions, L, bare, kubokTeaser }) {
   const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
   const statisticsYears = uniq(competitions.map((c) => yearOf(c.date_start)).filter((year) => year !== '—')).length;
   return page({
@@ -78,7 +78,6 @@ ${kubokTeaser ? `<section class="cat"><p class="eyebrow">Свежие сорев
     <button type="button" data-home-view="expanded" aria-pressed="false">Расширенный</button>
   </div>
 </div>
-${kubokHubHref ? `<p class="source"><a href="${e(kubokHubHref)}">Кубок России по годам →</a></p>` : ''}
 
 <div id="home-compact">
   <ul class="comp-list">
