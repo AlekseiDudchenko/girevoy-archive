@@ -1,4 +1,4 @@
-name: Temporary junior import generation
+name: Temporary junior import validation
 
 on:
   push:
@@ -6,22 +6,68 @@ on:
       - import/pervenstvo-yuniorov-2025
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  generate:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate junior 2025 data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Validate source and extracted rows
         run: |
-          if [ -f data/pervenstvo-rossii-yuniory-2025.json ]; then
-            echo "data file already exists; nothing to generate"
-            exit 0
-          fi
-          python3 .github/tmp/generate_junior_2025.py
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/pervenstvo-rossii-yuniory-2025.json
-          git commit -m "data: import Russian junior championship 2025"
-          git push origin HEAD:import/pervenstvo-yuniorov-2025
+          echo "5b31243f2148462faef795948bf1992d0ea0339c77171c7d8bb3e23f664d27fd  sources/2025/pr-yuniory-2025.pdf" | sha256sum -c -
+          python3 - <<'PY'
+          import json
+          p="data/pervenstvo-rossii-yuniory-2025.json"
+          d=json.load(open(p, encoding="utf-8"))
+          cats=d["categories"]
+          assert len(cats)==22, len(cats)
+          assert sum(len(c["rows"]) for c in cats)==211
+          assert {c["page"] for c in cats}==set(range(2,24))
+          assert all(c.get("age_group")=="junior" for c in cats)
+          assert all(c["time_limit_min"]==10 for c in cats)
+          statuses=[]
+          for c in cats:
+              for r in c["rows"]:
+                  if len(r)>17 and r[17]:
+                      statuses.append((c["page"],r[1],r[17]))
+                  if c["discipline"]=="biathlon":
+                      assert abs(r[7] - (r[11] + r[12]/2)) < 1e-9, (c["page"],r)
+          assert statuses==[(3,"Ярусов Константин","исключен, пункт правил 10.5")], statuses
+          assert d["competition"]["competition_rank"]=="national_jr"
+          assert d["competition"]["age_group"]=="junior"
+          print("categories=22 rows=211 statuses=1 pages=2..23; biathlon arithmetic OK")
+          PY
+      - name: Build complete database
+        run: python3 scripts/build_db.py --db /tmp/junior.db
+      - name: Verify imported competition semantics
+        run: |
+          python3 - <<'PY'
+          import sqlite3
+          con=sqlite3.connect("/tmp/junior.db")
+          slug="pervenstvo-rossii-yuniory-2025"
+          q=lambda sql,args=(): con.execute(sql,args).fetchone()[0]
+          cid=q("select id from competitions where slug=?",(slug,))
+          assert q("select count(*) from categories where competition_id=?",(cid,))==22
+          assert q("select count(*) from results where competition_id=?",(cid,))==211
+          assert q("select count(*) from results where competition_id=? and result_status is not null",(cid,))==1
+          assert q("""select count(*) from categories c join age_groups a on a.id=c.age_group_id
+                       where c.competition_id=? and a.code='junior'""",(cid,))==22
+          assert q("""select count(*) from competitions c join competition_ranks r on r.id=c.competition_rank_id
+                       where c.id=? and r.code='national_jr'""",(cid,))==1
+          print("DB semantics OK: 22 junior categories, 211 results, 1 status")
+          print("distinct athletes in competition:", q("select count(distinct athlete_id) from results where competition_id=?",(cid,)))
+          print("distinct clubs in competition:", q("""select count(distinct a.club_id) from results r join athletes a on a.id=r.athlete_id where r.competition_id=? and a.club_id is not null""",(cid,)))
+          print("distinct regions in competition:", q("""select count(distinct a.region_id) from results r join athletes a on a.id=r.athlete_id where r.competition_id=? and a.region_id is not null""",(cid,)))
+          PY
+      - name: People audit checks
+        run: |
+          python3 scripts/check_people_rules.py --report
+          node --test tests/people.test.mjs
+      - name: Build static site
+        run: npm run build
