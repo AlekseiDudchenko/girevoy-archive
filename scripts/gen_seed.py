@@ -118,13 +118,18 @@ def main(path):
     insert("protocols", ["id","competition_id","r2_key","filename","page_count","is_scan","status","published_at"],
            [(pid,cid,f"protocols/{comp['slug']}.pdf",src["filename"],src.get("page_count"),1 if src.get("is_scan") else 0,"published",comp["date_start"])])
 
+    # Возрастная группа: у взрослых стартов её в данных нет, поэтому adult по умолчанию.
+    # Первенства задают junior или youth — на уровне категории либо всего турнира.
+    def age_group(cat):
+        return cat.get("age_group") or comp.get("age_group") or "adult"
+
     cats=[]; order=0
     for cat in data["categories"]:
         order += 1; wc=cat["weight_class"]
-        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups","adult"),None,cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups",age_group(cat)),None,cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
     for d in data.get("deferred",[]):
         order += 1
-        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups","adult"),None,d["bell_kg"],normalized_hands(d["discipline"], d["hands"]),d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups",age_group(d)),None,d["bell_kg"],normalized_hands(d["discipline"], d["hands"]),d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
     insert("categories", ["id","competition_id","discipline_id","sex","age_group_id","division_id","bell_kg","hands","time_limit_min","weight_class_raw","weight_class_kg","weight_class_is_open","participants_declared","is_deferred","sort_order"], [c[:-1] for c in cats])
     cat_page={c[0]:c[-1] for c in cats}
 
