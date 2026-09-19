@@ -44,6 +44,10 @@ INDEX_URL_TEMPLATES = (
 
 FILE_EXTENSIONS = (".xls", ".xlsx", ".xlsm", ".pdf", ".doc", ".docx", ".csv", ".zip", ".rar")
 
+# Со страниц протоколов в разметку попадают и файлы бокового меню — календари
+# соревнований. Это не протоколы, в каталог они не нужны.
+SKIP_PATH_PARTS = ("/assets/files/calendar/",)
+
 
 class LinkCollector(HTMLParser):
     """Ссылки <a href> вместе с текстом: текст — это название турнира."""
@@ -131,6 +135,8 @@ def file_links(html, page_url):
         path = urllib.parse.urlparse(candidates[0]).path
         if not path.lower().endswith(FILE_EXTENSIONS):
             continue
+        if any(part in path.lower() for part in SKIP_PATH_PARTS):
+            continue
         filename = urllib.parse.unquote(path.rsplit("/", 1)[-1])
         if filename in seen:
             continue
@@ -148,20 +154,57 @@ def file_links(html, page_url):
 
 
 def year_links(html, page_url):
-    """Ссылки на страницы годов — когда годы не заданы явно."""
+    """Ссылки на страницы годов с индекса протоколов.
+
+    Адреса у федерации разнородные: 2026, 2025-god, 2024-god, 2020-god1. Поэтому
+    год берётся из подписи ссылки («2025 год») либо из самого адреса, а не
+    собирается по шаблону.
+    """
     collector = LinkCollector()
     collector.feed(html)
+    base = urllib.parse.urljoin(page_url, collector.base_href) if collector.base_href else page_url
     found = {}
-    for href, _ in collector.links:
-        url = urllib.parse.urljoin(page_url, href)
-        m = re.search(r"/(\d{4})/?$", urllib.parse.urlparse(url).path)
-        if m and 1990 <= int(m.group(1)) <= 2100:
-            found.setdefault(int(m.group(1)), url)
+    for href, title in collector.links:
+        url = urllib.parse.urljoin(base, href)
+        path = urllib.parse.urlparse(url).path
+        if "/protokoly/" not in path:
+            continue
+        m = re.search(r"\b(?:19|20)\d{2}\b", title) or re.search(r"/protokoly/((?:19|20)\d{2})", path)
+        if not m:
+            continue
+        year = int(m.group(1) if m.lastindex else m.group(0))
+        if 1990 <= year <= 2100:
+            found.setdefault(year, url)
     return found
 
 
-def year_page(year, log):
-    """Страница года: первый шаблон адреса, который отдал ссылки на файлы."""
+def index_year_pages(log):
+    """Карта год → адрес страницы, снятая с индекса протоколов."""
+    for template in INDEX_URL_TEMPLATES:
+        url = template.format(base=BASE)
+        try:
+            body, _ = fetch(url)
+        except Exception as exc:  # noqa: BLE001
+            log.append(f"индекс {url} — {exc}")
+            continue
+        found = year_links(decode(body), url)
+        if found:
+            return found
+    return {}
+
+
+def year_page(year, log, from_index=None):
+    """Страница года: адрес с индекса, иначе перебор шаблонов."""
+    if from_index and year in from_index:
+        url = from_index[year]
+        try:
+            body, _ = fetch(url)
+            links = file_links(decode(body), url)
+            if links:
+                return url, links
+            log.append(f"{year}: {url} — страница открылась, ссылок на файлы нет")
+        except Exception as exc:  # noqa: BLE001
+            log.append(f"{year}: {url} — {exc}")
     for template in YEAR_URL_TEMPLATES:
         url = template.format(base=BASE, year=year)
         try:
@@ -174,20 +217,6 @@ def year_page(year, log):
             return url, links
         log.append(f"{year}: {url} — страница открылась, ссылок на файлы нет")
     return None, []
-
-
-def discover_years(log):
-    for template in INDEX_URL_TEMPLATES:
-        url = template.format(base=BASE)
-        try:
-            body, _ = fetch(url)
-        except Exception as exc:  # noqa: BLE001
-            log.append(f"индекс {url} — {exc}")
-            continue
-        years = year_links(decode(body), url)
-        if years:
-            return sorted(years)
-    return []
 
 
 def parse_years(spec):
@@ -286,13 +315,14 @@ def main():
         page = Path(args.parse_file)
         pairs = [(args.page_year or 0, page.as_uri(), file_links(page.read_text(encoding="utf-8"), BASE + "/"))]
     else:
-        years = parse_years(args.years) if args.years else discover_years(log)
+        from_index = index_year_pages(log)
+        years = parse_years(args.years) if args.years else sorted(from_index)
         if not years:
             print("Не удалось определить годы: укажите --years", file=sys.stderr)
             return 1
         pairs = []
         for year in years:
-            url, links = year_page(year, log)
+            url, links = year_page(year, log, from_index)
             pairs.append((year, url, links))
 
     for year, url, links in pairs:

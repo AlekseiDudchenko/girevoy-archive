@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
     inputs:
       years:
-        description: 'Годы: 2026, 2017-2026 или 2017,2021'
-        default: '2015-2026'
+        description: 'Годы: 2026, 2017-2026 или 2017,2021. Пусто — все годы с индекса'
+        default: ''
       download:
         description: 'Скачивать файлы в sources/, а не только составить каталог'
         type: boolean
@@ -38,13 +38,16 @@ jobs:
 
       - name: Собрать каталог протоколов
         env:
-          YEARS: ${{ inputs.years || '2015-2026' }}
+          YEARS: ${{ inputs.years }}
           DOWNLOAD: ${{ inputs.download || 'false' }}
           MAX_FILE_MB: ${{ inputs.max_file_mb || '60' }}
         shell: bash
         run: |
           set -euo pipefail
-          args=(--years "$YEARS" -o sources/catalog.json --max-file-mb "$MAX_FILE_MB")
+          args=(-o sources/catalog.json --max-file-mb "$MAX_FILE_MB")
+          if [ -n "$YEARS" ]; then
+            args+=(--years "$YEARS")
+          fi
           if [ "$DOWNLOAD" = 'true' ]; then
             args+=(--download sources)
           fi
