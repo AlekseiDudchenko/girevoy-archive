@@ -68,12 +68,15 @@ export function competitionCard(body, comp, categories = []) {
   const headerMatch = body.match(/<div class="page-head">[\s\S]*?<\/div>/);
   if (!headerMatch) return body;
 
+  const pending = Boolean(comp.pending);
   const live = categories.filter((category) => !category.is_deferred);
   const results = live.reduce((sum, category) => sum + (category.rows?.length || 0), 0);
-  const year = comp.date_start?.slice(0, 4) || 'ГС';
-  const date = comp.date_end && comp.date_end !== comp.date_start
-    ? `${dateRu(comp.date_start)} — ${dateRu(comp.date_end)}`
-    : dateRu(comp.date_start);
+  const year = comp.date_start?.slice(0, 4) || comp.year || 'ГС';
+  const date = comp.date_start
+    ? (comp.date_end && comp.date_end !== comp.date_start
+      ? `${dateRu(comp.date_start)} — ${dateRu(comp.date_end)}`
+      : dateRu(comp.date_start))
+    : (pending ? 'Данные обрабатываются' : '');
   const format = sourceFormat(comp.source_url || comp.archive_path);
   const formatSuffix = format ? ` (${format})` : '';
   const archived = archiveHref(comp.archive_path);
@@ -83,12 +86,17 @@ export function competitionCard(body, comp, categories = []) {
 
   const facts = [
     fact('calendar', 'Дата', esc(date)),
-    fact('pin', 'Город', esc(comp.city || ''), cityHref),
-    fact('federation', 'Федерация', esc(titleCaseWords(comp.federation_name || ''))),
-    fact('trophy', 'Уровень', esc(comp.rank_name || ''), rankHref),
+    fact('pin', 'Город', esc(comp.city || (pending ? 'Данные обрабатываются' : '')), pending && !comp.city ? '' : cityHref),
+    fact('federation', 'Федерация', esc(comp.federation_name
+      ? titleCaseWords(comp.federation_name)
+      : (pending ? 'Данные обрабатываются' : ''))),
+    fact('trophy', 'Уровень', esc(comp.rank_name || (pending ? 'Кубок России' : '')), pending && !comp.rank_name ? '' : rankHref),
   ].filter(Boolean).join('');
 
-  const sourceBlocks = [
+  const sourceBlocks = pending ? [
+    `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><span>Оригинал · обрабатывается</span></div></div>`,
+    `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><span>Копия · обрабатывается</span></div></div>`,
+  ] : [
     comp.source_url
       ? `<div class="competition-source">${icon('source')}<div><span class="competition-source-label">Протокол</span><a href="${esc(comp.source_url)}" target="_blank" rel="noopener noreferrer" title="Скачать файл с сайта ВФГС">Оригинал${formatSuffix}</a></div></div>`
       : '',
@@ -108,8 +116,8 @@ export function competitionCard(body, comp, categories = []) {
   </div>
   ${facts ? `<div class="competition-facts">${facts}</div>` : ''}
   <div class="competition-stats competition-stats-${2 + sourceCount}">
-    ${stat('categories', live.length, 'категорий')}
-    ${stat('results', results, 'результатов')}
+    ${stat('categories', pending ? 'подсчитываем' : live.length, 'категорий')}
+    ${stat('results', pending ? 'подсчитываем' : results, 'результатов')}
     ${sourceBlocks.join('')}
   </div>
 </section>`;

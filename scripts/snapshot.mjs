@@ -4,11 +4,14 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, writeFileSync, copyFileSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import * as q from '../src/queries.js';
-import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
-import { renderIndex } from '../src/render-home.js';
+import { links, page, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
+import { renderIndex, competitionListItem } from '../src/render-home.js';
 import { personTabs, personRoleLinks } from '../src/person-tabs.js';
 import { listAthletes, renderAthletes, withAthletesNav } from '../src/athletes.js';
 import { competitionCard } from '../src/competition-card.js';
+
+const SITE_ORIGIN = 'https://vsegiri.com';
+const jsonLd = (value) => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g, '\\u003c')}</script>`;
 
 const DB_PATH = process.argv[2] || '.local/girevoy.db';
 const OUT = process.argv[3] || 'dist';
@@ -95,14 +98,153 @@ const compactAthleteResults = (html) => {
     .replace('.discipline-dot {', '.discipline-break { flex-basis:100%; height:0; }\n.discipline-duration { margin-left:.96rem; }\n.discipline-dot {');
 };
 
+
+const renderKubokRossii2026Placeholder = (L) => {
+  const url = `${SITE_ORIGIN}/c-kubok-rossii-2026.html`;
+  const base = page({
+    title: 'Кубок России по гиревому спорту 2026 — результаты и протокол | Все гири',
+    description: 'Кубок России по гиревому спорту 2026: результаты и протокол. Данные соревнований обрабатываются и будут опубликованы после проверки.',
+    L, active: 'home',
+    body: `
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${L.home}">Соревнования</a><span aria-hidden="true"> › </span><span>Кубок России 2026</span></nav>
+<div class="page-head">
+  <p class="eyebrow">Кубок России</p>
+  <h1>Кубок России по гиревому спорту 2026</h1>
+</div>
+<section class="cat">
+  <h2>Результаты Кубка России 2026</h2>
+  <p>Данные обрабатываются. После завершения проверки здесь появятся все категории, спортсмены, места и результаты выступлений.</p>
+</section>
+${jsonLd({
+  '@context': 'https://schema.org', '@type': 'SportsEvent',
+  name: 'Кубок России по гиревому спорту 2026', sport: 'Гиревой спорт', url,
+})}
+${jsonLd({
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Соревнования', item: `${SITE_ORIGIN}/` },
+    { '@type': 'ListItem', position: 2, name: 'Кубок России 2026', item: url },
+  ],
+})}`,
+  });
+
+  return competitionCard(base, {
+    slug: 'kubok-rossii-2026',
+    name: 'Кубок России по гиревому спорту 2026',
+    year: '2026',
+    date_start: '2026-09-10',
+    date_end: '2026-09-14',
+    city: 'Ростов-на-Дону',
+    federation_name: 'Всероссийская федерация гиревого спорта',
+    rank_name: 'Кубок России',
+    pending: true,
+  }, []);
+};
+
+
+const isKubokRossii = (competition) => /^Кубок России(?: по гиревому спорту)?\b/i.test(String(competition.name || ''))
+  || String(competition.slug || '').startsWith('kubok-rossii-');
+
+const competitionYear = (competition) => String(competition.date_start || '').slice(0, 4)
+  || String(competition.slug || '').match(/(19|20)\d{2}/)?.[0]
+  || '';
+
+const renderKubokRossiiHub = (items, L) => {
+  const url = `${SITE_ORIGIN}/kubok-rossii.html`;
+  return page({
+    title: 'Кубок России по гиревому спорту — протоколы и результаты | Все гири',
+    description: 'Кубок России по гиревому спорту: протоколы и результаты по годам. Полные данные соревнований, спортсмены, категории и места.',
+    L, active: 'home',
+    body: `
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${L.home}">Соревнования</a><span aria-hidden="true"> › </span><span>Кубок России</span></nav>
+<div class="page-head">
+  <p class="eyebrow">Серия соревнований</p>
+  <h1>Кубок России по гиревому спорту — протоколы и результаты</h1>
+  <p class="lead">Архив Кубков России по гиревому спорту. Выберите год, чтобы открыть полный протокол и результаты соревнования.</p>
+</div>
+<div id="home-compact">
+  <ul class="comp-list">
+  ${items.map((c) => competitionListItem(c, L)).join('')}
+  </ul>
+</div>
+${jsonLd({
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Соревнования', item: `${SITE_ORIGIN}/` },
+    { '@type': 'ListItem', position: 2, name: 'Кубок России', item: url },
+  ],
+})}`,
+  });
+};
+
+const withKubokRossiiYears = (html, items, currentSlug) => {
+  if (!currentSlug?.startsWith('kubok-rossii-')) return html;
+  const links = items.map((item) => item.slug === currentSlug
+    ? `<strong>${item.year}</strong>`
+    : `<a href="c-${item.slug}.html">${item.year}</a>`).join(' · ');
+  const section = `<section class="cat"><h2>Кубок России по годам</h2><p>${links}</p><p><a href="kubok-rossii.html">Все Кубки России</a></p></section>`;
+  if (html.includes('</article>')) return html.replace('</article>', `${section}</article>`);
+  return html.replace('</main>', `${section}</main>`);
+};
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
-const write = (name, body) => writeFileSync(join(OUT, name),
-  compactAthleteResults(formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'))), 'utf8');
+// name — итоговый файл; target, если задан, — путь, на который в этом файле
+// должен указывать canonical (нужен для a-*.html: их canonical ведёт на
+// действующий p-*.html конкретной персоны, а не на одноимённый p-файл —
+// исторический слаг в athlete_slugs мог с тех пор смениться).
+const canonicalPath = (name, target) => {
+  if (target) return '/' + target;
+  if (name === 'index.html') return '/';
+  return '/' + name;
+};
+
+const withCanonical = (html, name, target) => {
+  const canonicalUrl = `${SITE_ORIGIN}${canonicalPath(name, target)}`;
+  const canonical = `<link rel="canonical" href="${canonicalUrl}">`;
+  const ogUrl = `<meta property="og:url" content="${canonicalUrl}">`;
+  if (html.includes('rel="canonical"')) return html;
+  return html.replace('</head>', `${canonical}\n${ogUrl}\n</head>`);
+};
+
+const write = (name, body, canonicalTarget) => writeFileSync(join(OUT, name),
+  withCanonical(
+    compactAthleteResults(formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'))),
+    name, canonicalTarget,
+  ), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
-write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
+const hasKubokRossii2026 = competitions.some((c) => c.slug === 'kubok-rossii-2026');
+const kubokRossiiItems = competitions
+  .filter(isKubokRossii)
+  .map((c) => ({ ...c, year: competitionYear(c), pending: false }))
+  .filter((c) => c.year);
+if (!hasKubokRossii2026) {
+  kubokRossiiItems.push({
+    slug: 'kubok-rossii-2026',
+    name: 'Кубок России по гиревому спорту 2026',
+    date_start: '2026-09-10',
+    date_end: '2026-09-14',
+    city: 'Ростов-на-Дону',
+    country: 'RU',
+    federation: 'ВФГС',
+    rank_name: 'Кубок России',
+    year: '2026',
+    pending: true,
+  });
+}
+kubokRossiiItems.sort((a, b) => b.year.localeCompare(a.year));
+const kubokTeaser = !hasKubokRossii2026 ? {
+  href: 'c-kubok-rossii-2026.html',
+  name: 'Кубок России по гиревому спорту 2026',
+  note: 'Данные обрабатываются. Статистика подсчитывается, результаты и протокол будут опубликованы после проверки.',
+} : null;
+write('index.html', renderIndex({
+  stats, competitions, L, bare: process.env.BARE_INDEX === '1',
+  kubokTeaser, kubokHubHref: 'kubok-rossii.html',
+}));
+write('kubok-rossii.html', renderKubokRossiiHub(kubokRossiiItems, L));
 write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
 write('athletes.html', renderAthletes({ athletes: await listAthletes(db), L }));
 const coaches = await q.listCoaches(db);
@@ -112,30 +254,64 @@ for (const { slug } of await q.listPersonSlugs(db)) {
   write(L.person(slug), personTabs(renderPerson({ ...data, L })));
 }
 
-for (const c of competitions) {
-  const data = await q.getCompetition(db, c.slug);
-  write(`c-${c.slug}.html`, personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete'));
+if (!hasKubokRossii2026) {
+  write('c-kubok-rossii-2026.html', withKubokRossiiYears(
+    renderKubokRossii2026Placeholder(L), kubokRossiiItems, 'kubok-rossii-2026',
+  ));
 }
 
+for (const c of competitions) {
+  const data = await q.getCompetition(db, c.slug);
+  let competitionHtml = personRoleLinks(competitionCard(renderCompetition({ ...data, L }), data.comp, data.categories), 'athlete');
+  competitionHtml = withKubokRossiiYears(competitionHtml, kubokRossiiItems, c.slug);
+  write(`c-${c.slug}.html`, competitionHtml);
+}
+
+// Каждый слаг в athlete_slugs — исторический адрес, который когда-то вёл на
+// спортсмена (переименование, слияние дублей). getPerson() резолвит его к
+// действующей персоне независимо от того, совпадает ли слаг с persons.slug —
+// поэтому редирект и canonical всегда строятся из data.person.slug, а не из
+// самого запрошенного slug (см. docs/schema.md, athlete_slugs).
 const slugs = await q.listAthleteSlugs(db);
 let athletePages = 0;
+const athleteRedirects = [];
 for (const { slug } of slugs) {
   const data = await q.getPerson(db, slug);
-  if (!data?.athleteData?.results.length) continue;
-  write(`a-${slug}.html`, personTabs(renderPerson({ ...data, L })));
+  if (!data) continue;
+  const personSlug = data.person.slug;
+  athleteRedirects.push(`/a-${slug}.html /p-${personSlug}.html 301`);
+  if (!data.athleteData?.results.length) continue;
+  write(`a-${slug}.html`, personTabs(renderPerson({ ...data, L })), `p-${personSlug}.html`);
   athletePages++;
 }
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
 
-const SITE_ORIGIN = 'https://vsegiri.com';
+writeFileSync(join(OUT, '_redirects'), athleteRedirects.join('\n') + '\n', 'utf8');
+
+const notFoundHtml = page({
+  title: 'Страница не найдена — Гиревой архив',
+  description: 'Такой страницы нет. Вернитесь к соревнованиям или результатам.',
+  L,
+  body: `
+<div class="page-head">
+  <p class="eyebrow">Ошибка 404</p>
+  <h1>Страница не найдена</h1>
+  <p class="lead">Такой страницы нет. Вернитесь к соревнованиям или результатам.</p>
+  <p><a href="${L.home}">Соревнования</a> · <a href="${L.results}">Все результаты</a></p>
+</div>`,
+});
+writeFileSync(join(OUT, '404.html'),
+  withAthletesNav(notFoundHtml, L.athletes, L.coaches, false)
+    .replace('</head>', '<meta name="robots" content="noindex, nofollow">\n</head>'),
+  'utf8');
+
 const htmlFiles = readdirSync(OUT)
   .filter((name) => name.endsWith('.html'))
   .sort();
-const sitemapUrls = htmlFiles.map((name) => {
-  const path = name === 'index.html' ? '/' : '/' + name;
-  return `  <url><loc>${SITE_ORIGIN}${path}</loc></url>`;
-});
+const sitemapUrls = htmlFiles
+  .filter((name) => !name.startsWith('a-') && name !== '404.html')
+  .map((name) => `  <url><loc>${SITE_ORIGIN}${canonicalPath(name)}</loc></url>`);
 writeFileSync(join(OUT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join('\n')}\n</urlset>\n`,
   'utf8');

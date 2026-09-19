@@ -18,6 +18,19 @@ export const links = {
 const e = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const SITE_ORIGIN = 'https://vsegiri.com';
+const jsonLd = (value) => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g, '\\u003c')}</script>`;
+const breadcrumbJsonLd = (items) => jsonLd({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: item.url,
+  })),
+});
+
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
   'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
@@ -181,6 +194,11 @@ export function athleteSummaryTable({ athletes, L, id = 'athletes-table', person
 export function page({ title, description, body, L, active, bare = false }) {
   const head = `<title>${e(title)}</title>
 <meta name="description" content="${e(description || '')}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Все гири">
+<meta property="og:title" content="${e(title)}">
+<meta property="og:description" content="${e(description || '')}">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap">
@@ -341,12 +359,39 @@ export function renderCompetition({ comp, categories, L }) {
   const catSub = (cat) => [cat.sex === 'f' ? 'женщины' : 'мужчины', cat.age_group,
     cat.division, cat.weight_class_raw && `${cat.weight_class_raw} кг`]
     .filter(Boolean).join(' · ');
+  const resultsCount = live.reduce((sum, cat) => sum + (cat.rows?.length || 0), 0);
+  const competitionUrl = `${SITE_ORIGIN}/c-${comp.slug}.html`;
+  const competitionDescription = `Результаты и полный протокол: ${comp.name}, ${dateRu(comp.date_start)}${comp.city ? `, ${comp.city}` : ''}. ${live.length} категорий, ${resultsCount} результатов.`;
+  const sportsEvent = {
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: comp.name,
+    sport: 'Гиревой спорт',
+    startDate: comp.date_start,
+    ...(comp.date_end ? { endDate: comp.date_end } : {}),
+    url: competitionUrl,
+    ...(comp.city ? {
+      location: {
+        '@type': 'Place',
+        name: comp.city,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: comp.city,
+          ...(comp.country ? { addressCountry: comp.country } : {}),
+        },
+      },
+    } : {}),
+    ...(comp.federation_name ? {
+      organizer: { '@type': 'Organization', name: comp.federation_name },
+    } : {}),
+  };
 
   return page({
-    title: `${comp.name} — протокол`,
-    description: `Полный протокол: ${comp.name}, ${dateRu(comp.date_start)}.`,
+    title: `${comp.name} — результаты и протокол | Все гири`,
+    description: competitionDescription,
     L,
     body: `
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${L.home}">Соревнования</a><span aria-hidden="true"> › </span><span>${e(comp.name)}</span></nav>
 <article>
   <div class="page-head">
     <p class="eyebrow">${e(comp.rank_name || 'Соревнование')}</p>
@@ -406,7 +451,12 @@ export function renderCompetition({ comp, categories, L }) {
     Числа будут добавлены позже — до тех пор смотрите PDF.</p>
     <ul>${deferred.map((c) => `<li>${e(c.weight_class_raw || c.discipline_name)} — будет добавлено позже</li>`).join('')}</ul>
   </section>` : ''}
-</article>`,
+</article>
+${jsonLd(sportsEvent)}
+${breadcrumbJsonLd([
+  { name: 'Соревнования', url: SITE_ORIGIN + '/' },
+  { name: comp.name, url: competitionUrl },
+])}`,
   });
 }
 
@@ -487,11 +537,30 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     </table>
     </div>`;
 
+  const hasCoachRole = coachedAthletes.length > 0;
+  const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
+  const breadcrumbParent = athlete
+    ? { name: 'Спортсмены', href: athletesHref }
+    : { name: 'Тренеры', href: L.coaches };
+  const breadcrumbParentUrl = `${SITE_ORIGIN}/${String(breadcrumbParent.href).replace(/^\//, '')}`;
+  const personUrl = `${SITE_ORIGIN}/p-${person.slug}.html`;
+  const personTitle = athlete
+    ? `${name} — результаты в гиревом спорте | Все гири`
+    : hasCoachRole
+      ? `${name} — тренер по гиревому спорту | Все гири`
+      : `${name} — гиревой спорт | Все гири`;
+  const personDescription = athlete
+    ? `${name}: результаты соревнований по гиревому спорту, выступления, места, дисциплины и динамика результатов.`
+    : hasCoachRole
+      ? `${name}: тренер по гиревому спорту. Спортсмены, соревнования и результаты из опубликованных протоколов.`
+      : `${name}: сведения из архива соревнований по гиревому спорту.`;
+
   return page({
-    title: `${name} — Гиревой архив`,
-    description: `${name}: спортивная деятельность, выступления, тренерская и судейская работа.`,
+    title: personTitle,
+    description: personDescription,
     L,
     body: `
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${e(breadcrumbParent.href)}">${breadcrumbParent.name}</a><span aria-hidden="true"> › </span><span>${e(name)}</span></nav>
 <article>
   <div class="page-head">
     <p class="eyebrow">Персона</p>
@@ -576,6 +645,10 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
       <td>${j.source_url ? `<a href="${e(j.source_url)}">${e(j.role)}</a>` : e(j.role)}</td></tr>`).join('')}</tbody></table></div>
   </section>` : ''}
 </article>
+${breadcrumbJsonLd([
+  { name: breadcrumbParent.name, url: breadcrumbParentUrl },
+  { name, url: personUrl },
+])}
 <style>
 .athlete-results-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.7rem 1rem; margin-bottom:.55rem; }
 .athlete-results-head h3 { margin:0; }
@@ -789,12 +862,12 @@ export function renderResults({ rows, L }) {
   const th = (key, label, cls) =>
     `<th${cls ? ` class="${cls} sort"` : ' class="sort"'} data-key="${key}" role="button" tabindex="0">${label}</th>`;
   return page({
-    title: 'Все результаты',
-    description: 'Таблица всех результатов с фильтрами по полу, дисциплине, весу снаряда и регламенту.',
+    title: 'Результаты соревнований по гиревому спорту | Все гири',
+    description: 'Результаты соревнований по гиревому спорту: спортсмены, дисциплины, весовые категории, места и результаты выступлений.',
     L, active: 'results',
     body: `
 <div class="page-head">
-  <h1>Все результаты</h1>
+  <h1>Результаты соревнований по гиревому спорту</h1>
   <p class="lead">Архив результатов соревнований по гиревому спорту. Найдите нужное выступление по дисциплине, весу, категории или регламенту.</p>
 </div>
 
