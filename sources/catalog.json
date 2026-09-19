@@ -1,7 +1,7 @@
 {
   "note": "Каталог опубликованных ВФГС протоколов, собирается scripts/fetch_vfgs_catalog.py в GitHub Actions: сайт федерации недоступен из среды агента. in_sources = файл уже лежит в sources/ и учтён в манифесте.",
   "source_site": "https://vfgs.ru",
-  "generated_at": "2026-09-19T06:26:36Z",
+  "generated_at": "2026-09-19T06:40:36Z",
   "years": [
     {
       "year": 2017,
@@ -96,7 +96,8 @@
           "size_bytes": 287744,
           "sha256": "09192df6c87a2f99d4d93b1df7f1a0f11b309fe214122a486b4d5c472a1d9a32",
           "content_type": "application/vnd.ms-excel",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2017/pervenstvo-rossii-sredi-yuniorov-g.-s-peterburg.xls",
           "in_sources": false
         },
         {
@@ -192,7 +193,8 @@
           "size_bytes": 163258,
           "sha256": "b57b6142497d70c41a4ed7442ec3edbe14d03f94f80d8780c3d4ace5bade9f3f",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2018/pervenstvo-rossii-sredi-yuniorov-2018.xlsx",
           "in_sources": false
         },
         {
@@ -343,7 +345,8 @@
           "size_bytes": 176597,
           "sha256": "c32fab4402daf5d6c9bfd6559b4583eadf7b3c47bb0773b34da02adf15ad0ef2",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2019/pervenstvo-rossii-sredi-yuniorov-2019.xlsx",
           "in_sources": false
         },
         {
@@ -429,7 +432,8 @@
           "size_bytes": 138048,
           "sha256": "e19faa1a12b23bf2b5d39724ace118e13b114787f8b99d9a3ce9a1fc2f8be216",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2020/pervenstvo-rossii-sredi-yuniorov-2020.xlsx",
           "in_sources": false
         },
         {
@@ -571,7 +575,8 @@
           "size_bytes": 244790,
           "sha256": "2a9441dd822816c0e7d2cd88b9c8dc3175b0441ed286e3874140f12cff5df85a",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2021/protokol-pr-yuniory-19-21.03.2021.xlsx",
           "in_sources": false
         },
         {
@@ -748,7 +753,8 @@
           "size_bytes": 397964,
           "sha256": "a5d17a98fba56c39d3d6da43657ee470b2400af65a9d6b4051bb61129efa94d7",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2022/protokol-pryuniory-2022itogovye.xlsx",
           "in_sources": false
         },
         {
@@ -960,7 +966,8 @@
           "size_bytes": 329319,
           "sha256": "9e8d3c33a223dccb50714d192398a35d582b4e582bab5095e4de8210f8bf9781",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2023/yuniory-2023.xlsx",
           "in_sources": false
         },
         {
@@ -1203,7 +1210,8 @@
           "size_bytes": 554499,
           "sha256": "8713bca0816c7d810940d9597a07743ef19500a8d176bd74ac26567d3f944808",
           "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2024/protokoly-pr-yun-ry-2024-bor-.xlsx",
           "in_sources": false
         },
         {
@@ -1478,7 +1486,8 @@
           "size_bytes": 4798288,
           "sha256": "5b31243f2148462faef795948bf1992d0ea0339c77171c7d8bb3e23f664d27fd",
           "content_type": "application/pdf",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2025/pr-yuniory-2025.pdf",
           "in_sources": false
         },
         {
@@ -1656,7 +1665,8 @@
           "size_bytes": 7228557,
           "sha256": "e5597a16b4133d5b3ec59fb4eabd9a279097f2122627110eca58dde54bc38d94",
           "content_type": "application/pdf",
-          "status": "ok",
+          "status": "downloaded",
+          "saved_as": "sources/2026/protokol_PR_2026_Ore_776_l.pdf",
           "in_sources": false
         },
         {
