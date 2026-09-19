@@ -1,7 +1,7 @@
 {
   "note": "Каталог опубликованных ВФГС протоколов, собирается scripts/fetch_vfgs_catalog.py в GitHub Actions: сайт федерации недоступен из среды агента. in_sources = файл уже лежит в sources/ и учтён в манифесте.",
   "source_site": "https://vfgs.ru",
-  "generated_at": "2026-09-19T06:26:36Z",
+  "generated_at": "2026-09-19T06:40:25Z",
   "years": [
     {
       "year": 2017,
