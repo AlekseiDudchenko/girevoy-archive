@@ -21,7 +21,30 @@
     "ekp": "2065570022050937",
     "source_url": "https://vfgs.ru/assets/files/protocoly/2026/protokol_PR_2026_Ore_776_l.pdf"
   },
-  "columns": ["place", "name", "born", "rank", "region", "club", "body_weight_kg", "reps", "rank_achieved", "team_points", "coach"],
+  "columns": [
+    "place",
+    "name",
+    "born",
+    "rank",
+    "region",
+    "club",
+    "body_weight_kg",
+    "reps",
+    "rank_achieved",
+    "team_points",
+    "coach"
+  ],
   "categories": [],
-  "deferred": []
+  "deferred": [
+    {
+      "page": 34,
+      "discipline": "long_cycle",
+      "sex": "m",
+      "bell_kg": 32,
+      "hands": "two",
+      "time_limit_min": 12,
+      "weight_class": "эстафета (юниоры)",
+      "note": "Толчок ДЦ-эстафета (юниоры 19-23 лет), 12 мин. (3 мин. x 4 этапа). Эстафеты вне MVP (решение 3), страницы 34-35."
+    }
+  ]
 }
