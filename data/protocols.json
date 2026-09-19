@@ -10,6 +10,14 @@
       "generator": "gen_seed_status"
     },
     {
+      "slug": "pervenstvo-rossii-yuniory-2023",
+      "generator": "gen_seed_status"
+    },
+    {
+      "slug": "pervenstvo-rossii-yuniory-2024",
+      "generator": "gen_seed"
+    },
+    {
       "slug": "chempionat-rossii-2024",
       "generator": "gen_seed_status"
     },
