@@ -95,6 +95,61 @@ const compactAthleteResults = (html) => {
     .replace('.discipline-dot {', '.discipline-break { flex-basis:100%; height:0; }\n.discipline-duration { margin-left:.96rem; }\n.discipline-dot {');
 };
 
+
+const renderKubokRossii2026Placeholder = () => `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кубок России по гиревому спорту 2026 — результаты и протокол | Все гири</title>
+<meta name="description" content="Кубок России по гиревому спорту 2026: результаты и протокол. Данные соревнований обрабатываются и будут опубликованы после проверки.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Все гири">
+<meta property="og:title" content="Кубок России по гиревому спорту 2026 — результаты и протокол">
+<meta property="og:description" content="Данные Кубка России 2026 обрабатываются. Результаты и протокол появятся после проверки.">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="brand" href="index.html">Гиревой архив</a>
+    <nav>
+      <a href="index.html" class="on">Соревнования</a>
+      <a href="results.html">Все результаты</a>
+      <a href="athletes.html">Спортсмены</a>
+      <a href="coaches.html">Тренеры</a>
+    </nav>
+  </div>
+</header>
+<main class="inner">
+  <nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="index.html">Соревнования</a><span aria-hidden="true"> › </span><span>Кубок России 2026</span></nav>
+  <section class="competition-card" aria-label="Карточка турнира">
+    <div class="competition-top">
+      <div class="competition-visual competition-visual-placeholder" aria-label="Данные турнира обрабатываются"><span>2026</span></div>
+      <div class="competition-identity">
+        <p class="eyebrow">Кубок России</p>
+        <h1>Кубок России по гиревому спорту 2026</h1>
+        <p class="lead">Данные обрабатываются. Результаты, категории и протокол будут опубликованы после проверки.</p>
+      </div>
+    </div>
+    <div class="competition-stats competition-stats-4">
+      <div class="competition-stat"><div><strong>подсчитываем</strong><span>спортсменов</span></div></div>
+      <div class="competition-stat"><div><strong>подсчитываем</strong><span>результатов</span></div></div>
+      <div class="competition-stat"><div><strong>подсчитываем</strong><span>категорий</span></div></div>
+      <div class="competition-stat"><div><strong>подсчитываем</strong><span>регионов</span></div></div>
+    </div>
+  </section>
+  <section class="cat">
+    <h2>Результаты Кубка России 2026</h2>
+    <p>Протокол находится в обработке. После завершения проверки здесь появятся все категории, спортсмены, места и результаты выступлений.</p>
+  </section>
+</main>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SportsEvent","name":"Кубок России по гиревому спорту 2026","sport":"Гиревой спорт","url":"https://vsegiri.com/c-kubok-rossii-2026.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Соревнования","item":"https://vsegiri.com/"},{"@type":"ListItem","position":2,"name":"Кубок России 2026","item":"https://vsegiri.com/c-kubok-rossii-2026.html"}]}</script>
+</body>
+</html>`;
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
@@ -121,7 +176,15 @@ const write = (name, body) => writeFileSync(join(OUT, name),
   ), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
-write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
+const hasKubokRossii2026 = competitions.some((c) => c.slug === 'kubok-rossii-2026');
+let indexHtml = renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' });
+if (!hasKubokRossii2026) {
+  indexHtml = indexHtml.replace(
+    '<div class="home-list-head">',
+    '<section class="cat"><p class="eyebrow">Свежие соревнования</p><h2><a href="c-kubok-rossii-2026.html">Кубок России по гиревому спорту 2026</a></h2><p class="lead">Данные обрабатываются. Статистика подсчитывается, результаты и протокол будут опубликованы после проверки.</p></section><div class="home-list-head">',
+  );
+}
+write('index.html', indexHtml);
 write('results.html', personRoleLinks(renderResults({ rows: await q.listAllResults(db), L }), 'athlete'));
 write('athletes.html', renderAthletes({ athletes: await listAthletes(db), L }));
 const coaches = await q.listCoaches(db);
@@ -129,6 +192,10 @@ write('coaches.html', sortableCoaches(personRoleLinks(renderCoaches({ coaches, L
 for (const { slug } of await q.listPersonSlugs(db)) {
   const data = await q.getPerson(db, slug);
   write(L.person(slug), personTabs(renderPerson({ ...data, L })));
+}
+
+if (!hasKubokRossii2026) {
+  write('c-kubok-rossii-2026.html', renderKubokRossii2026Placeholder());
 }
 
 for (const c of competitions) {
