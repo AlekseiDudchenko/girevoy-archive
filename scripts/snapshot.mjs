@@ -1,7 +1,7 @@
 // Статический снимок сайта из локальной базы — чтобы смотреть UI без Cloudflare.
 // Тот же код рендеринга, что и в Worker.
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, copyFileSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import * as q from '../src/queries.js';
 import { links, renderCompetition, renderPerson, renderResults, renderCoaches } from '../src/render.js';
@@ -127,4 +127,20 @@ for (const { slug } of slugs) {
 }
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
+
+const SITE_ORIGIN = 'https://vsegiri.com';
+const htmlFiles = readdirSync(OUT)
+  .filter((name) => name.endsWith('.html'))
+  .sort();
+const sitemapUrls = htmlFiles.map((name) => {
+  const path = name === 'index.html' ? '/' : '/' + name;
+  return `  <url><loc>${SITE_ORIGIN}${path}</loc></url>`;
+});
+writeFileSync(join(OUT, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join('\n')}\n</urlset>\n`,
+  'utf8');
+writeFileSync(join(OUT, 'robots.txt'),
+  `User-agent: *\nAllow: /\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`,
+  'utf8');
+
 console.log(`${OUT}/: 1 главная, 1 таблица результатов, 1 список спортсменов, ${competitions.length} турниров, ${athletePages} спортсменов`);
