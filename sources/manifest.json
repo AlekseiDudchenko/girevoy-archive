@@ -229,11 +229,6 @@
       "path": "sources/2026/protokoly_SFO_DFO_2026.pdf",
       "size_bytes": 5017782,
       "sha256": "bf1f4fe6575b1da013cd67215ed307097683482b9600756eec60514484071e13"
-    },
-    {
-      "path": "sources/README.md",
-      "size_bytes": 4723,
-      "sha256": "7c33b5894991af01e0095e3e09e04563e4234bd9d5b678b54a16b400cac9424d"
     }
   ]
 }
