@@ -69,11 +69,12 @@ jobs:
                 JOIN base.person_coach_athletes bca ON bca.person_id=bp.id
                 WHERE bp.slug=p.slug)""",
             "new regions": """SELECT COUNT(*) FROM regions r
-              WHERE NOT EXISTS (SELECT 1 FROM base.regions b WHERE b.code=r.code)""",
+              WHERE NOT EXISTS (SELECT 1 FROM base.regions b
+                WHERE b.name=r.name AND b.country=r.country)""",
             "new clubs": """SELECT COUNT(*) FROM clubs c JOIN regions r ON r.id=c.region_id
               WHERE NOT EXISTS (
                 SELECT 1 FROM base.clubs bc JOIN base.regions br ON br.id=bc.region_id
-                WHERE bc.name=c.name AND br.code=r.code)""",
+                WHERE bc.name=c.name AND br.name=r.name AND br.country=r.country)""",
           }
           for label,sql in checks.items():
               print(f"{label}: {cur.execute(sql).fetchone()[0]}")
