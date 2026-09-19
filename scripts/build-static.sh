@@ -22,6 +22,10 @@ test -s "$OUT_DIR/index.html"
 test -s "$OUT_DIR/results.html"
 test -s "$OUT_DIR/coaches.html"
 test -s "$OUT_DIR/style.css"
+test -s "$OUT_DIR/robots.txt"
+test -s "$OUT_DIR/sitemap.xml"
+grep -q 'rel="canonical" href="https://vsegiri.com/"' "$OUT_DIR/index.html"
+grep -q 'rel="canonical" href="https://vsegiri.com/results.html"' "$OUT_DIR/results.html"
 find "$OUT_DIR" -maxdepth 1 -type f -name 'c-*.html' -print -quit | grep -q .
 find "$OUT_DIR" -maxdepth 1 -type f -name 'a-*.html' -print -quit | grep -q .
 find "$OUT_DIR" -maxdepth 1 -type f -name 'p-*.html' -print -quit | grep -q .
