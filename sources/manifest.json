@@ -11,6 +11,11 @@
       "sha256": "59f512de2414c8bd916508d642694c805afd5b1bbaf5cafd3c1b4e169a8d1eb2"
     },
     {
+      "path": "sources/2017/pervenstvo-rossii-sredi-yuniorov-g.-s-peterburg.xls",
+      "size_bytes": 287744,
+      "sha256": "09192df6c87a2f99d4d93b1df7f1a0f11b309fe214122a486b4d5c472a1d9a32"
+    },
+    {
       "path": "sources/2017/zonalnye-sorevnovaniya-aziatskaya-chast.xls",
       "size_bytes": 404992,
       "sha256": "f3779841e48c9646bb12384875303a35380082c0bc90f767d827cde61290cbb3"
@@ -31,6 +36,11 @@
       "sha256": "30cf224ac3897c21714be59a793f40b2c1098c24b800d34734332eab5d941bdc"
     },
     {
+      "path": "sources/2018/pervenstvo-rossii-sredi-yuniorov-2018.xlsx",
+      "size_bytes": 163258,
+      "sha256": "b57b6142497d70c41a4ed7442ec3edbe14d03f94f80d8780c3d4ace5bade9f3f"
+    },
+    {
       "path": "sources/2019/chempionat-rossii-2019.xlsx",
       "size_bytes": 124735,
       "sha256": "8e21e879e441ae86e9f6911c3d6ce025b16b7aeebcad5a213ddbb0c17d404cf8"
@@ -41,9 +51,19 @@
       "sha256": "9ebdb000fc0f1d7286143d3520f3782a427b889e8ac46aecdc439687d8c59fe7"
     },
     {
+      "path": "sources/2019/pervenstvo-rossii-sredi-yuniorov-2019.xlsx",
+      "size_bytes": 176597,
+      "sha256": "c32fab4402daf5d6c9bfd6559b4583eadf7b3c47bb0773b34da02adf15ad0ef2"
+    },
+    {
       "path": "sources/2020/kr2020-SPb.xlsx",
       "size_bytes": 463499,
       "sha256": "bd89726c42d695e8fe42ad9f3cba2acc8668eb7debcbf4c81dfb59f97f562ddc"
+    },
+    {
+      "path": "sources/2020/pervenstvo-rossii-sredi-yuniorov-2020.xlsx",
+      "size_bytes": 138048,
+      "sha256": "e19faa1a12b23bf2b5d39724ace118e13b114787f8b99d9a3ce9a1fc2f8be216"
     },
     {
       "path": "sources/2020/rus-champ-2020.xlsx",
@@ -64,6 +84,11 @@
       "path": "sources/2021/protokol-chr-2021g.r-n-d-.xlsx",
       "size_bytes": 372555,
       "sha256": "dbb3bfbd418f2d3ba475ca0602b2ad7086ecc5c2d922262c93e21b8acc6778fd"
+    },
+    {
+      "path": "sources/2021/protokol-pr-yuniory-19-21.03.2021.xlsx",
+      "size_bytes": 244790,
+      "sha256": "2a9441dd822816c0e7d2cd88b9c8dc3175b0441ed286e3874140f12cff5df85a"
     },
     {
       "path": "sources/2021/protokoly-dfo-sfo-ufo-itogovyj.xls",
@@ -101,6 +126,11 @@
       "sha256": "32a05932efee38a726b65250a4a8bd9bdde2f7781ce6952c5ed9783f0caae5d4"
     },
     {
+      "path": "sources/2022/protokol-pryuniory-2022itogovye.xlsx",
+      "size_bytes": 397964,
+      "sha256": "a5d17a98fba56c39d3d6da43657ee470b2400af65a9d6b4051bb61129efa94d7"
+    },
+    {
       "path": "sources/2023/cfo-2023-kaluga.-xlsx.xlsx",
       "size_bytes": 540338,
       "sha256": "b86181683a38ef5743371360f66ee7c6b5d84aa23301a9e0843449aa64384904"
@@ -136,6 +166,11 @@
       "sha256": "ccb1c8ce476abf575f44d5d000702ff922f6447b00de65db47dd81a54bb697a9"
     },
     {
+      "path": "sources/2023/yuniory-2023.xlsx",
+      "size_bytes": 329319,
+      "sha256": "9e8d3c33a223dccb50714d192398a35d582b4e582bab5095e4de8210f8bf9781"
+    },
+    {
       "path": "sources/2024/Protokoly_PFO_12-14_04_24.xlsx",
       "size_bytes": 497336,
       "sha256": "54e28b05db74e503188119eeb13439191c4b6ead7f3181fd25873a3cee181379"
@@ -161,6 +196,11 @@
       "sha256": "c183baf0f4a66a67e9b8a7e13cfb8d6cf6fc9789da94c850e6bfb4273a7eb255"
     },
     {
+      "path": "sources/2024/protokoly-pr-yun-ry-2024-bor-.xlsx",
+      "size_bytes": 554499,
+      "sha256": "8713bca0816c7d810940d9597a07743ef19500a8d176bd74ac26567d3f944808"
+    },
+    {
       "path": "sources/2024/szfo-2024.xlsx",
       "size_bytes": 1145374,
       "sha256": "3f84b47e10dbc8df80f91366de111258099ba093ac38100d85b5ec35373c7493"
@@ -179,6 +219,11 @@
       "path": "sources/2025/pfo_2025.pdf",
       "size_bytes": 4102877,
       "sha256": "c0ceed6a5b65796aa5963bbe5c8fa2066ade66a1ac5aac93290541f766318fb8"
+    },
+    {
+      "path": "sources/2025/pr-yuniory-2025.pdf",
+      "size_bytes": 4798288,
+      "sha256": "5b31243f2148462faef795948bf1992d0ea0339c77171c7d8bb3e23f664d27fd"
     },
     {
       "path": "sources/2025/protokol-chempionat-rossii-2025.pdf",
@@ -209,6 +254,11 @@
       "path": "sources/2026/protokol-chempionata-szfo.pdf",
       "size_bytes": 4400853,
       "sha256": "445d3107af03ced9b7c0062addf3fdc780d593a6b4aa24e22b97190009f87622"
+    },
+    {
+      "path": "sources/2026/protokol_PR_2026_Ore_776_l.pdf",
+      "size_bytes": 7228557,
+      "sha256": "e5597a16b4133d5b3ec59fb4eabd9a279097f2122627110eca58dde54bc38d94"
     },
     {
       "path": "sources/2026/protokol_chempionat_TsFO.pdf",
