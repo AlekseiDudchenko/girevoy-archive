@@ -29,6 +29,13 @@ grep -q '<meta name="robots" content="noindex, nofollow">' "$OUT_DIR/404.html"
 ! grep -q '/404.html' "$OUT_DIR/sitemap.xml"
 grep -q 'rel="canonical" href="https://vsegiri.com/"' "$OUT_DIR/index.html"
 grep -q 'rel="canonical" href="https://vsegiri.com/results.html"' "$OUT_DIR/results.html"
+grep -q '<h1>Результаты соревнований по гиревому спорту</h1>' "$OUT_DIR/results.html"
+grep -q 'property="og:title"' "$OUT_DIR/index.html"
+COMP_PAGE="$(find "$OUT_DIR" -maxdepth 1 -type f -name 'c-*.html' -print -quit)"
+PERSON_PAGE="$(find "$OUT_DIR" -maxdepth 1 -type f -name 'p-*.html' -print -quit)"
+grep -q '"@type":"SportsEvent"' "$COMP_PAGE"
+grep -q '"@type":"BreadcrumbList"' "$COMP_PAGE"
+grep -q '"@type":"BreadcrumbList"' "$PERSON_PAGE"
 find "$OUT_DIR" -maxdepth 1 -type f -name 'c-*.html' -print -quit | grep -q .
 find "$OUT_DIR" -maxdepth 1 -type f -name 'a-*.html' -print -quit | grep -q .
 find "$OUT_DIR" -maxdepth 1 -type f -name 'p-*.html' -print -quit | grep -q .
