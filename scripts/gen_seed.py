@@ -163,7 +163,8 @@ def main(path):
             # а напечатанное в протоколе — в r[15]/r[16], если оно отличается.
             raw_region = r[15] if len(r) > 15 and r[15] else r[4]
             raw_club = r[16] if len(r) > 16 and r[16] else r[5]
-            result_status = r[17] if len(r) > 17 and r[17] else None\n            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,raw_club,raw_region,pid,cat_page[cat_id],result_status))
+            result_status = r[17] if len(r) > 17 and r[17] else None
+            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,raw_club,raw_region,pid,cat_page[cat_id],result_status))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))
