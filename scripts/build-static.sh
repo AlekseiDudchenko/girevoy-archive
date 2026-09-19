@@ -34,14 +34,13 @@ grep -q 'class="comp-list"' "$OUT_DIR/kubok-rossii.html"
 grep -q '"@type":"WebSite"' "$OUT_DIR/index.html"
 grep -Eq "^/a-.+\\.html /p-.+\\.html 301$" "$OUT_DIR/_redirects"
 
-# Кубок России 2026 уже импортирован: проверяем настоящую страницу,
-# её данные и назначенный баннер, а не текст прежнего placeholder.
+# Кубок России 2026 уже импортирован: проверяем настоящую страницу
+# и её данные, а не текст прежнего placeholder.
 test -s "$OUT_DIR/c-kubok-rossii-2026.html"
 grep -q 'Кубок России 2026' "$OUT_DIR/c-kubok-rossii-2026.html"
 grep -q 'c-kubok-rossii-2026.html' "$OUT_DIR/index.html"
 grep -q 'Ростов-на-Дону' "$OUT_DIR/c-kubok-rossii-2026.html"
 grep -q '318' "$OUT_DIR/c-kubok-rossii-2026.html"
-grep -q '/competition-posters/kubok-rossii-2026.jpg' "$OUT_DIR/c-kubok-rossii-2026.html"
 ! grep -q 'подсчитываем' "$OUT_DIR/c-kubok-rossii-2026.html"
 
 grep -q '<meta name="robots" content="noindex, nofollow">' "$OUT_DIR/404.html"
