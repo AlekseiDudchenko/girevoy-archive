@@ -121,10 +121,10 @@ def main(path):
     cats=[]; order=0
     for cat in data["categories"]:
         order += 1; wc=cat["weight_class"]
-        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups","adult"),None,cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",cat["discipline"]),cat["sex"],ref("age_groups",cat.get("age_group", comp.get("age_group","adult"))),None,cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],wc,int(wc.rstrip("+")),1 if wc.endswith("+") else 0,len(cat["rows"]),0,order,cat["page"]))
     for d in data.get("deferred",[]):
         order += 1
-        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups","adult"),None,d["bell_kg"],normalized_hands(d["discipline"], d["hands"]),d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
+        cats.append((BASE+order,cid,ref("disciplines",d["discipline"]),d["sex"],ref("age_groups",d.get("age_group", comp.get("age_group","adult"))),None,d["bell_kg"],normalized_hands(d["discipline"], d["hands"]),d["time_limit_min"],d["weight_class"],None,0,None,1,90+order,d["page"]))
     insert("categories", ["id","competition_id","discipline_id","sex","age_group_id","division_id","bell_kg","hands","time_limit_min","weight_class_raw","weight_class_kg","weight_class_is_open","participants_declared","is_deferred","sort_order"], [c[:-1] for c in cats])
     cat_page={c[0]:c[-1] for c in cats}
 
@@ -163,13 +163,13 @@ def main(path):
             # а напечатанное в протоколе — в r[15]/r[16], если оно отличается.
             raw_region = r[15] if len(r) > 15 and r[15] else r[4]
             raw_club = r[16] if len(r) > 16 and r[16] else r[5]
-            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,raw_club,raw_region,pid,cat_page[cat_id]))
+            result_status = r[17] if len(r) > 17 and r[17] else None\n            results.append((rid,cat_id,aid,r[0],total_reps,points,r[6],rank_id(r[8]),ref("disciplines",cat["discipline"]),cat["bell_kg"],normalized_hands(cat["discipline"], cat["hands"]),cat["time_limit_min"],cid,comp["date_start"],raw_name,raw_club,raw_region,pid,cat_page[cat_id],result_status))
             if cat["discipline"] == "biathlon":
                 if len(r) < 13: raise ValueError(f"Biathlon row needs jerk/snatch reps: {r}")
                 if r[11] is not None: reps.append((BASE+len(reps)+1,rid,"jerk","both",r[11]))
                 if r[12] is not None: reps.append((BASE+len(reps)+1,rid,"snatch","both",r[12]))
             elif r[7] is not None: reps.append((BASE+len(reps)+1,rid,cat["discipline"],"both",r[7]))
-    insert("results", ["id","category_id","athlete_id","place","total_reps","points","body_weight_kg","rank_achieved_id","discipline_id","bell_kg","hands","time_limit_min","competition_id","event_date","raw_name","raw_club","raw_region","protocol_id","source_page"], results)
+    insert("results", ["id","category_id","athlete_id","place","total_reps","points","body_weight_kg","rank_achieved_id","discipline_id","bell_kg","hands","time_limit_min","competition_id","event_date","raw_name","raw_club","raw_region","protocol_id","source_page","result_status"], results)
     insert("result_reps", ["id","result_id","exercise","hand","reps"], reps)
     print("\n".join(out))
 
