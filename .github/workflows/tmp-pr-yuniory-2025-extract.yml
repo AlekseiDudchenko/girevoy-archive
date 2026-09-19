@@ -1,0 +1,31 @@
+name: Temporary protocol extraction
+
+on:
+  push:
+    branches:
+      - import/pervenstvo-yuniorov-2025
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PDF tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Extract protocol
+        run: |
+          mkdir -p /tmp/protocol/pages
+          pdfinfo sources/2025/pr-yuniory-2025.pdf > /tmp/protocol/pdfinfo.txt
+          pdftotext -layout sources/2025/pr-yuniory-2025.pdf /tmp/protocol/protocol.txt
+          pdftoppm -jpeg -r 110 sources/2025/pr-yuniory-2025.pdf /tmp/protocol/pages/page
+          wc -l /tmp/protocol/protocol.txt
+          sed -n '1,120p' /tmp/protocol/protocol.txt
+      - name: Upload extraction
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-yuniory-2025-extraction
+          path: /tmp/protocol
+          retention-days: 1
