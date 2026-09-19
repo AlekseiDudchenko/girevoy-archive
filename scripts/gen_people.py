@@ -40,6 +40,12 @@ def normalize_coach_name(name: str) -> str:
     показывать — решает canonical_spelling() уже по всему списку.
     """
     name = re.sub(r"\s+", " ", name.strip())
+    # Пробел перед запятой, а за ней инициалы: `Фёдоров ,В.Н`. Запятая тут не
+    # разделитель тренеров, а опечатка: строка делилась по ней, и один тренер
+    # становился двумя фантомными персонами — «Фёдоров» и «В.Н.». Пробел перед
+    # запятой и есть признак опечатки: в настоящем перечислении (`Мощев, А.Е.
+    # Попова`) его не ставят, поэтому такие ячейки правило не трогает.
+    name = re.sub(r"(?<=[а-яё])\s+,\s*(?=[А-ЯЁ]\.)", " ", name)
     # Точка вместо пробела перед инициалами: `Танаев.Ю.М.`
     name = re.sub(r"(?<=[а-яё])\.(?=[А-ЯЁ]\.)", " ", name)
     # Пропущенный пробел перед инициалами: `ДягилевА.В.`
@@ -49,6 +55,16 @@ def normalize_coach_name(name: str) -> str:
     name = re.sub(r"\.{2,}", ".", name)
     # Пропущенная точка после последнего инициала: `Барков А.П`, `Смирнов А`
     return re.sub(r"(?<=[\s.][А-ЯЁ])$", ".", name)
+
+
+def fold_yo(name: str) -> str:
+    """Ключ написания без `ё`, в обоих регистрах.
+
+    `str.replace("ё", "е")` не трогает заглавную `Ё`, и фамилия, начинающаяся с неё,
+    уезжала в собственную группу: `Ёлькин Ю.Г.` и `Елькин Ю.Г.` оставались двумя
+    персонами, хотя ради таких пар canonical_spelling() и написан.
+    """
+    return name.replace("ё", "е").replace("Ё", "Е")
 
 
 def canonical_spelling(names: set[str], confirmed: set[str] | None = None) -> dict[str, str]:
@@ -68,10 +84,10 @@ def canonical_spelling(names: set[str], confirmed: set[str] | None = None) -> di
     confirmed = confirmed or set()
     groups: dict[str, set[str]] = {}
     for name in names:
-        groups.setdefault(name.replace("ё", "е"), set()).add(name)
+        groups.setdefault(fold_yo(name), set()).add(name)
     resolved = {}
     for key, variants in groups.items():
-        preferred = sorted(variants, key=lambda n: (n not in confirmed, "ё" not in n, n))[0]
+        preferred = sorted(variants, key=lambda n: (n not in confirmed, n == fold_yo(n), n))[0]
         for variant in variants:
             resolved[variant] = preferred
     return resolved
@@ -85,8 +101,8 @@ def apply_spelling(rules: dict, spelling: dict[str, str]) -> dict:
     и профиль, заведённый на `Ажермачев А.Б.`, перестаёт срабатывать молча. Ключ
     сопоставляется без `ё`, как и сама группа написаний.
     """
-    canonical = {name.replace("ё", "е"): preferred for name, preferred in spelling.items()}
-    return {canonical.get(key.replace("ё", "е"), key): value for key, value in rules.items()}
+    canonical = {fold_yo(name): preferred for name, preferred in spelling.items()}
+    return {canonical.get(fold_yo(key), key): value for key, value in rules.items()}
 
 
 def load_person_rules() -> tuple[dict[str, str], dict[str, list[str]]]:

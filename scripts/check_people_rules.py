@@ -115,11 +115,11 @@ def check_role_links(coaches: Counter) -> list[str]:
     errors = []
     # Написание `ё`/`е` выбирает canonical_spelling() по всему списку, а не правило,
     # поэтому ключ сверяется с выведенными тренерами без `ё` — как и в gen_people.
-    plain = {name.replace("ё", "е") for name in coaches}
+    plain = {people.fold_yo(name) for name in coaches}
     for key, section in (("coach", "coach_athlete_links"), ("coach", "coach_profiles")):
         for item in data.get(section, []):
             coach = people.normalize_coach_name(item[key])
-            if coach.replace("ё", "е") not in plain:
+            if people.fold_yo(coach) not in plain:
                 errors.append(f"{section}: тренера {coach!r} нет среди выведенных из протоколов")
     return errors
 

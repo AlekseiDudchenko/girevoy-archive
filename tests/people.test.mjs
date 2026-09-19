@@ -137,6 +137,23 @@ print(resolved['Петров В.М.'])
   assert.deepEqual(actual, ['Пономарёв Д.В.', 'Пономарёв Д.В.', 'Петров В.М.']);
 });
 
+test('capital Ё folds into the same group as Е', () => {
+  // `str.replace('ё', 'е')` не трогает заглавную Ё, и `Ёлькин Ю.Г.` оставался
+  // отдельной персоной от `Елькин Ю.Г.` — ровно тот дубль, против которого
+  // canonical_spelling() и написан.
+  const script = `
+import sys
+sys.path.insert(0, 'scripts')
+from gen_people import canonical_spelling
+
+resolved = canonical_spelling({'Ёлькин Ю.Г.', 'Елькин Ю.Г.'})
+print(resolved['Ёлькин Ю.Г.'])
+print(resolved['Елькин Ю.Г.'])
+`;
+  const actual = execFileSync('python3', ['-c', script], execOptions).trim().split('\n');
+  assert.deepEqual(actual, ['Ёлькин Ю.Г.', 'Ёлькин Ю.Г.']);
+});
+
 function realDb() {
   const sql = new DatabaseSync(':memory:');
   for (const file of before2024) sql.exec(readFileSync(file, 'utf8'));
