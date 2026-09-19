@@ -1,4 +1,4 @@
-name: Temporary junior import checks
+name: Temporary junior import generation
 
 on:
   push:
@@ -6,27 +6,22 @@ on:
       - import/pervenstvo-yuniorov-2025
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  inspect:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect repository data ranges
+      - name: Generate junior 2025 data
         run: |
-          python3 - <<'PY'
-          import glob, json
-          rows=[]
-          for p in glob.glob("data/*.json"):
-              try:
-                  d=json.load(open(p, encoding="utf-8"))
-              except Exception:
-                  continue
-              b=d.get("source",{}).get("id_base")
-              if isinstance(b,int):
-                  rows.append((b,p,d.get("competition",{}).get("slug")))
-          for row in sorted(rows):
-              print(*row, sep="\t")
-          print("MAX_ID_BASE", max((r[0] for r in rows), default=0))
-          PY
+          if [ -f data/pervenstvo-rossii-yuniory-2025.json ]; then
+            echo "data file already exists; nothing to generate"
+            exit 0
+          fi
+          python3 .github/tmp/generate_junior_2025.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/pervenstvo-rossii-yuniory-2025.json
+          git commit -m "data: import Russian junior championship 2025"
+          git push origin HEAD:import/pervenstvo-yuniorov-2025
