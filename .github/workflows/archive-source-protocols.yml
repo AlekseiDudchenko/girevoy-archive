@@ -118,7 +118,7 @@ jobs:
 
           root = Path('sources')
           files = []
-          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name != 'manifest.json'):
+          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name not in {'manifest.json', 'catalog.json', 'README.md'}):
               digest = hashlib.sha256(path.read_bytes()).hexdigest()
               files.append({
                   'path': path.as_posix(),
@@ -144,4 +144,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add sources
           git commit -m 'Archive original competition protocols'
-          git push origin "HEAD:${{ github.ref_name }}"
+
+          # В main и master workflow не пишет: изменения идут через PR
+          # (.claude/rules/git-workflow.md). С этих веток результат уходит
+          # в служебную ветку, из которой открывается PR.
+          target='${{ github.ref_name }}'
+          case "$target" in
+            main|master) target='bot/source-protocols' ;;
+          esac
+          git push origin "HEAD:refs/heads/$target"

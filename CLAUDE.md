@@ -34,6 +34,7 @@ scripts/gen_seed.py              генератор сида протокола 
 scripts/gen_regions.py           справочник регионов и алиасов из data/regions.json
 scripts/gen_people.py            производные персоны и история тренеров из data/*.json
 scripts/check_people_rules.py    правила тренеров: срабатывают ли, нет ли цепочек
+scripts/fetch_vfgs_catalog.py    каталог протоколов с сайта ВФГС, запускается в Actions
 scripts/ocr_pdf.py               распознавание протоколов-сканов
 scripts/setup_env.sh             poppler, tesseract, sqlite3; висит на хуке SessionStart
 scripts/snapshot.mjs             статический снимок сайта через node:sqlite
