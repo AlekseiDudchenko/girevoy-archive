@@ -107,9 +107,11 @@ const canonicalPath = (name) => {
 };
 
 const withCanonical = (html, name) => {
-  const canonical = `<link rel="canonical" href="${SITE_ORIGIN}${canonicalPath(name)}">`;
+  const canonicalUrl = `${SITE_ORIGIN}${canonicalPath(name)}`;
+  const canonical = `<link rel="canonical" href="${canonicalUrl}">`;
+  const ogUrl = `<meta property="og:url" content="${canonicalUrl}">`;
   if (html.includes('rel="canonical"')) return html;
-  return html.replace('</head>', `${canonical}\n</head>`);
+  return html.replace('</head>', `${canonical}\n${ogUrl}\n</head>`);
 };
 
 const write = (name, body) => writeFileSync(join(OUT, name),
