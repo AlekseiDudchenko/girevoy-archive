@@ -199,7 +199,9 @@ const withKubokRossiiYears = (html, items, currentSlug) => {
   const links = items.map((item) => item.slug === currentSlug
     ? `<strong>${item.year}</strong>`
     : `<a href="c-${item.slug}.html">${item.year}</a>`).join(' · ');
-  return html.replace('</article>', `<section class="cat"><h2>Кубок России по годам</h2><p>${links}</p><p><a href="kubok-rossii.html">Все Кубки России</a></p></section></article>`);
+  const section = `<section class="cat"><h2>Кубок России по годам</h2><p>${links}</p><p><a href="kubok-rossii.html">Все Кубки России</a></p></section>`;
+  if (html.includes('</article>')) return html.replace('</article>', `${section}</article>`);
+  return html.replace('</main>', `${section}</main>`);
 };
 
 rmSync(OUT, { recursive: true, force: true });
