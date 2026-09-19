@@ -538,6 +538,11 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     </div>`;
 
   const hasCoachRole = coachedAthletes.length > 0;
+  const athletesHref = L.athletes || (L.results === 'results.html' ? 'athletes.html' : '/athletes');
+  const breadcrumbParent = athlete
+    ? { name: 'Спортсмены', href: athletesHref }
+    : { name: 'Тренеры', href: L.coaches };
+  const breadcrumbParentUrl = `${SITE_ORIGIN}/${String(breadcrumbParent.href).replace(/^\//, '')}`;
   const personUrl = `${SITE_ORIGIN}/p-${person.slug}.html`;
   const personTitle = athlete
     ? `${name} — результаты в гиревом спорте | Все гири`
@@ -555,7 +560,7 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
     description: personDescription,
     L,
     body: `
-<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${L.home}">Соревнования</a><span aria-hidden="true"> › </span><span>${e(name)}</span></nav>
+<nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="${e(breadcrumbParent.href)}">${breadcrumbParent.name}</a><span aria-hidden="true"> › </span><span>${e(name)}</span></nav>
 <article>
   <div class="page-head">
     <p class="eyebrow">Персона</p>
@@ -641,13 +646,10 @@ export function renderPerson({ person, activities = [], judgeRoles = [], athlete
   </section>` : ''}
 </article>
 ${breadcrumbJsonLd([
-  { name: 'Соревнования', url: SITE_ORIGIN + '/' },
+  { name: breadcrumbParent.name, url: breadcrumbParentUrl },
   { name, url: personUrl },
 ])}
 <style>
-.breadcrumbs { margin:0 0 1rem; color:var(--ink-3); font-size:.86rem; }
-.breadcrumbs a { color:var(--accent); text-decoration:none; }
-.breadcrumbs a:hover, .breadcrumbs a:focus-visible { text-decoration:underline; }
 .athlete-results-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.7rem 1rem; margin-bottom:.55rem; }
 .athlete-results-head h3 { margin:0; }
 .view-toggle { display:inline-flex; border:1px solid var(--rule); background:var(--surface); padding:2px; }

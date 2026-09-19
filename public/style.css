@@ -101,6 +101,9 @@ h2 { font-family: "Bitter", Georgia, serif; font-weight: 500; font-size: 1.3rem;
 .count-pair { white-space: nowrap; cursor: help; border-bottom: 1px dotted var(--rule); }
 .strong { font-weight: 700; }
 .page-head { padding-bottom: 1.2rem; border-bottom: 1px solid var(--rule); margin-bottom: 1.8rem; }
+.breadcrumbs { margin: 0 0 1rem; color: var(--ink-3); font-size: 0.86rem; }
+.breadcrumbs a { color: var(--accent); text-decoration: none; }
+.breadcrumbs a:hover, .breadcrumbs a:focus-visible { text-decoration: underline; }
 h2.sec {
   font-size: 0.78rem; font-family: "PT Mono", monospace; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--ink-3); border-top: 1px solid var(--rule);
