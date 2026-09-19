@@ -22,6 +22,7 @@ ERRATA.md                        известные ошибки в данных
 docs/decisions.md                10 принятых решений с обоснованиями
 docs/schema.md                   пояснения к неочевидным местам схемы
 docs/roadmap.md                  9 шагов реализации, критерии готовности
+docs/vision-progress.md          замысел отдельного продукта: динамика и нормативы
 migrations/0001_init.sql         базовая схема D1 (SQLite), 20 таблиц
 migrations/0002_people.sql       персоны, роли и история тренеров, ещё 6 таблиц
 migrations/0013_coach_aliases.sql написания тренеров, как напечатано в протоколах
