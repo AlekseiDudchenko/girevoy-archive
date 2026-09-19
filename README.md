@@ -226,6 +226,17 @@ main
 
 GitHub Pages используется как резервный/preview-вариант и не является основным production deployment.
 
+## SEO и аналитика
+
+Production-сайт подключён к инструментам поисковой индексации и аналитики:
+
+- **Cloudflare Web Analytics** — просмотры страниц, визиты и показатели производительности;
+- **Google Search Console** — сайт подтверждён, `sitemap.xml` отправлен для индексации в Google;
+- **Яндекс Вебмастер** — сайт подтверждён, `sitemap.xml` отправлен для индексации в Яндексе;
+- production-сборка генерирует `robots.txt`, `sitemap.xml` и canonical URL для индексируемых страниц.
+
+Sitemap production-сайта: **https://vsegiri.com/sitemap.xml**.
+
 ## Структура репозитория
 
 ```text
