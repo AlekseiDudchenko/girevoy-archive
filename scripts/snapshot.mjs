@@ -98,8 +98,25 @@ const compactAthleteResults = (html) => {
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
+const SITE_ORIGIN = 'https://vsegiri.com';
+
+const canonicalPath = (name) => {
+  if (name === 'index.html') return '/';
+  if (name.startsWith('a-')) return '/' + name.replace(/^a-/, 'p-');
+  return '/' + name;
+};
+
+const withCanonical = (html, name) => {
+  const canonical = `<link rel="canonical" href="${SITE_ORIGIN}${canonicalPath(name)}">`;
+  if (html.includes('rel="canonical"')) return html;
+  return html.replace('</head>', `${canonical}\n</head>`);
+};
+
 const write = (name, body) => writeFileSync(join(OUT, name),
-  compactAthleteResults(formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'))), 'utf8');
+  withCanonical(
+    compactAthleteResults(formatTableDates(withAthletesNav(body, L.athletes, L.coaches, name === 'athletes.html'))),
+    name,
+  ), 'utf8');
 
 const [stats, competitions] = await Promise.all([q.getStats(db), q.listCompetitions(db)]);
 write('index.html', renderIndex({ stats, competitions, L, bare: process.env.BARE_INDEX === '1' }));
@@ -128,14 +145,12 @@ for (const { slug } of slugs) {
 
 copyFileSync('public/style.css', join(OUT, 'style.css'));
 
-const SITE_ORIGIN = 'https://vsegiri.com';
 const htmlFiles = readdirSync(OUT)
   .filter((name) => name.endsWith('.html'))
   .sort();
-const sitemapUrls = htmlFiles.map((name) => {
-  const path = name === 'index.html' ? '/' : '/' + name;
-  return `  <url><loc>${SITE_ORIGIN}${path}</loc></url>`;
-});
+const sitemapUrls = htmlFiles
+  .filter((name) => !name.startsWith('a-'))
+  .map((name) => `  <url><loc>${SITE_ORIGIN}${canonicalPath(name)}</loc></url>`);
 writeFileSync(join(OUT, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join('\n')}\n</urlset>\n`,
   'utf8');
