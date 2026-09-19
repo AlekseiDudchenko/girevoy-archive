@@ -14,15 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install PDF tools
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils ocrmypdf tesseract-ocr-rus
       - name: Extract protocol
         run: |
           mkdir -p /tmp/protocol/pages
           pdfinfo sources/2025/pr-yuniory-2025.pdf > /tmp/protocol/pdfinfo.txt
-          pdftotext -layout sources/2025/pr-yuniory-2025.pdf /tmp/protocol/protocol.txt
-          pdftoppm -jpeg -r 110 sources/2025/pr-yuniory-2025.pdf /tmp/protocol/pages/page
-          wc -l /tmp/protocol/protocol.txt
-          sed -n '1,120p' /tmp/protocol/protocol.txt
+          pdftoppm -jpeg -r 160 sources/2025/pr-yuniory-2025.pdf /tmp/protocol/pages/page
+          ocrmypdf --language rus+eng --deskew --rotate-pages --optimize 0 --output-type pdf sources/2025/pr-yuniory-2025.pdf /tmp/protocol/ocr.pdf
+          pdftotext -layout /tmp/protocol/ocr.pdf /tmp/protocol/ocr.txt
+          wc -l /tmp/protocol/ocr.txt
+          sed -n '1,160p' /tmp/protocol/ocr.txt
       - name: Upload extraction
         uses: actions/upload-artifact@v4
         with:
