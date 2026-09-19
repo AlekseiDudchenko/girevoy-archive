@@ -318,5 +318,8 @@ writeFileSync(join(OUT, 'sitemap.xml'),
 writeFileSync(join(OUT, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`,
   'utf8');
+writeFileSync(join(OUT, 'yandex_ca97219e25229ffc.html'),
+  '<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n</head>\n<body>Verification: ca97219e25229ffc</body>\n</html>\n',
+  'utf8');
 
 console.log(`${OUT}/: 1 главная, 1 таблица результатов, 1 список спортсменов, ${competitions.length} турниров, ${athletePages} спортсменов`);
